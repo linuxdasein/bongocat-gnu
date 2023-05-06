@@ -5,8 +5,6 @@ This project is a fork of the [osu! Bongo Cat overlay](https://github.com/kuroni
 ## Original description
 An osu! Bongo Cat overlay with smooth paw movement and simple skinning ability, written in C++. Originally created by [HamishDuncanson](https://github.com/HamishDuncanson).
 
-You can find how to configure the application in our [wiki](https://github.com/kuroni/bongocat-osu/wiki/Settings).
-
 Download the program [here](https://github.com/kuroni/bongocat-osu/releases).
 
 Hugs and kisses to [CSaratakij](https://github.com/CSaratakij) for creating the Linux port for this project!
@@ -19,6 +17,13 @@ Any suggestion and/or collaboration, especially that relating to sprites, is wel
 
 The project is licensed under the GNU GPL v3 license (see [LICENSE](LICENSE)), however it contains parts from the original project licensed under
 a MIT license. A copy of the full text of the original copyright and license is included in [LICENSE.ORIG.MIT](LICENSE.ORIG.MIT).
+
+## Configuration
+The application uses a config.json file for storing user settings. You can refer to the original project's [wiki](https://github.com/kuroni/bongocat-osu/wiki/Settings) 
+to find out how to write a config.json of your own. There are the following directories, where a config file can be found:
+- The directory the application was launched from. This file has higher priority than the other ones.
+- \[Linux only\] The user's home config directory: `~/.config/bongocat-gnu/config.json`.
+If no config file is found the application launches with the default settings.
 
 ## Further information
 In order to play with fullscreen on Windows 10, run both osu! and this application in Windows 7 compability mode.
