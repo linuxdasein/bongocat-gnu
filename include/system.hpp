@@ -15,9 +15,9 @@ class ISystemInfo
 public:
 
     // Get the OS dependent config file location
-    virtual std::string get_config_file_path() const {
-        // By default load from the current directory
-        return CONF_FILE_NAME;
+    virtual std::string get_config_dir_path() const {
+        // By default use the current directory
+        return "";
     };
 };
 

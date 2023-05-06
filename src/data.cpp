@@ -1,5 +1,6 @@
 #include "header.hpp"
 #include <system.hpp>
+#include <filesystem>
 #define BONGO_ERROR 1
 
 #if defined(__unix__) || defined(__unix)
@@ -17,7 +18,7 @@ namespace data {
 Json::Value cfg;
 std::map<std::string, sf::Texture> img_holder;
 
-void create_config() {
+const char *create_config() {
     const char *s =
         R"V0G0N({
     "mode": 1,
@@ -84,6 +85,8 @@ void create_config() {
     Json::CharReader *cfg_reader = cfg_builder.newCharReader();
     cfg_reader->parse(s, s + strlen(s), &cfg, &error);
     delete cfg_reader;
+
+    return s;
 }
 
 void error_msg(std::string error, std::string title) {
@@ -161,9 +164,20 @@ bool update(Json::Value &cfg_default, Json::Value &cfg) {
 
 bool init() {
     while (true) {
-        create_config();
+        const char* default_config = create_config();
         auto system_info = os::create_system_info();
-        std::ifstream cfg_file(system_info->get_config_file_path(), std::ifstream::binary);
+        std::string conf_file_path = CONF_FILE_NAME;
+        // if a file exists in the current directory it takes precendence
+        if(!std::filesystem::exists(conf_file_path)) {
+            // otherwise try to load a file from user's home directory
+            conf_file_path = system_info->get_config_dir_path() + CONF_FILE_NAME;
+            if(!std::filesystem::exists(conf_file_path)) {
+                // if no config file is present, create one with the deault settings
+                std::ofstream crg_file_o(conf_file_path, std::ifstream::binary);
+                crg_file_o << default_config;
+            }
+        }
+        std::ifstream cfg_file(conf_file_path, std::ifstream::binary);
         if (!cfg_file.good()) {
             break;
         }
