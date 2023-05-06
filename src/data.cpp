@@ -1,4 +1,5 @@
 #include "header.hpp"
+#include <system.hpp>
 #define BONGO_ERROR 1
 
 #if defined(__unix__) || defined(__unix)
@@ -135,13 +136,13 @@ bool update(Json::Value &cfg_default, Json::Value &cfg) {
     for (const auto &key : cfg.getMemberNames()) {
         if (cfg_default.isMember(key)) {
             if (cfg_default[key].type() != cfg[key].type()) {
-                error_msg("Value type error in config.json", "Error reading configs");
+                error_msg("Value type error in " CONF_FILE_NAME, "Error reading configs");
                 return false;
             }
             if (cfg_default[key].isArray() && !cfg_default[key].empty()) {
                 for (Json::Value &v : cfg[key]) {
                     if (v.type() != cfg_default[key][0].type()) {
-                        error_msg("Value type in array error in config.json", "Error reading configs");
+                        error_msg("Value type in array error in " CONF_FILE_NAME, "Error reading configs");
                         return false;
                     }
                 }
@@ -161,7 +162,8 @@ bool update(Json::Value &cfg_default, Json::Value &cfg) {
 bool init() {
     while (true) {
         create_config();
-        std::ifstream cfg_file("config.json", std::ifstream::binary);
+        auto system_info = os::create_system_info();
+        std::ifstream cfg_file(system_info->get_config_file_path(), std::ifstream::binary);
         if (!cfg_file.good()) {
             break;
         }
@@ -171,7 +173,7 @@ bool init() {
         Json::Value cfg_read;
         if (!cfg_reader->parse(cfg_string.c_str(), cfg_string.c_str() + cfg_string.size(), &cfg_read, &error)) {
             delete cfg_reader;
-            error_msg("Syntax error in config.json:\n" + error, "Error reading configs");
+            error_msg("Syntax error in " CONF_FILE_NAME ":\n" + error, "Error reading configs");
         } else if (update(cfg, cfg_read)) {
             delete cfg_reader;
             break;
