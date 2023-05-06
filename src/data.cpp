@@ -3,16 +3,12 @@
 #include <filesystem>
 #define BONGO_ERROR 1
 
-#if defined(__unix__) || defined(__unix)
 #include <unistd.h>
 #include <limits.h>
 
 extern "C" {
 #include <SDL2/SDL.h>
 }
-#else
-#include <windows.h>
-#endif
 
 namespace data {
 Json::Value cfg;
@@ -90,8 +86,6 @@ const char *create_config() {
 }
 
 void error_msg(std::string error, std::string title) {
-#if defined(__unix__) || defined(__unix)
-
     SDL_MessageBoxButtonData buttons[] = {
         { SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 0, "Retry" },
         { SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 1, "Cancel" },
@@ -127,9 +121,6 @@ void error_msg(std::string error, std::string title) {
     SDL_ShowMessageBox(&messagebox_data, &button_id);
 
     if (button_id == -1 || button_id == 1) {
-#else
-    if (MessageBoxA(NULL, error.c_str(), title.c_str(), MB_ICONERROR | MB_RETRYCANCEL) == IDCANCEL) {
-#endif
         exit(BONGO_ERROR);
     }
 }
