@@ -1,6 +1,6 @@
 # Description
 
-This project is a fork of the [osu! Bongo Cat overlay](https://github.com/kuroni/bongocat-osu).
+This project is a GNU/Linux fork of the [osu! Bongo Cat overlay](https://github.com/kuroni/bongocat-osu).
 
 ## Original description
 An osu! Bongo Cat overlay with smooth paw movement and simple skinning ability, written in C++. Originally created by [HamishDuncanson](https://github.com/HamishDuncanson).
@@ -22,29 +22,17 @@ a MIT license. A copy of the full text of the original copyright and license is 
 The application uses a config.json file for storing user settings. You can refer to the original project's [wiki](https://github.com/kuroni/bongocat-osu/wiki/Settings) 
 to find out how to write a config.json of your own. There are the following directories, where a config file can be found:
 - The directory the application was launched from. This file has higher priority than the other ones.
-- \[Linux only\] The user's home config directory: `~/.config/bongocat-gnu/config.json`.
+- The user's home config directory: `~/.config/bongocat-gnu/config.json`.
 If no config file is found the application launches with the default settings.
 
 ## Further information
-In order to play with fullscreen on Windows 10, run both osu! and this application in Windows 7 compability mode.
-
 Press Ctrl + R to reload configuration and images (will only reload configurations when the window is focused).
-
-Supported operating system:
-* Windows
-* Linux (tested with Arch Linux with WINE Staging 5). Note: You **must** use WINE Staging, because for whatever reason on stable WINE bongocat-osu doesn't register keyboard input from other windows.
-
-_Notice_: If you're using WINE on Linux, make sure that osu! and this application run in the same `WINEPREFIX`.
 
 ## For developers
 This project uses [SFML](https://www.sfml-dev.org/index.php) and [JsonCpp](https://github.com/open-source-parsers/jsoncpp). JsonCpp libraries are directly included in the source using the provided `amalgamation.py` from the developers.
 
-### Libraries and dependency
+### Dependencies
 
-#### Windows and MinGW
-To build the source, download the SFML libraries [here](https://www.sfml-dev.org/index.php), copy `Makefile.windows` to `Makefile`, then replace *`<SFML-folder>`* in `Makefile` with the desired folder.
-
-#### Linux
 You need to have these dependencies installed. Check with your package manager for the exact name of these dependencies on your distro:
 - g++
 - libxdo
@@ -54,9 +42,6 @@ You need to have these dependencies installed. Check with your package manager f
 - xrandr
 
 ### Building and testing
-
-#### Linux
-Copy the `Makefile.linux` to `Makefile`.
 
 To build, run this command from the base directory:
 
