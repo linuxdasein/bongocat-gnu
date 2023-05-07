@@ -43,19 +43,20 @@ You need to have these dependencies installed. Check with your package manager f
 
 ### Building and testing
 
-To build, run this command from the base directory:
+The project uses meson as the build system, which requires building in a separate directory.
+For example, to build the application in directory `build`, run these commands from the base directory:
 
 ```sh
-make
+meson setup build
+cd build
+meson compile
+```
+By default meson setups a debug build, in order to make a release build use the following setup command:
+```
+meson setup build --buildtype=release
 ```
 
-To test the program, run this from the base directory:
-
-```sh
-make test
-```
-
-Alternatively, you can copy the newly-compiled `bin/bongo.exe` or `bin/bongo` into the base directory and execute it.
+Next, you can copy the newly-compiled `build/bongo` into the base directory and execute it.
 
 #### Archlinux
 On Arch based distros you can also use this [PKGBUILD](Archlinux/PKGBUILD) to build a package from your local repo by running,
