@@ -1,4 +1,5 @@
 #include "header.hpp"
+#include "input.hpp"
 #include <sstream>
 #include <cmath>
 #include <iomanip>
@@ -8,18 +9,11 @@
 #include <X11/extensions/Xrandr.h>
 #include <X11/keysym.h>
 
-extern "C" {
-#include <xdo.h>
-}
-
 #define TOTAl_INPUT_TABLE_SIZE 256
 #define JOYSTICK_AXIS_DEADZONE 10.0f
 #define JOYSTICK_TRIGGER_DEADZONE 3.0f
 
 namespace input {
-int horizontal, vertical;
-int osu_x, osu_y, osu_h, osu_v;
-bool is_letterbox, is_left_handed;
 
 int last_joystick_keycode = -1;
 
@@ -30,6 +24,11 @@ sf::RectangleShape debugBackground;
 sf::Font debugFont;
 sf::Text debugText;
 
+static std::unique_ptr<IMouse> g_mouse;
+
+IMouse& get_mouse_input() {
+    return *g_mouse;
+}
 
 enum JoystickInputMapRange {
     MinButton =     0,
@@ -50,9 +49,7 @@ enum JoystickInputMapRange {
     RTrigger
 };
 
-xdo_t* xdo;
 Display* dpy;
-Window foreground_window;
 
 static int _XlibErrorHandler(Display *display, XErrorEvent *event) {
     return true;
@@ -115,13 +112,6 @@ bool init() {
     INPUT_KEY_TABLE[19] = (int)sf::Keyboard::Key::Pause;
     INPUT_KEY_TABLE[189] = (int)sf::Keyboard::Key::Dash;
 
-    is_letterbox = data::cfg["resolution"]["letterboxing"].asBool();
-    osu_x = data::cfg["resolution"]["width"].asInt();
-    osu_y = data::cfg["resolution"]["height"].asInt();
-    osu_h = data::cfg["resolution"]["horizontalPosition"].asInt();
-    osu_v = data::cfg["resolution"]["verticalPosition"].asInt();
-    is_left_handed = data::cfg["decoration"]["leftHanded"].asBool();
-
     // Set x11 error handler
     XSetErrorHandler(_XlibErrorHandler);
 
@@ -139,11 +129,6 @@ bool init() {
     int current_width = xrrs[current_size_id].width;
     int current_height = xrrs[current_size_id].height;
 
-    horizontal = current_width;
-    vertical = current_height;
-
-    xdo = xdo_new(NULL);
-
     // loading font
     if (!debugFont.loadFromFile("font/RobotoMono-Bold.ttf")) {
         data::error_msg("Cannot find the font : RobotoMono-Bold.ttf", "Error loading font");
@@ -159,6 +144,8 @@ bool init() {
     debugText.setFillColor(sf::Color::White);
     debugText.setPosition(10.0f, 4.0f);
     debugText.setString(debugMessage);
+
+    g_mouse = create_mouse_handler(current_width, current_height);
 
     return true;
 }
@@ -315,126 +302,6 @@ std::pair<double, double> bezier(double ratio, std::vector<double> &points, int 
     return std::make_pair(xx / 1000, yy / 1000);
 }
 
-std::pair<double, double> get_xy() {
-    double letter_x, letter_y, s_height, s_width;
-    bool found_window = (xdo_get_focused_window_sane(xdo, &foreground_window) == 0);
-
-    if (found_window) {
-        unsigned char* name_ret;
-        int name_len_ret;
-        int name_type;
-
-        xdo_get_window_name(xdo, foreground_window, &name_ret, &name_len_ret, &name_type);
-        bool can_get_name = (name_len_ret > 0);
-
-        if (can_get_name) {
-
-            std::string title = "";
-
-            if (name_ret != NULL)
-            {
-                std::string foreground_title(reinterpret_cast<char*>(name_ret));
-                title = foreground_title;
-            }
-
-            if (title.find("osu!") == 0) {
-                if (!is_letterbox) {
-
-                    int x_ret;
-                    int y_ret;
-                    unsigned int width_ret;
-                    unsigned int height_ret;
-
-                    bool can_get_location = (xdo_get_window_location(xdo, foreground_window, &x_ret, &y_ret, NULL) == 0);
-                    bool can_get_size = (xdo_get_window_size(xdo, foreground_window, &width_ret, &height_ret) == 0);
-
-                    bool can_get_rect = (can_get_location && can_get_size);
-
-                    bool is_fullscreen_window = (horizontal == width_ret) && (vertical == height_ret);
-                    bool should_not_resize_screen = (!can_get_rect || is_fullscreen_window);
-
-                    if (should_not_resize_screen) {
-                        s_width = horizontal;
-                        s_height = vertical;
-
-                        letter_x = 0;
-                        letter_y = 0;
-                    }
-                    else {
-                        s_height = osu_y * 0.8;
-                        s_width = s_height * 4 / 3;
-
-                        long left = x_ret;
-                        long top = y_ret;
-                        long right = left + width_ret;
-                        long bottom = top + height_ret;
-
-                        letter_x = left + ((right - left) - s_width) / 2;
-                        letter_y = top + osu_y * 0.117;
-                    }
-                }
-                else {
-                    s_height = osu_y * 0.8;
-                    s_width = s_height * 4 / 3;
-
-                    double l = (horizontal - osu_x) * (osu_h + 100) / 200.0;
-                    double r = l + osu_x;
-                    letter_x = l + ((r - l) - s_width) / 2;
-                    letter_y = (vertical - osu_y) * (osu_v + 100) / 200.0 + osu_y * 0.117;
-                }
-            }
-            else {
-                s_width = horizontal;
-                s_height = vertical;
-                letter_x = 0;
-                letter_y = 0;
-            }
-        }
-        else {
-            s_width = horizontal;
-            s_height = vertical;
-            letter_x = 0;
-            letter_y = 0;
-        }
-    }
-    else {
-        s_width = horizontal;
-        s_height = vertical;
-        letter_x = 0;
-        letter_y = 0;
-    }
-
-    double x = 0, y = 0;
-    int px = 0, py = 0;
-
-    if (xdo_get_mouse_location(xdo, &px, &py, NULL) == 0) {
-
-        if (!is_letterbox) {
-            letter_x = floor(1.0 * px / osu_x) * osu_x;
-            letter_y = floor(1.0 * py / osu_y) * osu_y;
-        }
-
-        double fx = (1.0 * px - letter_x) / s_width;
-
-        if (is_left_handed) {
-            fx = 1 - fx;
-        }
-
-        double fy = (1.0 * py - letter_y) / s_height;
-
-        fx = std::min(fx, 1.0);
-        fx = std::max(fx, 0.0);
-
-        fy = std::min(fy, 1.0);
-        fy = std::max(fy, 0.0);
-
-        x = -97 * fx + 44 * fy + 184;
-        y = -76 * fx - 40 * fy + 324;
-    }
-
-    return std::make_pair(x, y);
-}
-
 void drawDebugPanel() {
     if (!is_joystick_connected()) {
         debugText.setString("No joystick found...");
@@ -507,7 +374,6 @@ void drawDebugPanel() {
 }
 
 void cleanup() {
-    delete xdo;
     XCloseDisplay(dpy);
 }
 

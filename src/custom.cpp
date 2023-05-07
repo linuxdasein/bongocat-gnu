@@ -180,7 +180,7 @@ void draw() {
         Json::Value paw_draw_info = data::cfg["mousePaw"];
         int x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
         int y_paw_start = paw_draw_info["pawStartingPoint"][1].asInt();
-        auto [x, y] = input::get_xy();
+        auto [x, y] = input::get_mouse_input().get_position();
         int oof = 6;
         std::vector<double> pss = {(float) x_paw_start, (float) y_paw_start};
         double dist = hypot(x_paw_start - x, y_paw_start - y);
