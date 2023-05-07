@@ -1,14 +1,14 @@
 # A PKGBUILD which creates a dev package from a local repo without downloading the sources.
 # This script is purposed for testing and development on Archlinux/Manjaro distros.
 pkgname=bongocat-gnu-dev
-pkgver=0.0.1_c910370 # Filled in pkgver()
+pkgver=0.0.0 # Filled in pkgver()
 pkgrel=1
 pkgdesc="A fork of the Bongo Cat overlay for GNU/Linux"
 arch=(x86_64)
 url="https://github.com/linuxdasein/bongocat-gnu"
 license=('GPL3')
 depends=('sdl2' 'sfml' 'xorg-xrandr' 'xdotool')
-makedepends=('gcc' 'git' 'make')
+makedepends=('gcc' 'git' 'meson')
 conflicts=('bongocat-osu-git')
 changelog=
 
