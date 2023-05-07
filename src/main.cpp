@@ -1,16 +1,8 @@
 #include "header.hpp"
 
-#if !defined(__unix__) && !defined(__unix)
-#include <windows.h>
-#endif
-
 sf::RenderWindow window;
 
-#if defined(__unix__) || defined(__unix)
 int main(int argc, char ** argv) {
-#else
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-#endif
 
     window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Bongo Cat for osu!", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(MAX_FRAMERATE);

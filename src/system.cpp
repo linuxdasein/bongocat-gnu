@@ -3,7 +3,6 @@
 namespace os
 {
 
-#if defined(__unix__) || defined(__unix)
 // SystemInfo implementation for GNU/Linux systems
 #include <unistd.h>
 #include <sys/types.h>
@@ -27,10 +26,5 @@ public:
 std::unique_ptr<ISystemInfo> create_system_info() {
     return std::make_unique<SystemInfoGNU>();
 }
-#else
-std::unique_ptr<ISystemInfo> create_system_info() {
-    return std::make_unique<ISystemInfo>();
-}
-#endif
 
 }

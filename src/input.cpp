@@ -4,7 +4,6 @@
 #include <iomanip>
 #include <SFML/Window.hpp>
 
-#if defined(__unix__) || defined(__unix)
 #include <X11/Xlib.h>
 #include <X11/extensions/Xrandr.h>
 #include <X11/keysym.h>
@@ -12,9 +11,6 @@
 extern "C" {
 #include <xdo.h>
 }
-#else
-#include <windows.h>
-#endif
 
 #define TOTAl_INPUT_TABLE_SIZE 256
 #define JOYSTICK_AXIS_DEADZONE 10.0f
@@ -54,7 +50,6 @@ enum JoystickInputMapRange {
     RTrigger
 };
 
-#if defined(__unix__) || defined(__unix)
 xdo_t* xdo;
 Display* dpy;
 Window foreground_window;
@@ -62,7 +57,6 @@ Window foreground_window;
 static int _XlibErrorHandler(Display *display, XErrorEvent *event) {
     return true;
 }
-#endif
 
 int INPUT_KEY_TABLE[TOTAl_INPUT_TABLE_SIZE];
 
@@ -128,7 +122,6 @@ bool init() {
     osu_v = data::cfg["resolution"]["verticalPosition"].asInt();
     is_left_handed = data::cfg["decoration"]["leftHanded"].asBool();
 
-#if defined(__unix__) || defined(__unix)
     // Set x11 error handler
     XSetErrorHandler(_XlibErrorHandler);
 
@@ -150,14 +143,6 @@ bool init() {
     vertical = current_height;
 
     xdo = xdo_new(NULL);
-#else
-    // getting resolution
-    RECT desktop;
-    const HWND h_desktop = GetDesktopWindow();
-    GetWindowRect(h_desktop, &desktop);
-    horizontal = desktop.right;
-    vertical = desktop.bottom;
-#endif
 
     // loading font
     if (!debugFont.loadFromFile("font/RobotoMono-Bold.ttf")) {
@@ -189,7 +174,7 @@ sf::Keyboard::Key ascii_to_key(int key_code) {
 
 // for some special cases of num dot and such
 bool is_pressed_fallback(int key_code) {
-#if defined(__unix__) || defined(__unix) // code snippet from SFML
+    // code snippet from SFML
     KeyCode keycode = XKeysymToKeycode(dpy, key_code);
     if (keycode != 0) {
         char keys[32];
@@ -199,9 +184,6 @@ bool is_pressed_fallback(int key_code) {
     else {
         return false;
     }
-#else
-    return (GetAsyncKeyState(key_code) & 0x8000) != 0;
-#endif
 }
 
 bool is_pressed(int key_code) {
@@ -334,7 +316,6 @@ std::pair<double, double> bezier(double ratio, std::vector<double> &points, int 
 }
 
 std::pair<double, double> get_xy() {
-#if defined(__unix__) || defined(__unix)
     double letter_x, letter_y, s_height, s_width;
     bool found_window = (xdo_get_focused_window_sane(xdo, &foreground_window) == 0);
 
@@ -450,61 +431,6 @@ std::pair<double, double> get_xy() {
         x = -97 * fx + 44 * fy + 184;
         y = -76 * fx - 40 * fy + 324;
     }
-#else
-    // getting device resolution
-    double letter_x, letter_y, s_height, s_width;
-
-    HWND handle = GetForegroundWindow();
-    if (handle) {
-        TCHAR w_title[256];
-        GetWindowText(handle, w_title, GetWindowTextLength(handle));
-        std::string title = w_title;
-        if (title.find("osu!") == 0) {
-            RECT oblong;
-            GetWindowRect(handle, &oblong);
-            s_height = osu_y * 0.8;
-            s_width = s_height * 4 / 3;
-            if (!is_letterbox) {
-                letter_x = oblong.left + ((oblong.right - oblong.left) - s_width) / 2;
-                letter_y = oblong.top + osu_y * 0.117;
-            } else {
-                double l = (horizontal - osu_x) * (osu_h + 100) / 200.0;
-                double r = l + osu_x;
-                letter_x = l + ((r - l) - s_width) / 2;
-                letter_y = (vertical - osu_y) * (osu_v + 100) / 200.0 + osu_y * 0.117;
-            }
-        } else {
-            s_width = horizontal;
-            s_height = vertical;
-            letter_x = 0;
-            letter_y = 0;
-        }
-    } else {
-        s_width = horizontal;
-        s_height = vertical;
-        letter_x = 0;
-        letter_y = 0;
-    }
-    double x, y;
-    POINT point;
-    if (GetCursorPos(&point)) {
-        if (!is_letterbox) {
-            letter_x = floor(1.0 * point.x / osu_x) * osu_x;
-            letter_y = floor(1.0 * point.y / osu_y) * osu_y;
-        }
-        double fx = (1.0 * point.x - letter_x) / s_width;
-        if (is_left_handed) {
-            fx = 1 - fx;
-        }
-        double fy = (1.0 * point.y - letter_y) / s_height;
-        fx = std::min(fx, 1.0);
-        fx = std::max(fx, 0.0);
-        fy = std::min(fy, 1.0);
-        fy = std::max(fy, 0.0);
-        x = -97 * fx + 44 * fy + 184;
-        y = -76 * fx - 40 * fy + 324;
-    }
-#endif
 
     return std::make_pair(x, y);
 }
@@ -581,10 +507,8 @@ void drawDebugPanel() {
 }
 
 void cleanup() {
-#if defined(__unix__) || defined(__unix)
     delete xdo;
     XCloseDisplay(dpy);
-#endif
 }
 
 };

@@ -21,7 +21,6 @@ pkgver() {
 
 build() {
     cd ../..
-    cp Makefile.linux Makefile
     make
 }
 
