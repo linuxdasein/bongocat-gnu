@@ -1,3 +1,4 @@
+#include <SFML/System/Vector2.hpp>
 #include <header.hpp>
 extern "C" {
 #include <xdo.h>
@@ -39,10 +40,6 @@ MouseXdo::MouseXdo(int h, int v)
 
 MouseXdo::~MouseXdo() {
     delete xdo;
-}
-
-std::unique_ptr<IMouse> create_mouse_handler(int h, int v) {
-    return std::make_unique<MouseXdo>(h, v);
 }
 
 std::pair<double, double> MouseXdo::get_position() {
@@ -164,6 +161,58 @@ std::pair<double, double> MouseXdo::get_position() {
     }
 
     return std::make_pair(x, y);
+}
+
+class MouseSfml : public IMouse
+{
+public:
+
+    MouseSfml(int h, int v);
+    ~MouseSfml() = default;
+
+    // get the mouse position
+    std::pair<double, double> get_position() override;
+
+private:
+    bool is_left_handed;
+};
+
+MouseSfml::MouseSfml(int h, int v) {
+    is_left_handed = data::cfg["decoration"]["leftHanded"].asBool();
+}
+
+std::pair<double, double> MouseSfml::get_position() {
+    // get global mouse postion in screen coordinates
+    sf::Vector2i mouse_pos = sf::Mouse::getPosition();
+    auto video_mode = sf::VideoMode::getDesktopMode();
+
+    // project into a unit square
+    float x = float(mouse_pos.x) / video_mode.width;
+    float y = float(mouse_pos.y) / video_mode.height;
+
+    if (is_left_handed) {
+        x = 1.f - x;
+    }
+
+    return std::make_pair(x, y);
+}
+
+std::unique_ptr<IMouse> create_mouse_handler(int h, int v) {
+    const char* xdg_session_type = getenv("XDG_SESSION_TYPE");
+    // unfortunately, xdotool does not work on Wayland sessions. The probmlem is that Wayland does not allow to get the mouse position
+    // if it is not hovered over the application. That's a security measure preventing applications from watching what a user does outside 
+    // of the application scope. currently (as of may 2023) there is no perfect solution to handle such a predicament. However, the
+    // mouse cursor is still exposed for another X11 apps running via XWayland (those include Steam and apps running via Proton), 
+    // since XWayland is an X11 server itself. Despite the app is somewhat usable with XWayland, wayland sessions are considered unsupported; 
+    if(xdg_session_type && !strcmp(xdg_session_type, "wayland")) {
+        // some wayland specific implementations may be added here later, but for now
+        // use a simple implementation which utilizes only SFML API to discover mouse position
+        return std::make_unique<MouseSfml>(h, v);
+    }
+    else {
+        // Leave Xorg specific stuff here
+        return std::make_unique<MouseXdo>(h, v);
+    }
 }
 
 }
