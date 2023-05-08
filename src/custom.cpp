@@ -180,7 +180,13 @@ void draw() {
         Json::Value paw_draw_info = data::cfg["mousePaw"];
         int x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
         int y_paw_start = paw_draw_info["pawStartingPoint"][1].asInt();
-        auto [x, y] = input::get_mouse_input().get_position();
+        auto [fx, fy] = input::get_mouse_input().get_position();
+
+        // apparently, this is a linear transform, intented to move the point to some position,
+        // which in general can be specific for each mode. TODO: reduce the amount of arcane number magic in this code.
+        double x = -97 * fx + 44 * fy + 184;
+        double y = -76 * fx - 40 * fy + 324;
+
         int oof = 6;
         std::vector<double> pss = {(float) x_paw_start, (float) y_paw_start};
         double dist = hypot(x_paw_start - x, y_paw_start - y);

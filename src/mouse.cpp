@@ -159,8 +159,8 @@ std::pair<double, double> MouseXdo::get_position() {
         fy = std::min(fy, 1.0);
         fy = std::max(fy, 0.0);
 
-        x = -97 * fx + 44 * fy + 184;
-        y = -76 * fx - 40 * fy + 324;
+        x = fx;
+        y = fy;
     }
 
     return std::make_pair(x, y);
