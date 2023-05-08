@@ -2,7 +2,7 @@
 *.exe
 *.o
 bongo
-bin/*
+build/*
 NOTE
 config.json
 Archlinux/*
