@@ -19,6 +19,8 @@
 #include <SFML/Graphics.hpp>
 #include "json/json.h"
 
+#include <input.hpp>
+
 extern sf::RenderWindow window;
 
 namespace data {
@@ -39,9 +41,9 @@ bool is_pressed(int key_code);
 bool is_joystick_connected();
 bool is_joystick_pressed(int key_code);
 
-std::pair<double, double> bezier(double ratio, std::vector<double> &points, int length);
+IMouse& get_mouse_input();
 
-std::pair<double, double> get_xy();
+std::pair<double, double> bezier(double ratio, std::vector<double> &points, int length);
 
 void drawDebugPanel();
 

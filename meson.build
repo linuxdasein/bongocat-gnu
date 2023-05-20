@@ -11,6 +11,7 @@ sources = files([
   'src/jsoncpp.cpp',
   'src/main.cpp',
   'src/mania.cpp',
+  'src/mouse.cpp',
   'src/osu.cpp',
   'src/system.cpp',
   'src/taiko.cpp',
