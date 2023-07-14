@@ -16,9 +16,7 @@
 #include <math.h>
 #include <string.h>
 
-#include <SFML/Graphics.hpp>
-#include "json/json.h"
-
+#include <cats.hpp>
 #include <input.hpp>
 
 extern sf::RenderWindow window;

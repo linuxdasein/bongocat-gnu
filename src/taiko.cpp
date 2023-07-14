@@ -1,16 +1,8 @@
 #include "header.hpp"
 
-namespace taiko {
-Json::Value rim_key_value[2], centre_key_value[2];
-sf::Sprite bg, up[2], rim[2], centre[2];
+namespace cats {
 
-int key_state[2] = {0, 0};
-bool rim_key_state[2] = {false, false};
-bool centre_key_state[2] = {false, false};
-double timer_rim_key[2] = {-1, -1};
-double timer_centre_key[2] = {-1, -1};
-
-bool init() {
+bool TaikoCat::init() {
     // getting configs
     bool chk[256];
     std::fill(chk, chk + 256, false);
@@ -53,7 +45,7 @@ bool init() {
     return true;
 }
 
-void draw() {
+void TaikoCat::draw() {
     window.draw(bg);
 
     // 0 for left side, 1 for right side
@@ -111,4 +103,5 @@ void draw() {
         }
     }
 }
-}; // namespace taiko
+
+} // namespace cats

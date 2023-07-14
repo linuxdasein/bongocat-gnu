@@ -186,7 +186,7 @@ bool init() {
     }
 
     img_holder.clear();
-
+    /*
     int mode = data::cfg["mode"].asInt();
 
     switch (mode) {
@@ -203,7 +203,8 @@ bool init() {
     default:
         error_msg("Mode value is not correct", "Error reading configs");
         return false;
-    }
+    }*/
+    return true;
 }
 
 sf::Texture &load_texture(std::string path) {
