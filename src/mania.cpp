@@ -1,15 +1,10 @@
 #include "header.hpp"
 
-namespace mania {
-sf::Sprite bg, left_handup, right_handup, left_hand[3], right_hand[3];
-sf::Sprite left_4K[2], right_4K[2], left_7K[4], right_7K[4];
-int left_key_value_4K[2], right_key_value_4K[2];
-int left_key_value_7K[4], right_key_value_7K[4];
-bool is_4K;
+namespace cats {
 
-bool init() {
+bool ManiaCat::init(const Json::Value& cfg) {
     // getting configs
-    Json::Value mania = data::cfg["mania"];
+    Json::Value mania = cfg["mania"];
 
     is_4K = mania["4K"].asBool();
 
@@ -56,7 +51,7 @@ bool init() {
     return true;
 }
 
-void draw_4K() {
+void ManiaCat::draw_4K(sf::RenderWindow& window) {
     window.draw(bg);
 
     int left_cnt = 0, right_cnt = 0;
@@ -104,7 +99,7 @@ void draw_4K() {
     }
 }
 
-void draw_7K() {
+void ManiaCat::draw_7K(sf::RenderWindow& window) {
     window.draw(bg);
 
     int left_cnt = 0, right_cnt = 0;
@@ -152,11 +147,12 @@ void draw_7K() {
     }
 }
 
-void draw() {
+void ManiaCat::draw(sf::RenderWindow& window) {
     if (is_4K) {
-        draw_4K();
+        draw_4K(window);
     } else {
-        draw_7K();
+        draw_7K(window);
     }
 }
-}; // namespace mania
+
+} // namespace cats

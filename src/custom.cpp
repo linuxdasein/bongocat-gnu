@@ -1,6 +1,6 @@
 #include "header.hpp"
 
-namespace custom {
+namespace cats {
 struct key {
     Json::Value key_value;
     Json::Value joy_value;
@@ -52,7 +52,7 @@ struct key {
         return false;
     }
 
-    void draw() {
+    void draw(sf::RenderWindow& window) {
         window.draw(sprite);
         timer = clock();
     }
@@ -85,7 +85,7 @@ struct key_container {
         }
     }
 
-    void draw() {
+    void draw(sf::RenderWindow& window) {
         bool is_any_key_pressed = false;
         for (int i = 0; i < keys.size(); i++) {
             key& current_key = keys[i];
@@ -112,7 +112,7 @@ struct key_container {
                 }
             }
             if ((clock() - last_press) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-                on_key.draw();
+                on_key.draw(window);
             } else {
                 window.draw(default_sprite);
             }
@@ -121,17 +121,11 @@ struct key_container {
 };
 
 std::vector<key_container> key_containers;
-sf::Sprite bg, mouse;
 
-bool is_mouse, is_mouse_on_top;
-int offset_x, offset_y, scale;
-int paw_r, paw_g, paw_b, paw_a;
-int paw_edge_r, paw_edge_g, paw_edge_b, paw_edge_a;
-
-bool init() {
+bool CustomCat::init(const Json::Value& cfg) {
     // getting configs
     try {
-        Json::Value custom = data::cfg["custom"];
+        Json::Value custom = cfg["custom"];
         key_containers.clear();
         for (Json::Value& current_key_container : custom["keyContainers"]) {
             key_containers.push_back(key_container(current_key_container));
@@ -166,20 +160,24 @@ bool init() {
             }
             mouse.setTexture(data::load_texture(custom["mouseImage"].asString()));
         }
+
+        // initializing pss and pss2 (kuvster's magic)
+        Json::Value paw_draw_info = cfg["mousePaw"];
+        x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
+        y_paw_start = paw_draw_info["pawStartingPoint"][1].asInt();
+
+        x_paw_end = paw_draw_info["pawEndingPoint"][0].asInt();
+        y_paw_end = paw_draw_info["pawEndingPoint"][1].asInt();
     } catch (...) {
         return false;
     }
     return true;
 }
 
-void draw() {
+void CustomCat::draw(sf::RenderWindow& window) {
     window.draw(bg);
 
     if (is_mouse) {
-        // initializing pss and pss2 (kuvster's magic)
-        Json::Value paw_draw_info = data::cfg["mousePaw"];
-        int x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
-        int y_paw_start = paw_draw_info["pawStartingPoint"][1].asInt();
         auto [fx, fy] = input::get_mouse_input().get_position();
 
         // apparently, this is a linear transform, intented to move the point to some position,
@@ -205,8 +203,6 @@ void draw() {
         double le = hypot(a, b);
         a = x + a / le * 60;
         b = y + b / le * 60;
-        int x_paw_end = paw_draw_info["pawEndingPoint"][0].asInt();
-        int y_paw_end = paw_draw_info["pawEndingPoint"][1].asInt();
         dist = hypot(x_paw_end - a, y_paw_end - b);
         double centreright0 = x_paw_end - 0.6 * dist / 2;
         double centreright1 = y_paw_end + 0.8 * dist / 2;
@@ -331,7 +327,7 @@ void draw() {
     }
 
     for (key_container& current : key_containers) {
-        current.draw();
+        current.draw(window);
     }
 
     // drawing mouse at the bottom
@@ -339,4 +335,5 @@ void draw() {
         window.draw(mouse);
     }
 }
-}; // namespace custom
+
+} // namespace cats

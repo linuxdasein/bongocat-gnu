@@ -1,15 +1,18 @@
 #include "header.hpp"
-
-sf::RenderWindow window;
+#include <memory>
 
 int main(int argc, char ** argv) {
-
+    sf::RenderWindow window;
     window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Bongo Cat for osu!", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(MAX_FRAMERATE);
+    std::unique_ptr<cats::ICat> cat;
+    int mode;
 
     // loading configs
-    while (!data::init()) {
-        continue;
+    while (!cat) {
+        data::init();
+        mode = data::get_cfg()["mode"].asInt();
+        cat = cats::get_cat(mode);
     }
 
     // initialize input
@@ -19,6 +22,8 @@ int main(int argc, char ** argv) {
 
     bool is_reload = false;
     bool is_show_input_debug = false;
+
+    cat->init(data::get_cfg());
 
     while (window.isOpen()) {
         sf::Event event;
@@ -32,9 +37,14 @@ int main(int argc, char ** argv) {
                 // get reload config prompt
                 if (event.key.code == sf::Keyboard::R && event.key.control) {
                     if (!is_reload) {
-                        while (!data::init()) {
-                            continue;
+                        cat.reset();
+                        while (!cat) {
+                            data::init();
+                            mode = data::get_cfg()["mode"].asInt();
+                            cat = cats::get_cat(mode);
                         }
+                        
+                        cat->init(data::get_cfg());
                     }
                     is_reload = true;
                     break;
@@ -51,34 +61,17 @@ int main(int argc, char ** argv) {
             }
         }
 
-        int mode = data::cfg["mode"].asInt();
-
-        Json::Value rgb = data::cfg["decoration"]["rgb"];
+        Json::Value rgb = data::get_cfg()["decoration"]["rgb"];
         int red_value = rgb[0].asInt();
         int green_value = rgb[1].asInt();
         int blue_value = rgb[2].asInt();
         int alpha_value = rgb.size() == 3 ? 255 : rgb[3].asInt();
 
         window.clear(sf::Color(red_value, green_value, blue_value, alpha_value));
-        switch (mode) {
-        case 1:
-            osu::draw();
-            break;
-        case 2:
-            taiko::draw();
-            break;
-        case 3:
-            ctb::draw();
-            break;
-        case 4:
-            mania::draw();
-            break;
-        case 5:
-            custom::draw();
-        }
+        cat->draw(window);
 
         if (is_show_input_debug) {
-            input::drawDebugPanel();
+            input::drawDebugPanel(window);
         }
 
         window.display();

@@ -1,29 +1,10 @@
 #include "header.hpp"
 
-namespace osu {
-Json::Value left_key_value, right_key_value, smoke_key_value, wave_key_value;
-int offset_x, offset_y;
-int paw_r, paw_g, paw_b, paw_a;
-int paw_edge_r, paw_edge_g, paw_edge_b, paw_edge_a;
-double scale;
-bool is_mouse, is_left_handed, is_enable_toggle_smoke;
-sf::Sprite bg, up, left, right, device, smoke, wave;
+namespace cats {
 
-int key_state = 0;
-
-bool left_key_state = false;
-bool right_key_state = false;
-bool wave_key_state = false;
-bool previous_smoke_key_state = false;
-bool current_smoke_key_state = false;
-bool is_toggle_smoke = false;
-double timer_left_key = -1;
-double timer_right_key = -1;
-double timer_wave_key = -1;
-
-bool init() {
+bool OsuCat::init(const Json::Value& cfg) {
     // getting configs
-    Json::Value osu = data::cfg["osu"];
+    Json::Value osu = cfg["osu"];
 
     is_mouse = osu["mouse"].asBool();
     is_enable_toggle_smoke = osu["toggleSmoke"].asBool();
@@ -60,16 +41,16 @@ bool init() {
     }
     smoke_key_value = osu["smoke"];
 
-    is_left_handed = data::cfg["decoration"]["leftHanded"].asBool();
+    is_left_handed = cfg["decoration"]["leftHanded"].asBool();
 
     if (is_mouse) {
-        offset_x = (data::cfg["decoration"]["offsetX"])[0].asInt();
-        offset_y = (data::cfg["decoration"]["offsetY"])[0].asInt();
-        scale = (data::cfg["decoration"]["scalar"])[0].asDouble();
+        offset_x = (cfg["decoration"]["offsetX"])[0].asInt();
+        offset_y = (cfg["decoration"]["offsetY"])[0].asInt();
+        scale = (cfg["decoration"]["scalar"])[0].asDouble();
     } else {
-        offset_x = (data::cfg["decoration"]["offsetX"])[1].asInt();
-        offset_y = (data::cfg["decoration"]["offsetY"])[1].asInt();
-        scale = (data::cfg["decoration"]["scalar"])[1].asDouble();
+        offset_x = (cfg["decoration"]["offsetX"])[1].asInt();
+        offset_y = (cfg["decoration"]["offsetY"])[1].asInt();
+        scale = (cfg["decoration"]["scalar"])[1].asDouble();
     }
 
     // importing sprites
@@ -87,16 +68,20 @@ bool init() {
     smoke.setTexture(data::load_texture("img/osu/smoke.png"));
     device.setScale(scale, scale);
 
+    // initializing pss and pss2 (kuvster's magic)
+    Json::Value paw_draw_info = cfg["mousePaw"];
+    x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
+    y_paw_start = paw_draw_info["pawStartingPoint"][1].asInt();
+
+    x_paw_end = paw_draw_info["pawEndingPoint"][0].asInt();
+    y_paw_end = paw_draw_info["pawEndingPoint"][1].asInt();
+
     return true;
 }
 
-void draw() {
+void OsuCat::draw(sf::RenderWindow& window) {
     window.draw(bg);
 
-    // initializing pss and pss2 (kuvster's magic)
-    Json::Value paw_draw_info = data::cfg["mousePaw"];
-    int x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
-    int y_paw_start = paw_draw_info["pawStartingPoint"][1].asInt();
     auto [fx, fy] = input::get_mouse_input().get_position();
     
     // apparently, this is a linear transform, intented to move the point to some position,
@@ -122,8 +107,6 @@ void draw() {
     double le = hypot(a, b);
     a = x + a / le * 60;
     b = y + b / le * 60;
-    int x_paw_end = paw_draw_info["pawEndingPoint"][0].asInt();
-    int y_paw_end = paw_draw_info["pawEndingPoint"][1].asInt();
     dist = hypot(x_paw_end - a, y_paw_end - b);
     double centreright0 = x_paw_end - 0.6 * dist / 2;
     double centreright1 = y_paw_end + 0.8 * dist / 2;
@@ -370,4 +353,5 @@ void draw() {
         window.draw(smoke);
     }
 }
-}; // namespace osu
+
+} // namespace cats

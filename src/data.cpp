@@ -85,6 +85,10 @@ const char *create_config() {
     return s;
 }
 
+const Json::Value& get_cfg() {
+    return cfg;
+}
+
 void error_msg(std::string error, std::string title) {
     SDL_MessageBoxButtonData buttons[] = {
         { SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 0, "Retry" },
@@ -153,7 +157,7 @@ bool update(Json::Value &cfg_default, Json::Value &cfg) {
     return is_update;
 }
 
-bool init() {
+void init() {
     while (true) {
         const char* default_config = create_config();
         auto system_info = os::create_system_info();
@@ -186,24 +190,6 @@ bool init() {
     }
 
     img_holder.clear();
-
-    int mode = data::cfg["mode"].asInt();
-
-    switch (mode) {
-    case 1:
-        return osu::init();
-    case 2:
-        return taiko::init();
-    case 3:
-        return ctb::init();
-    case 4:
-        return mania::init();
-    case 5:
-        return custom::init();
-    default:
-        error_msg("Mode value is not correct", "Error reading configs");
-        return false;
-    }
 }
 
 sf::Texture &load_texture(std::string path) {

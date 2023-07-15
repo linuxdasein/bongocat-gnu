@@ -1,18 +1,10 @@
 #include "header.hpp"
 
-namespace ctb {
-Json::Value left_key_value, right_key_value, dash_key_value;
-sf::Sprite bg, mid, left, right, dash, up;
+namespace cats {
 
-int key_state = 0;
-bool left_key_state = false;
-bool right_key_state = false;
-double timer_left_key = -1;
-double timer_right_key = -1;
-
-bool init() {
+bool CtbCat::init(const Json::Value& cfg) {
     // getting configs
-    Json::Value ctb = data::cfg["catch"];
+    Json::Value ctb = cfg["catch"];
 
     bool chk[256];
     std::fill(chk, chk + 256, false);
@@ -40,7 +32,7 @@ bool init() {
     return true;
 }
 
-void draw() {
+void CtbCat::draw(sf::RenderWindow& window) {
     window.draw(bg);
     
     // drawing left-right keypresses
@@ -108,4 +100,5 @@ void draw() {
         window.draw(up);
     }
 }
-}; // namespace ctb
+
+} // namespace cats

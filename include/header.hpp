@@ -16,19 +16,15 @@
 #include <math.h>
 #include <string.h>
 
-#include <SFML/Graphics.hpp>
-#include "json/json.h"
-
+#include <cats.hpp>
 #include <input.hpp>
 
-extern sf::RenderWindow window;
-
 namespace data {
-extern Json::Value cfg;
+const Json::Value& get_cfg();
 
 void error_msg(std::string error, std::string title);
 
-bool init();
+void init();
 
 sf::Texture &load_texture(std::string path);
 }; // namespace data
@@ -45,37 +41,7 @@ IMouse& get_mouse_input();
 
 std::pair<double, double> bezier(double ratio, std::vector<double> &points, int length);
 
-void drawDebugPanel();
+void drawDebugPanel(sf::RenderWindow& window);
 
 void cleanup();
 }; // namespace input
-
-namespace osu {
-bool init();
-
-void draw();
-}; // namespace osu
-
-namespace taiko {
-bool init();
-
-void draw();
-}; // namespace taiko
-
-namespace ctb {
-bool init();
-
-void draw();
-}; // namespace ctb
-
-namespace mania {
-bool init();
-
-void draw();
-}; // namespace mania
-
-namespace custom {
-bool init();
-
-void draw();
-}; // namespace custom

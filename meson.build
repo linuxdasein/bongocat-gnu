@@ -15,6 +15,7 @@ sources = files([
   'src/osu.cpp',
   'src/system.cpp',
   'src/taiko.cpp',
+  'src/cats.cpp',
 ])
 
 cpp_flags = ['-std=c++17']
