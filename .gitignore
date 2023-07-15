@@ -4,5 +4,5 @@
 bongo
 build/*
 NOTE
+config.json
 Archlinux/*
-./config.json
