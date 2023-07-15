@@ -30,12 +30,13 @@ private:
 MouseXdo::MouseXdo(int h, int v)
     : horizontal(h), vertical(v) {
     xdo = xdo_new(NULL);
-    osu_x = data::cfg["resolution"]["width"].asInt();
-    osu_y = data::cfg["resolution"]["height"].asInt();
-    osu_h = data::cfg["resolution"]["horizontalPosition"].asInt();
-    osu_v = data::cfg["resolution"]["verticalPosition"].asInt();
-    is_letterbox = data::cfg["resolution"]["letterboxing"].asBool();
-    is_left_handed = data::cfg["decoration"]["leftHanded"].asBool();
+    auto cfg = data::get_cfg();
+    osu_x = cfg["resolution"]["width"].asInt();
+    osu_y = cfg["resolution"]["height"].asInt();
+    osu_h = cfg["resolution"]["horizontalPosition"].asInt();
+    osu_v = cfg["resolution"]["verticalPosition"].asInt();
+    is_letterbox = cfg["resolution"]["letterboxing"].asBool();
+    is_left_handed = cfg["decoration"]["leftHanded"].asBool();
 }
 
 MouseXdo::~MouseXdo() {
@@ -178,7 +179,7 @@ private:
 };
 
 MouseSfml::MouseSfml(int h, int v) {
-    is_left_handed = data::cfg["decoration"]["leftHanded"].asBool();
+    is_left_handed = data::get_cfg()["decoration"]["leftHanded"].asBool();
 }
 
 std::pair<double, double> MouseSfml::get_position() {

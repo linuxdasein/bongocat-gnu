@@ -20,9 +20,9 @@ int main(int argc, char ** argv) {
     bool is_reload = false;
     bool is_show_input_debug = false;
 
-    int mode = data::cfg["mode"].asInt();
+    int mode = data::get_cfg()["mode"].asInt();
     auto cat = cats::get_cat(mode);
-    cat->init();
+    cat->init(data::get_cfg());
 
     while (window.isOpen()) {
         sf::Event event;
@@ -39,9 +39,9 @@ int main(int argc, char ** argv) {
                         while (!data::init()) {
                             continue;
                         }
-                        mode = data::cfg["mode"].asInt();
+                        mode = data::get_cfg()["mode"].asInt();
                         cat = cats::get_cat(mode);
-                        cat->init();
+                        cat->init(data::get_cfg());
                     }
                     is_reload = true;
                     break;
@@ -58,7 +58,7 @@ int main(int argc, char ** argv) {
             }
         }
 
-        Json::Value rgb = data::cfg["decoration"]["rgb"];
+        Json::Value rgb = data::get_cfg()["decoration"]["rgb"];
         int red_value = rgb[0].asInt();
         int green_value = rgb[1].asInt();
         int blue_value = rgb[2].asInt();

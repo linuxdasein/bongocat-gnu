@@ -22,7 +22,7 @@
 extern sf::RenderWindow window;
 
 namespace data {
-extern Json::Value cfg;
+const Json::Value& get_cfg();
 
 void error_msg(std::string error, std::string title);
 

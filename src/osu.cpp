@@ -2,9 +2,9 @@
 
 namespace cats {
 
-bool OsuCat::init() {
+bool OsuCat::init(const Json::Value& cfg) {
     // getting configs
-    Json::Value osu = data::cfg["osu"];
+    Json::Value osu = cfg["osu"];
 
     is_mouse = osu["mouse"].asBool();
     is_enable_toggle_smoke = osu["toggleSmoke"].asBool();
@@ -41,16 +41,16 @@ bool OsuCat::init() {
     }
     smoke_key_value = osu["smoke"];
 
-    is_left_handed = data::cfg["decoration"]["leftHanded"].asBool();
+    is_left_handed = cfg["decoration"]["leftHanded"].asBool();
 
     if (is_mouse) {
-        offset_x = (data::cfg["decoration"]["offsetX"])[0].asInt();
-        offset_y = (data::cfg["decoration"]["offsetY"])[0].asInt();
-        scale = (data::cfg["decoration"]["scalar"])[0].asDouble();
+        offset_x = (cfg["decoration"]["offsetX"])[0].asInt();
+        offset_y = (cfg["decoration"]["offsetY"])[0].asInt();
+        scale = (cfg["decoration"]["scalar"])[0].asDouble();
     } else {
-        offset_x = (data::cfg["decoration"]["offsetX"])[1].asInt();
-        offset_y = (data::cfg["decoration"]["offsetY"])[1].asInt();
-        scale = (data::cfg["decoration"]["scalar"])[1].asDouble();
+        offset_x = (cfg["decoration"]["offsetX"])[1].asInt();
+        offset_y = (cfg["decoration"]["offsetY"])[1].asInt();
+        scale = (cfg["decoration"]["scalar"])[1].asDouble();
     }
 
     // importing sprites
@@ -68,16 +68,20 @@ bool OsuCat::init() {
     smoke.setTexture(data::load_texture("img/osu/smoke.png"));
     device.setScale(scale, scale);
 
+    // initializing pss and pss2 (kuvster's magic)
+    Json::Value paw_draw_info = cfg["mousePaw"];
+    x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
+    y_paw_start = paw_draw_info["pawStartingPoint"][1].asInt();
+
+    x_paw_end = paw_draw_info["pawEndingPoint"][0].asInt();
+    y_paw_end = paw_draw_info["pawEndingPoint"][1].asInt();
+
     return true;
 }
 
 void OsuCat::draw() {
     window.draw(bg);
 
-    // initializing pss and pss2 (kuvster's magic)
-    Json::Value paw_draw_info = data::cfg["mousePaw"];
-    int x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
-    int y_paw_start = paw_draw_info["pawStartingPoint"][1].asInt();
     auto [fx, fy] = input::get_mouse_input().get_position();
     
     // apparently, this is a linear transform, intented to move the point to some position,
@@ -103,8 +107,6 @@ void OsuCat::draw() {
     double le = hypot(a, b);
     a = x + a / le * 60;
     b = y + b / le * 60;
-    int x_paw_end = paw_draw_info["pawEndingPoint"][0].asInt();
-    int y_paw_end = paw_draw_info["pawEndingPoint"][1].asInt();
     dist = hypot(x_paw_end - a, y_paw_end - b);
     double centreright0 = x_paw_end - 0.6 * dist / 2;
     double centreright1 = y_paw_end + 0.8 * dist / 2;

@@ -2,9 +2,9 @@
 
 namespace cats {
 
-bool CtbCat::init() {
+bool CtbCat::init(const Json::Value& cfg) {
     // getting configs
-    Json::Value ctb = data::cfg["catch"];
+    Json::Value ctb = cfg["catch"];
 
     bool chk[256];
     std::fill(chk, chk + 256, false);

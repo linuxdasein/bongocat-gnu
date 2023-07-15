@@ -122,10 +122,10 @@ struct key_container {
 
 std::vector<key_container> key_containers;
 
-bool CustomCat::init() {
+bool CustomCat::init(const Json::Value& cfg) {
     // getting configs
     try {
-        Json::Value custom = data::cfg["custom"];
+        Json::Value custom = cfg["custom"];
         key_containers.clear();
         for (Json::Value& current_key_container : custom["keyContainers"]) {
             key_containers.push_back(key_container(current_key_container));
@@ -160,6 +160,14 @@ bool CustomCat::init() {
             }
             mouse.setTexture(data::load_texture(custom["mouseImage"].asString()));
         }
+
+        // initializing pss and pss2 (kuvster's magic)
+        Json::Value paw_draw_info = cfg["mousePaw"];
+        x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
+        y_paw_start = paw_draw_info["pawStartingPoint"][1].asInt();
+
+        x_paw_end = paw_draw_info["pawEndingPoint"][0].asInt();
+        y_paw_end = paw_draw_info["pawEndingPoint"][1].asInt();
     } catch (...) {
         return false;
     }
@@ -170,10 +178,6 @@ void CustomCat::draw() {
     window.draw(bg);
 
     if (is_mouse) {
-        // initializing pss and pss2 (kuvster's magic)
-        Json::Value paw_draw_info = data::cfg["mousePaw"];
-        int x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
-        int y_paw_start = paw_draw_info["pawStartingPoint"][1].asInt();
         auto [fx, fy] = input::get_mouse_input().get_position();
 
         // apparently, this is a linear transform, intented to move the point to some position,
@@ -199,8 +203,6 @@ void CustomCat::draw() {
         double le = hypot(a, b);
         a = x + a / le * 60;
         b = y + b / le * 60;
-        int x_paw_end = paw_draw_info["pawEndingPoint"][0].asInt();
-        int y_paw_end = paw_draw_info["pawEndingPoint"][1].asInt();
         dist = hypot(x_paw_end - a, y_paw_end - b);
         double centreright0 = x_paw_end - 0.6 * dist / 2;
         double centreright1 = y_paw_end + 0.8 * dist / 2;

@@ -2,11 +2,11 @@
 
 namespace cats {
 
-bool TaikoCat::init() {
+bool TaikoCat::init(const Json::Value& cfg) {
     // getting configs
     bool chk[256];
     std::fill(chk, chk + 256, false);
-    Json::Value taiko = data::cfg["taiko"];
+    Json::Value taiko = cfg["taiko"];
 
     rim_key_value[0] = taiko["leftRim"];
     for (Json::Value &v : rim_key_value[0]) {

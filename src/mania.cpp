@@ -2,9 +2,9 @@
 
 namespace cats {
 
-bool ManiaCat::init() {
+bool ManiaCat::init(const Json::Value& cfg) {
     // getting configs
-    Json::Value mania = data::cfg["mania"];
+    Json::Value mania = cfg["mania"];
 
     is_4K = mania["4K"].asBool();
 

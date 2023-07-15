@@ -85,6 +85,10 @@ const char *create_config() {
     return s;
 }
 
+const Json::Value& get_cfg() {
+    return cfg;
+}
+
 void error_msg(std::string error, std::string title) {
     SDL_MessageBoxButtonData buttons[] = {
         { SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 0, "Retry" },

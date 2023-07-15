@@ -14,7 +14,7 @@ class ICat
 public:
 
     // Initilizes cat
-    virtual bool init() = 0;
+    virtual bool init(const Json::Value& cfg) = 0;
 
     // Draws the cat: must not be called before init()
     virtual void draw() = 0;
@@ -27,7 +27,7 @@ class OsuCat : public ICat
 {
 public:
 
-    bool init() override;
+    bool init(const Json::Value& cfg) override;
     void draw() override;
 
 private:
@@ -50,13 +50,16 @@ private:
     double timer_left_key = -1;
     double timer_right_key = -1;
     double timer_wave_key = -1;
+
+    int x_paw_start, y_paw_start;
+    int x_paw_end, y_paw_end;
 };
 
 class TaikoCat : public ICat
 {
 public:
 
-    bool init() override;
+    bool init(const Json::Value& cfg) override;
     void draw() override;
 
 private:
@@ -73,7 +76,7 @@ class CtbCat : public ICat
 {
 public:
 
-    bool init() override;
+    bool init(const Json::Value& cfg) override;
     void draw() override;
 
 private:
@@ -91,7 +94,7 @@ class ManiaCat : public ICat
 {
 public:
 
-    bool init() override;
+    bool init(const Json::Value& cfg) override;
     void draw() override;
 
 private:
@@ -109,7 +112,7 @@ class CustomCat : public ICat
 {
 public:
 
-    bool init() override;
+    bool init(const Json::Value& cfg) override;
     void draw() override;
 
 private:
@@ -119,6 +122,8 @@ private:
     int offset_x, offset_y, scale;
     int paw_r, paw_g, paw_b, paw_a;
     int paw_edge_r, paw_edge_g, paw_edge_b, paw_edge_a;
+    int x_paw_start, y_paw_start;
+    int x_paw_end, y_paw_end;
 };
 
 std::unique_ptr<ICat> get_cat(int mode);
