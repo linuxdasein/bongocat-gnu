@@ -1,27 +1,8 @@
 #include "header.hpp"
 
-namespace osu {
-Json::Value left_key_value, right_key_value, smoke_key_value, wave_key_value;
-int offset_x, offset_y;
-int paw_r, paw_g, paw_b, paw_a;
-int paw_edge_r, paw_edge_g, paw_edge_b, paw_edge_a;
-double scale;
-bool is_mouse, is_left_handed, is_enable_toggle_smoke;
-sf::Sprite bg, up, left, right, device, smoke, wave;
+namespace cats {
 
-int key_state = 0;
-
-bool left_key_state = false;
-bool right_key_state = false;
-bool wave_key_state = false;
-bool previous_smoke_key_state = false;
-bool current_smoke_key_state = false;
-bool is_toggle_smoke = false;
-double timer_left_key = -1;
-double timer_right_key = -1;
-double timer_wave_key = -1;
-
-bool init() {
+bool OsuCat::init() {
     // getting configs
     Json::Value osu = data::cfg["osu"];
 
@@ -90,7 +71,7 @@ bool init() {
     return true;
 }
 
-void draw() {
+void OsuCat::draw() {
     window.draw(bg);
 
     // initializing pss and pss2 (kuvster's magic)
