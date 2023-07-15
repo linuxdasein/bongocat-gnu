@@ -353,4 +353,5 @@ void OsuCat::draw(sf::RenderWindow& window) {
         window.draw(smoke);
     }
 }
-}; // namespace osu
+
+} // namespace cats

@@ -100,4 +100,5 @@ void CtbCat::draw(sf::RenderWindow& window) {
         window.draw(up);
     }
 }
-}; // namespace ctb
+
+} // namespace cats

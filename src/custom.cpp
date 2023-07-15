@@ -335,4 +335,5 @@ void CustomCat::draw(sf::RenderWindow& window) {
         window.draw(mouse);
     }
 }
-}; // namespace custom
+
+} // namespace cats

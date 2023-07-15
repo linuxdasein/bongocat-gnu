@@ -154,4 +154,5 @@ void ManiaCat::draw(sf::RenderWindow& window) {
         draw_7K(window);
     }
 }
-}; // namespace mania
+
+} // namespace cats
