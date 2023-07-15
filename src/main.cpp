@@ -1,13 +1,18 @@
 #include "header.hpp"
+#include <memory>
 
 int main(int argc, char ** argv) {
     sf::RenderWindow window;
     window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Bongo Cat for osu!", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(MAX_FRAMERATE);
+    std::unique_ptr<cats::ICat> cat;
+    int mode;
 
     // loading configs
-    while (!data::init()) {
-        continue;
+    while (!cat) {
+        data::init();
+        mode = data::get_cfg()["mode"].asInt();
+        cat = cats::get_cat(mode);
     }
 
     // initialize input
@@ -18,8 +23,6 @@ int main(int argc, char ** argv) {
     bool is_reload = false;
     bool is_show_input_debug = false;
 
-    int mode = data::get_cfg()["mode"].asInt();
-    auto cat = cats::get_cat(mode);
     cat->init(data::get_cfg());
 
     while (window.isOpen()) {
@@ -34,11 +37,13 @@ int main(int argc, char ** argv) {
                 // get reload config prompt
                 if (event.key.code == sf::Keyboard::R && event.key.control) {
                     if (!is_reload) {
-                        while (!data::init()) {
-                            continue;
+                        cat.reset();
+                        while (!cat) {
+                            data::init();
+                            mode = data::get_cfg()["mode"].asInt();
+                            cat = cats::get_cat(mode);
                         }
-                        mode = data::get_cfg()["mode"].asInt();
-                        cat = cats::get_cat(mode);
+                        
                         cat->init(data::get_cfg());
                     }
                     is_reload = true;

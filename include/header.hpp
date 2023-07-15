@@ -24,7 +24,7 @@ const Json::Value& get_cfg();
 
 void error_msg(std::string error, std::string title);
 
-bool init();
+void init();
 
 sf::Texture &load_texture(std::string path);
 }; // namespace data

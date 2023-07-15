@@ -1,5 +1,4 @@
-#include "cats.hpp"
-#include <stdexcept>
+#include "header.hpp"
 
 namespace cats
 {
@@ -18,7 +17,8 @@ std::unique_ptr<ICat> get_cat(int mode)
     case 5:
         return std::make_unique<CustomCat>();
     default:
-        throw std::runtime_error("Invalid mode value has been encountered");
+        data::error_msg("Mode value is not correct", "Error reading configs");
+        return nullptr;
     }
 }
 

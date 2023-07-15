@@ -157,7 +157,7 @@ bool update(Json::Value &cfg_default, Json::Value &cfg) {
     return is_update;
 }
 
-bool init() {
+void init() {
     while (true) {
         const char* default_config = create_config();
         auto system_info = os::create_system_info();
@@ -190,7 +190,6 @@ bool init() {
     }
 
     img_holder.clear();
-    return true;
 }
 
 sf::Texture &load_texture(std::string path) {
