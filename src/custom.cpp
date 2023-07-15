@@ -1,6 +1,6 @@
 #include "header.hpp"
 
-namespace custom {
+namespace cats {
 struct key {
     Json::Value key_value;
     Json::Value joy_value;
@@ -121,14 +121,8 @@ struct key_container {
 };
 
 std::vector<key_container> key_containers;
-sf::Sprite bg, mouse;
 
-bool is_mouse, is_mouse_on_top;
-int offset_x, offset_y, scale;
-int paw_r, paw_g, paw_b, paw_a;
-int paw_edge_r, paw_edge_g, paw_edge_b, paw_edge_a;
-
-bool init() {
+bool CustomCat::init() {
     // getting configs
     try {
         Json::Value custom = data::cfg["custom"];
@@ -172,7 +166,7 @@ bool init() {
     return true;
 }
 
-void draw() {
+void CustomCat::draw() {
     window.draw(bg);
 
     if (is_mouse) {

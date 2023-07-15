@@ -105,6 +105,22 @@ private:
     bool is_4K;
 };
 
+class CustomCat : public ICat
+{
+public:
+
+    bool init() override;
+    void draw() override;
+
+private:
+    sf::Sprite bg, mouse;
+
+    bool is_mouse, is_mouse_on_top;
+    int offset_x, offset_y, scale;
+    int paw_r, paw_g, paw_b, paw_a;
+    int paw_edge_r, paw_edge_g, paw_edge_b, paw_edge_a;
+};
+
 std::unique_ptr<ICat> get_cat(int mode);
 
 }

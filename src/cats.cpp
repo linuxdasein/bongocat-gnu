@@ -15,6 +15,8 @@ std::unique_ptr<ICat> get_cat(int mode)
         return std::make_unique<CtbCat>();
     case 4:
         return std::make_unique<ManiaCat>();
+    case 5:
+        return std::make_unique<CustomCat>();
     default:
         throw std::runtime_error("Invalid mode value has been encountered");
     }
