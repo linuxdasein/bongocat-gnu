@@ -1,4 +1,5 @@
 #include "header.hpp"
+#include <memory>
 #include <system.hpp>
 #include <filesystem>
 #define BONGO_ERROR 1
@@ -14,6 +15,7 @@ namespace data {
 Json::Value cfg;
 std::map<std::string, sf::Texture> img_holder;
 
+/*
 const char *create_config() {
     const char *s =
         R"V0G0N({
@@ -83,6 +85,22 @@ const char *create_config() {
     delete cfg_reader;
 
     return s;
+}*/
+
+std::unique_ptr<Json::Value> parse_config_file(std::ifstream& cfg_file) {
+    std::string cfg_string((std::istreambuf_iterator<char>(cfg_file)), std::istreambuf_iterator<char>()), error;
+    Json::CharReaderBuilder cfg_builder;
+    auto cfg = std::make_unique<Json::Value>();
+    Json::CharReader *cfg_reader = cfg_builder.newCharReader();
+
+    if (!cfg_reader->parse(cfg_string.c_str(), cfg_string.c_str() + cfg_string.size(), cfg.get(), &error)) {
+        delete cfg_reader;
+        throw std::runtime_error(error);
+    } 
+        
+    delete cfg_reader;
+
+    return cfg;
 }
 
 const Json::Value& get_cfg() {
@@ -159,7 +177,7 @@ bool update(Json::Value &cfg_default, Json::Value &cfg) {
 
 void init() {
     while (true) {
-        const char* default_config = create_config();
+        //const char* default_config = create_config();
         auto system_info = os::create_system_info();
         std::string conf_file_path = CONF_FILE_NAME;
         // if a file exists in the current directory it takes precendence
@@ -167,24 +185,43 @@ void init() {
             // otherwise try to load a file from user's home directory
             conf_file_path = system_info->get_config_dir_path() + CONF_FILE_NAME;
             if(!std::filesystem::exists(conf_file_path)) {
-                // if no config file is present, create one with the deault settings
-                std::ofstream crg_file_o(conf_file_path, std::ifstream::binary);
-                crg_file_o << default_config;
+                // if no config file is present, create one with the default settings
+                const std::string cfg_file_template_path = "share/" CONF_FILE_NAME;
+                std::ifstream cfg_file_i(cfg_file_template_path, std::ifstream::binary);
+
+                if (cfg_file_i.good()) {
+                    // copy contents from the default config template
+                    std::ofstream cfg_file_o(conf_file_path, std::ifstream::binary);
+                    std::string default_config;
+                    cfg_file_i >> default_config;
+                    cfg_file_o << default_config;
+                }
             }
         }
         std::ifstream cfg_file(conf_file_path, std::ifstream::binary);
         if (!cfg_file.good()) {
-            break;
+            std::string msg = "Couldn't open config file " + conf_file_path + ":\n";
+            error_msg( msg, "Error reading configs");
+            continue;
         }
-        std::string cfg_string((std::istreambuf_iterator<char>(cfg_file)), std::istreambuf_iterator<char>()), error;
-        Json::CharReaderBuilder cfg_builder;
-        Json::CharReader *cfg_reader = cfg_builder.newCharReader();
-        Json::Value cfg_read;
-        if (!cfg_reader->parse(cfg_string.c_str(), cfg_string.c_str() + cfg_string.size(), &cfg_read, &error)) {
-            delete cfg_reader;
-            error_msg("Syntax error in " CONF_FILE_NAME ":\n" + error, "Error reading configs");
-        } else if (update(cfg, cfg_read)) {
-            delete cfg_reader;
+        //std::string cfg_string((std::istreambuf_iterator<char>(cfg_file)), std::istreambuf_iterator<char>()), error;
+        //Json::CharReaderBuilder cfg_builder;
+        //Json::CharReader *cfg_reader = cfg_builder.newCharReader();
+        std::unique_ptr<Json::Value> cfg_read;
+        try {
+            cfg_read = parse_config_file(cfg_file);
+        }
+        catch(std::runtime_error& e) {
+            std::string msg = "Syntax error in " CONF_FILE_NAME ":\n";
+            error_msg( msg + e.what(), "Error reading configs");
+        }
+
+        //if (!cfg_reader->parse(cfg_string.c_str(), cfg_string.c_str() + cfg_string.size(), &cfg_read, &error)) {
+        //    delete cfg_reader;
+        //    error_msg("Syntax error in " CONF_FILE_NAME ":\n" + error, "Error reading configs");
+        //} 
+
+        if (update(cfg, *cfg_read)) {
             break;
         }
     }
