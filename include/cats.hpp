@@ -58,6 +58,24 @@ private:
     double timer_right_key = -1;
 };
 
+class ManiaCat : public ICat
+{
+public:
+
+    bool init() override;
+    void draw() override;
+
+private:
+    void draw_4K();
+    void draw_7K();
+
+    sf::Sprite bg, left_handup, right_handup, left_hand[3], right_hand[3];
+    sf::Sprite left_4K[2], right_4K[2], left_7K[4], right_7K[4];
+    int left_key_value_4K[2], right_key_value_4K[2];
+    int left_key_value_7K[4], right_key_value_7K[4];
+    bool is_4K;
+};
+
 std::unique_ptr<ICat> get_cat(int mode);
 
 }
