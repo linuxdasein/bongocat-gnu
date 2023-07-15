@@ -186,24 +186,6 @@ bool init() {
     }
 
     img_holder.clear();
-    /*
-    int mode = data::cfg["mode"].asInt();
-
-    switch (mode) {
-    case 1:
-        return osu::init();
-    case 2:
-        return taiko::init();
-    case 3:
-        return ctb::init();
-    case 4:
-        return mania::init();
-    case 5:
-        return custom::init();
-    default:
-        error_msg("Mode value is not correct", "Error reading configs");
-        return false;
-    }*/
     return true;
 }
 

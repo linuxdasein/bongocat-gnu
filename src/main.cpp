@@ -66,22 +66,6 @@ int main(int argc, char ** argv) {
 
         window.clear(sf::Color(red_value, green_value, blue_value, alpha_value));
         cat->draw();
-        /*switch (mode) {
-        case 1:
-            osu::draw();
-            break;
-        case 2:
-            taiko::draw();
-            break;
-        case 3:
-            ctb::draw();
-            break;
-        case 4:
-            mania::draw();
-            break;
-        case 5:
-            custom::draw();
-        }*/
 
         if (is_show_input_debug) {
             input::drawDebugPanel();

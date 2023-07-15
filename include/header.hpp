@@ -47,21 +47,3 @@ void drawDebugPanel();
 
 void cleanup();
 }; // namespace input
-
-namespace osu {
-bool init();
-
-void draw();
-}; // namespace osu
-
-namespace mania {
-bool init();
-
-void draw();
-}; // namespace mania
-
-namespace custom {
-bool init();
-
-void draw();
-}; // namespace custom
