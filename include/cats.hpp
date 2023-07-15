@@ -40,6 +40,24 @@ private:
     double timer_centre_key[2] = {-1, -1};
 };
 
+class CtbCat : public ICat
+{
+public:
+
+    bool init() override;
+    void draw() override;
+
+private:
+    Json::Value left_key_value, right_key_value, dash_key_value;
+    sf::Sprite bg, mid, left, right, dash, up;
+
+    int key_state = 0;
+    bool left_key_state = false;
+    bool right_key_state = false;
+    double timer_left_key = -1;
+    double timer_right_key = -1;
+};
+
 std::unique_ptr<ICat> get_cat(int mode);
 
 }

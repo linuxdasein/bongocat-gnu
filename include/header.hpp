@@ -54,18 +54,6 @@ bool init();
 void draw();
 }; // namespace osu
 
-namespace taiko {
-bool init();
-
-void draw();
-}; // namespace taiko
-
-namespace ctb {
-bool init();
-
-void draw();
-}; // namespace ctb
-
 namespace mania {
 bool init();
 
