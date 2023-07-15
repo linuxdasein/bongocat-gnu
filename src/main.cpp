@@ -1,9 +1,7 @@
 #include "header.hpp"
 
-sf::RenderWindow window;
-
 int main(int argc, char ** argv) {
-
+    sf::RenderWindow window;
     window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Bongo Cat for osu!", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(MAX_FRAMERATE);
 
@@ -65,10 +63,10 @@ int main(int argc, char ** argv) {
         int alpha_value = rgb.size() == 3 ? 255 : rgb[3].asInt();
 
         window.clear(sf::Color(red_value, green_value, blue_value, alpha_value));
-        cat->draw();
+        cat->draw(window);
 
         if (is_show_input_debug) {
-            input::drawDebugPanel();
+            input::drawDebugPanel(window);
         }
 
         window.display();

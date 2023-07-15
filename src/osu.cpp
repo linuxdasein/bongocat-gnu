@@ -79,7 +79,7 @@ bool OsuCat::init(const Json::Value& cfg) {
     return true;
 }
 
-void OsuCat::draw() {
+void OsuCat::draw(sf::RenderWindow& window) {
     window.draw(bg);
 
     auto [fx, fy] = input::get_mouse_input().get_position();

@@ -51,7 +51,7 @@ bool ManiaCat::init(const Json::Value& cfg) {
     return true;
 }
 
-void ManiaCat::draw_4K() {
+void ManiaCat::draw_4K(sf::RenderWindow& window) {
     window.draw(bg);
 
     int left_cnt = 0, right_cnt = 0;
@@ -99,7 +99,7 @@ void ManiaCat::draw_4K() {
     }
 }
 
-void ManiaCat::draw_7K() {
+void ManiaCat::draw_7K(sf::RenderWindow& window) {
     window.draw(bg);
 
     int left_cnt = 0, right_cnt = 0;
@@ -147,11 +147,11 @@ void ManiaCat::draw_7K() {
     }
 }
 
-void ManiaCat::draw() {
+void ManiaCat::draw(sf::RenderWindow& window) {
     if (is_4K) {
-        draw_4K();
+        draw_4K(window);
     } else {
-        draw_7K();
+        draw_7K(window);
     }
 }
 }; // namespace mania

@@ -302,7 +302,7 @@ std::pair<double, double> bezier(double ratio, std::vector<double> &points, int 
     return std::make_pair(xx / 1000, yy / 1000);
 }
 
-void drawDebugPanel() {
+void drawDebugPanel(sf::RenderWindow& window) {
     if (!is_joystick_connected()) {
         debugText.setString("No joystick found...");
         window.draw(debugBackground);

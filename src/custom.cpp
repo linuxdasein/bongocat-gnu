@@ -52,7 +52,7 @@ struct key {
         return false;
     }
 
-    void draw() {
+    void draw(sf::RenderWindow& window) {
         window.draw(sprite);
         timer = clock();
     }
@@ -85,7 +85,7 @@ struct key_container {
         }
     }
 
-    void draw() {
+    void draw(sf::RenderWindow& window) {
         bool is_any_key_pressed = false;
         for (int i = 0; i < keys.size(); i++) {
             key& current_key = keys[i];
@@ -112,7 +112,7 @@ struct key_container {
                 }
             }
             if ((clock() - last_press) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-                on_key.draw();
+                on_key.draw(window);
             } else {
                 window.draw(default_sprite);
             }
@@ -174,7 +174,7 @@ bool CustomCat::init(const Json::Value& cfg) {
     return true;
 }
 
-void CustomCat::draw() {
+void CustomCat::draw(sf::RenderWindow& window) {
     window.draw(bg);
 
     if (is_mouse) {
@@ -327,7 +327,7 @@ void CustomCat::draw() {
     }
 
     for (key_container& current : key_containers) {
-        current.draw();
+        current.draw(window);
     }
 
     // drawing mouse at the bottom

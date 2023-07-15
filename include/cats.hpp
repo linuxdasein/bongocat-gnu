@@ -17,7 +17,7 @@ public:
     virtual bool init(const Json::Value& cfg) = 0;
 
     // Draws the cat: must not be called before init()
-    virtual void draw() = 0;
+    virtual void draw(sf::RenderWindow& window) = 0;
 
     // Virtual destructor
     virtual ~ICat() {}
@@ -28,7 +28,7 @@ class OsuCat : public ICat
 public:
 
     bool init(const Json::Value& cfg) override;
-    void draw() override;
+    void draw(sf::RenderWindow& window) override;
 
 private:
     Json::Value left_key_value, right_key_value, smoke_key_value, wave_key_value;
@@ -60,7 +60,7 @@ class TaikoCat : public ICat
 public:
 
     bool init(const Json::Value& cfg) override;
-    void draw() override;
+    void draw(sf::RenderWindow& window) override;
 
 private:
     Json::Value rim_key_value[2], centre_key_value[2];
@@ -77,7 +77,7 @@ class CtbCat : public ICat
 public:
 
     bool init(const Json::Value& cfg) override;
-    void draw() override;
+    void draw(sf::RenderWindow& window) override;
 
 private:
     Json::Value left_key_value, right_key_value, dash_key_value;
@@ -95,11 +95,11 @@ class ManiaCat : public ICat
 public:
 
     bool init(const Json::Value& cfg) override;
-    void draw() override;
+    void draw(sf::RenderWindow& window) override;
 
 private:
-    void draw_4K();
-    void draw_7K();
+    void draw_4K(sf::RenderWindow& window);
+    void draw_7K(sf::RenderWindow& window);
 
     sf::Sprite bg, left_handup, right_handup, left_hand[3], right_hand[3];
     sf::Sprite left_4K[2], right_4K[2], left_7K[4], right_7K[4];
@@ -113,7 +113,7 @@ class CustomCat : public ICat
 public:
 
     bool init(const Json::Value& cfg) override;
-    void draw() override;
+    void draw(sf::RenderWindow& window) override;
 
 private:
     sf::Sprite bg, mouse;

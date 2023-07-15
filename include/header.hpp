@@ -19,8 +19,6 @@
 #include <cats.hpp>
 #include <input.hpp>
 
-extern sf::RenderWindow window;
-
 namespace data {
 const Json::Value& get_cfg();
 
@@ -43,7 +41,7 @@ IMouse& get_mouse_input();
 
 std::pair<double, double> bezier(double ratio, std::vector<double> &points, int length);
 
-void drawDebugPanel();
+void drawDebugPanel(sf::RenderWindow& window);
 
 void cleanup();
 }; // namespace input

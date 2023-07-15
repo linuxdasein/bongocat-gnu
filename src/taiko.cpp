@@ -45,7 +45,7 @@ bool TaikoCat::init(const Json::Value& cfg) {
     return true;
 }
 
-void TaikoCat::draw() {
+void TaikoCat::draw(sf::RenderWindow& window) {
     window.draw(bg);
 
     // 0 for left side, 1 for right side

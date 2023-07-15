@@ -32,7 +32,7 @@ bool CtbCat::init(const Json::Value& cfg) {
     return true;
 }
 
-void CtbCat::draw() {
+void CtbCat::draw(sf::RenderWindow& window) {
     window.draw(bg);
     
     // drawing left-right keypresses
