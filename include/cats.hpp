@@ -126,6 +126,16 @@ private:
     int x_paw_end, y_paw_end;
 };
 
+class StandardCat : public ICat
+{
+public:
+
+    bool init(const Json::Value& cfg) override;
+    void draw(sf::RenderWindow& window) override;
+
+private:
+};
+
 std::unique_ptr<ICat> get_cat(int mode);
 
 }
