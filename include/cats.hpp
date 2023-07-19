@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <SFML/Graphics/Drawable.hpp>
 #include <memory>
 #include <SFML/Graphics.hpp>
 #include <json/json.h>
@@ -134,6 +135,10 @@ public:
     void draw(sf::RenderWindow& window) override;
 
 private:
+    void draw_mouse(sf::RenderWindow& window);
+
+    sf::Sprite cat, left_paw;
+    std::map<sf::Keyboard::Key, std::unique_ptr<sf::Drawable> > key_actions;
 };
 
 std::unique_ptr<ICat> get_cat(int mode);
