@@ -137,8 +137,12 @@ public:
 private:
     void draw_mouse(sf::RenderWindow& window);
 
-    sf::Sprite cat, left_paw;
+    sf::Sprite cat, left_paw, mouse;
     std::map<sf::Keyboard::Key, std::unique_ptr<sf::Drawable> > key_actions;
+
+    int offset_x, offset_y, scale;
+    int x_paw_start, y_paw_start;
+    int x_paw_end, y_paw_end;
 };
 
 std::unique_ptr<ICat> get_cat(int mode);
