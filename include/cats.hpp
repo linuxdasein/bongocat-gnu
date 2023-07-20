@@ -127,7 +127,7 @@ private:
     int x_paw_end, y_paw_end;
 };
 
-class StandardCat : public ICat
+class ClassicCat : public ICat
 {
 public:
 

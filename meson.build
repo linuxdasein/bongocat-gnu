@@ -5,7 +5,7 @@ project('bongocat-gnu',
 
 sources = files([
   'src/ctb.cpp',
-  'src/standard.cpp',
+  'src/classic.cpp',
   'src/custom.cpp',
   'src/data.cpp',
   'src/input.cpp',

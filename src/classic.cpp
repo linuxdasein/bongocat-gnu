@@ -28,31 +28,31 @@ struct KeyActionData {
 };
 
 const std::array<KeyActionData, 15> actions_data = {
-    KeyActionData{sf::Keyboard::Num1,  "img/standard/keyboard/0.png",  "img/standard/lefthand/0.png"},
-    KeyActionData{sf::Keyboard::Num2,  "img/standard/keyboard/1.png",  "img/standard/lefthand/1.png"},
-    KeyActionData{sf::Keyboard::Num3,  "img/standard/keyboard/2.png",  "img/standard/lefthand/2.png"},
-    KeyActionData{sf::Keyboard::Num4,  "img/standard/keyboard/3.png",  "img/standard/lefthand/3.png"},
-    KeyActionData{sf::Keyboard::Num5,  "img/standard/keyboard/4.png",  "img/standard/lefthand/4.png"},
-    KeyActionData{sf::Keyboard::Num6,  "img/standard/keyboard/5.png",  "img/standard/lefthand/5.png"},
-    KeyActionData{sf::Keyboard::Num7,  "img/standard/keyboard/6.png",  "img/standard/lefthand/6.png"},
-    KeyActionData{sf::Keyboard::Q,     "img/standard/keyboard/7.png",  "img/standard/lefthand/7.png"},
-    KeyActionData{sf::Keyboard::E,     "img/standard/keyboard/8.png",  "img/standard/lefthand/8.png"},
-    KeyActionData{sf::Keyboard::R,     "img/standard/keyboard/9.png",  "img/standard/lefthand/9.png"},
-    KeyActionData{sf::Keyboard::Space, "img/standard/keyboard/10.png", "img/standard/lefthand/10.png"},
-    KeyActionData{sf::Keyboard::A,     "img/standard/keyboard/11.png", "img/standard/lefthand/11.png"},
-    KeyActionData{sf::Keyboard::D,     "img/standard/keyboard/12.png", "img/standard/lefthand/12.png"},
-    KeyActionData{sf::Keyboard::S,     "img/standard/keyboard/13.png", "img/standard/lefthand/13.png"},
-    KeyActionData{sf::Keyboard::W,     "img/standard/keyboard/14.png", "img/standard/lefthand/14.png"},
+    KeyActionData{sf::Keyboard::Num1,  "img/classic/keyboard/0.png",  "img/classic/lefthand/0.png"},
+    KeyActionData{sf::Keyboard::Num2,  "img/classic/keyboard/1.png",  "img/classic/lefthand/1.png"},
+    KeyActionData{sf::Keyboard::Num3,  "img/classic/keyboard/2.png",  "img/classic/lefthand/2.png"},
+    KeyActionData{sf::Keyboard::Num4,  "img/classic/keyboard/3.png",  "img/classic/lefthand/3.png"},
+    KeyActionData{sf::Keyboard::Num5,  "img/classic/keyboard/4.png",  "img/classic/lefthand/4.png"},
+    KeyActionData{sf::Keyboard::Num6,  "img/classic/keyboard/5.png",  "img/classic/lefthand/5.png"},
+    KeyActionData{sf::Keyboard::Num7,  "img/classic/keyboard/6.png",  "img/classic/lefthand/6.png"},
+    KeyActionData{sf::Keyboard::Q,     "img/classic/keyboard/7.png",  "img/classic/lefthand/7.png"},
+    KeyActionData{sf::Keyboard::E,     "img/classic/keyboard/8.png",  "img/classic/lefthand/8.png"},
+    KeyActionData{sf::Keyboard::R,     "img/classic/keyboard/9.png",  "img/classic/lefthand/9.png"},
+    KeyActionData{sf::Keyboard::Space, "img/classic/keyboard/10.png", "img/classic/lefthand/10.png"},
+    KeyActionData{sf::Keyboard::A,     "img/classic/keyboard/11.png", "img/classic/lefthand/11.png"},
+    KeyActionData{sf::Keyboard::D,     "img/classic/keyboard/12.png", "img/classic/lefthand/12.png"},
+    KeyActionData{sf::Keyboard::S,     "img/classic/keyboard/13.png", "img/classic/lefthand/13.png"},
+    KeyActionData{sf::Keyboard::W,     "img/classic/keyboard/14.png", "img/classic/lefthand/14.png"},
 };
 
 }
 
 namespace cats {
 
-bool StandardCat::init(const Json::Value& cfg) {
+bool ClassicCat::init(const Json::Value& cfg) {
 
-    cat.setTexture(data::load_texture("img/standard/catbg.png"));
-    left_paw.setTexture(data::load_texture("img/standard/lefthand/leftup.png"));
+    cat.setTexture(data::load_texture("img/classic/catbg.png"));
+    left_paw.setTexture(data::load_texture("img/classic/lefthand/leftup.png"));
     mouse.setTexture(data::load_texture("img/osu/mouse.png"), true);
     mouse.setScale(1.0, 1.0f);
 
@@ -68,7 +68,7 @@ bool StandardCat::init(const Json::Value& cfg) {
     scale = (cfg["decoration"]["scalar"])[0].asDouble();
 
     // for this mode use separate paw adjustments from the corresponding section
-    Json::Value cfg_std = cfg["standard"];
+    Json::Value cfg_std = cfg["classic"];
     x_paw_start = cfg_std["pawStartingPoint"][0].asInt();
     y_paw_start = cfg_std["pawStartingPoint"][1].asInt();
 
@@ -78,7 +78,7 @@ bool StandardCat::init(const Json::Value& cfg) {
     return true;
 }
 
-void StandardCat::draw(sf::RenderWindow& window) {
+void ClassicCat::draw(sf::RenderWindow& window) {
     window.draw(cat);
     draw_mouse(window);
 
@@ -92,7 +92,7 @@ void StandardCat::draw(sf::RenderWindow& window) {
     window.draw(left_paw);
 }
 
-void StandardCat::draw_mouse(sf::RenderWindow& window) {
+void ClassicCat::draw_mouse(sf::RenderWindow& window) {
     auto [fx, fy] = input::get_mouse_input().get_position();
 
     // apparently, this is a linear transform, intented to move the point to some position,

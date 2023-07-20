@@ -52,7 +52,7 @@
         "pawEdge": [0, 0, 0],
         "keyContainers": []
     },
-    "standard": {
+    "classic": {
         "pawStartingPoint": [202, 167],
         "pawEndingPoint": [258, 228]
     },
