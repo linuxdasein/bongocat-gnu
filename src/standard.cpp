@@ -67,13 +67,13 @@ bool StandardCat::init(const Json::Value& cfg) {
     offset_y = (cfg["decoration"]["offsetY"])[0].asInt();
     scale = (cfg["decoration"]["scalar"])[0].asDouble();
 
-    // initializing pss and pss2 (kuvster's magic)
-    Json::Value paw_draw_info = cfg["mousePaw"];
-    x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
-    y_paw_start = paw_draw_info["pawStartingPoint"][1].asInt();
+    // for this mode use separate paw adjustments from the corresponding section
+    Json::Value cfg_std = cfg["standard"];
+    x_paw_start = cfg_std["pawStartingPoint"][0].asInt();
+    y_paw_start = cfg_std["pawStartingPoint"][1].asInt();
 
-    x_paw_end = paw_draw_info["pawEndingPoint"][0].asInt();
-    y_paw_end = paw_draw_info["pawEndingPoint"][1].asInt();
+    x_paw_end = cfg_std["pawEndingPoint"][0].asInt();
+    y_paw_end = cfg_std["pawEndingPoint"][1].asInt();
 
     return true;
 }

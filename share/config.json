@@ -52,6 +52,10 @@
         "pawEdge": [0, 0, 0],
         "keyContainers": []
     },
+    "standard": {
+        "pawStartingPoint": [202, 167],
+        "pawEndingPoint": [258, 228]
+    },
     "mousePaw": {
         "mousePawComment": "coordinates start in the top left of the window",
         "pawStartingPoint": [211, 159],
