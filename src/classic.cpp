@@ -1,4 +1,5 @@
 #include "header.hpp"
+#include "json/json.h"
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
@@ -69,11 +70,24 @@ bool ClassicCat::init(const Json::Value& cfg) {
 
     // for this mode use separate paw adjustments from the corresponding section
     Json::Value cfg_std = cfg["classic"];
-    x_paw_start = cfg_std["pawStartingPoint"][0].asInt();
-    y_paw_start = cfg_std["pawStartingPoint"][1].asInt();
 
-    x_paw_end = cfg_std["pawEndingPoint"][0].asInt();
-    y_paw_end = cfg_std["pawEndingPoint"][1].asInt();
+    if ( Json::Value::null != cfg_std)
+    {
+        x_paw_start = cfg_std["pawStartingPoint"][0].asInt();
+        y_paw_start = cfg_std["pawStartingPoint"][1].asInt();
+
+        x_paw_end = cfg_std["pawEndingPoint"][0].asInt();
+        y_paw_end = cfg_std["pawEndingPoint"][1].asInt();
+    }
+    else
+    {
+        // if no config section is present, use the default values
+        x_paw_start = 202;
+        y_paw_start = 167;
+
+        x_paw_end = 258;
+        y_paw_end = 228;
+    }
 
     return true;
 }
