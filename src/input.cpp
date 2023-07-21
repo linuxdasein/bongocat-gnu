@@ -130,7 +130,7 @@ bool init() {
     int current_height = xrrs[current_size_id].height;
 
     // loading font
-    if (!debugFont.loadFromFile("font/RobotoMono-Bold.ttf")) {
+    if (!debugFont.loadFromFile("share/RobotoMono-Bold.ttf")) {
         data::error_msg("Cannot find the font : RobotoMono-Bold.ttf", "Error loading font");
         return false;
     }

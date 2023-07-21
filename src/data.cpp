@@ -1,4 +1,5 @@
 #include "header.hpp"
+#include <memory>
 #include <system.hpp>
 #include <filesystem>
 #define BONGO_ERROR 1
@@ -14,75 +15,20 @@ namespace data {
 Json::Value cfg;
 std::map<std::string, sf::Texture> img_holder;
 
-const char *create_config() {
-    const char *s =
-        R"V0G0N({
-    "mode": 1,
-    "resolution": {
-        "letterboxing": false,
-        "width": 1920,
-        "height": 1080,
-        "horizontalPosition": 0,
-        "verticalPosition": 0
-    },
-    "decoration": {
-        "leftHanded": false,
-        "rgb": [255, 255, 255],
-        "offsetX": [0, 11],
-        "offsetY": [0, -65],
-        "scalar": [1.0, 1.0]
-    },
-    "osu": {
-        "mouse": true,
-        "toggleSmoke": false,
-        "paw": [255, 255, 255],
-        "pawEdge": [0, 0, 0],
-        "key1": [90],
-        "key2": [88],
-        "smoke": [67],
-        "wave": []
-    },
-    "taiko": {
-        "leftCentre": [88],
-        "rightCentre": [67],
-        "leftRim": [90],
-        "rightRim": [86]
-    },
-    "catch": {
-        "left": [37],
-        "right": [39],
-        "dash": [16]
-    },
-    "mania": {
-        "4K": true,
-        "key4K": [68, 70, 74, 75],
-        "key7K": [83, 68, 70, 32, 74, 75, 76]
-    },
-    "custom": {
-        "background": "img/osu/mousebg.png",
-        "mouse": false,
-        "mouseImage": "img/osu/mouse.png",
-        "mouseOnTop": true,
-        "offsetX": 0,
-        "offsetY": 0,
-        "scalar": 1.0,
-        "paw": [255, 255, 255],
-        "pawEdge": [0, 0, 0],
-        "keyContainers": []
-    },
-    "mousePaw": {
-        "mousePawComment": "coordinates start in the top left of the window",
-        "pawStartingPoint": [211, 159],
-        "pawEndingPoint": [258, 228]
-    }
-})V0G0N";
-    std::string error;
+std::unique_ptr<Json::Value> parse_config_file(std::ifstream& cfg_file) {
+    std::string cfg_string((std::istreambuf_iterator<char>(cfg_file)), std::istreambuf_iterator<char>()), error;
     Json::CharReaderBuilder cfg_builder;
+    auto cfg = std::make_unique<Json::Value>();
     Json::CharReader *cfg_reader = cfg_builder.newCharReader();
-    cfg_reader->parse(s, s + strlen(s), &cfg, &error);
+
+    if (!cfg_reader->parse(cfg_string.c_str(), cfg_string.c_str() + cfg_string.size(), cfg.get(), &error)) {
+        delete cfg_reader;
+        throw std::runtime_error(error);
+    } 
+        
     delete cfg_reader;
 
-    return s;
+    return cfg;
 }
 
 const Json::Value& get_cfg() {
@@ -158,33 +104,42 @@ bool update(Json::Value &cfg_default, Json::Value &cfg) {
 }
 
 void init() {
+    const auto system_info = os::create_system_info();
+
     while (true) {
-        const char* default_config = create_config();
-        auto system_info = os::create_system_info();
         std::string conf_file_path = CONF_FILE_NAME;
         // if a file exists in the current directory it takes precendence
         if(!std::filesystem::exists(conf_file_path)) {
             // otherwise try to load a file from user's home directory
             conf_file_path = system_info->get_config_dir_path() + CONF_FILE_NAME;
             if(!std::filesystem::exists(conf_file_path)) {
-                // if no config file is present, create one with the deault settings
-                std::ofstream crg_file_o(conf_file_path, std::ifstream::binary);
-                crg_file_o << default_config;
+                // if no config file is present, create one with the default settings
+                const std::string cfg_file_template_path = "share/" CONF_FILE_NAME;
+                
+                if (std::filesystem::exists(cfg_file_template_path)) {
+                    // create config from the default config template
+                    std::filesystem::copy(cfg_file_template_path, conf_file_path);
+                }
             }
         }
-        std::ifstream cfg_file(conf_file_path, std::ifstream::binary);
+        std::ifstream cfg_file(conf_file_path);
         if (!cfg_file.good()) {
-            break;
+            std::string msg = "Couldn't open config file " + conf_file_path + ":\n";
+            error_msg( msg, "Error reading configs");
+            continue;
         }
-        std::string cfg_string((std::istreambuf_iterator<char>(cfg_file)), std::istreambuf_iterator<char>()), error;
-        Json::CharReaderBuilder cfg_builder;
-        Json::CharReader *cfg_reader = cfg_builder.newCharReader();
-        Json::Value cfg_read;
-        if (!cfg_reader->parse(cfg_string.c_str(), cfg_string.c_str() + cfg_string.size(), &cfg_read, &error)) {
-            delete cfg_reader;
-            error_msg("Syntax error in " CONF_FILE_NAME ":\n" + error, "Error reading configs");
-        } else if (update(cfg, cfg_read)) {
-            delete cfg_reader;
+
+        std::unique_ptr<Json::Value> cfg_read;
+        try {
+            cfg_read = parse_config_file(cfg_file);
+        }
+        catch(std::runtime_error& e) {
+            std::string msg = "Syntax error in " CONF_FILE_NAME ":\n";
+            error_msg( msg + e.what(), "Error reading configs");
+            continue;
+        }
+
+        if (update(cfg, *cfg_read)) {
             break;
         }
     }
