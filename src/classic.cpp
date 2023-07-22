@@ -1,5 +1,5 @@
 #include "header.hpp"
-#include "json/json.h"
+#include <json/json.h>
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
@@ -46,6 +46,18 @@ const std::array<KeyActionData, 15> actions_data = {
     KeyActionData{sf::Keyboard::W,     "img/classic/keyboard/14.png", "img/classic/lefthand/14.png"},
 };
 
+template<typename T, typename P>
+void move_if(std::list<T>& dst, std::list<T>& src, P condition) {
+    for( auto it = src.begin(); it != src.end(); ) {
+        // store iterator value before increment 
+        // since it will point to the other list after splicing
+        auto tmp = it++; 
+        if(condition(*tmp)) {
+            dst.splice(dst.end(), src, tmp);
+        }
+    }
+}
+
 }
 
 namespace cats {
@@ -62,6 +74,7 @@ bool ClassicCat::init(const Json::Value& cfg) {
             sf::Sprite(data::load_texture(key.paw_texture)),
             sf::Sprite(data::load_texture(key.key_texture))
         );
+        keys.push_back(key.key_code);
     }
 
     offset_x = (cfg["decoration"]["offsetX"])[0].asInt();
@@ -96,14 +109,18 @@ void ClassicCat::draw(sf::RenderWindow& window) {
     window.draw(cat);
     draw_mouse(window);
 
-    for(const auto& key : key_actions) {
-        if(sf::Keyboard::isKeyPressed(key.first)) {
-            window.draw(*key.second);
-            return;
-        }
-    }
+    // First, update states for the keys which currently are not pressed down
+    move_if(pressed_keys, keys, 
+        [&](sf::Keyboard::Key key){ return sf::Keyboard::isKeyPressed(key); });
 
-    window.draw(left_paw);
+    if(pressed_keys.empty())
+        window.draw(left_paw);
+    else // draw the latest pressed key sprite
+        window.draw(*key_actions[pressed_keys.back()]);
+
+    // Update states for the keys which have been released
+    move_if(keys, pressed_keys, 
+        [&](sf::Keyboard::Key key){ return !sf::Keyboard::isKeyPressed(key); });
 }
 
 void ClassicCat::draw_mouse(sf::RenderWindow& window) {

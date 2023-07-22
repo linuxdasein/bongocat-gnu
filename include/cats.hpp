@@ -7,6 +7,8 @@
 #include <SFML/Graphics.hpp>
 #include <json/json.h>
 
+#include <list>
+
 namespace cats
 {
 
@@ -143,6 +145,9 @@ private:
     int offset_x, offset_y, scale;
     int x_paw_start, y_paw_start;
     int x_paw_end, y_paw_end;
+
+    std::list<sf::Keyboard::Key> keys;
+    std::list<sf::Keyboard::Key> pressed_keys;
 };
 
 std::unique_ptr<ICat> get_cat(int mode);
