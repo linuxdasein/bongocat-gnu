@@ -26,6 +26,7 @@ link_deps = [
   dependency('xrandr'),
   dependency('libxdo'),
   dependency('sdl2'),
+  dependency('jsoncpp'),
   dependency('sfml-window'),
   dependency('sfml-graphics')
 ]
