@@ -61,10 +61,9 @@ struct key {
 struct key_container {
     std::vector<key> keys;
     sf::Sprite default_sprite;
-    int key_state;
+    size_t key_index;
 
     key_container(Json::Value key_container_value) {
-        key_state = -1;
         if (key_container_value.isObject()) {
             if (!key_container_value.isMember("defaultImage")
                 || !key_container_value["defaultImage"].isString()
@@ -87,12 +86,12 @@ struct key_container {
 
     void draw(sf::RenderWindow& window) {
         bool is_any_key_pressed = false;
-        for (int i = 0; i < keys.size(); i++) {
+        for (size_t i = 0; i < keys.size(); i++) {
             key& current_key = keys[i];
             if (current_key.is_pressed()) {
                 is_any_key_pressed = true;
                 if (!current_key.status) {
-                    key_state = i;
+                    key_index = i;
                     current_key.status = true;
                 }
             } else {
@@ -100,14 +99,13 @@ struct key_container {
             }
         }
         if (!is_any_key_pressed) {
-            key_state = -1;
             window.draw(default_sprite);
         }
-        if (key_state > -1) {
-            key& on_key = keys[key_state];
+        else {
+            key& on_key = keys[key_index];
             double last_press = -1;
-            for (int i = 0; i < (int)keys.size(); i++) {
-                if (i != key_state) {
+            for (size_t i = 0; i < keys.size(); i++) {
+                if (i != key_index) {
                     last_press = std::max(last_press, keys[i].timer);
                 }
             }

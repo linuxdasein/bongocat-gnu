@@ -14,7 +14,7 @@ class MouseXdo : public IMouse
 {
 public:
 
-    MouseXdo(int h, int v);
+    MouseXdo(unsigned int h, unsigned int v);
     ~MouseXdo();
 
     // Get the mouse position
@@ -22,12 +22,12 @@ public:
 
 private:
     xdo_t* xdo;
-    int horizontal, vertical;
+    const unsigned int horizontal, vertical;
     int osu_x, osu_y, osu_h, osu_v;
     bool is_letterbox, is_left_handed;
 };
 
-MouseXdo::MouseXdo(int h, int v)
+MouseXdo::MouseXdo(unsigned int h, unsigned int v)
     : horizontal(h), vertical(v) {
     xdo = xdo_new(NULL);
     auto cfg = data::get_cfg();
@@ -96,7 +96,6 @@ std::pair<double, double> MouseXdo::get_position() {
                         long left = x_ret;
                         long top = y_ret;
                         long right = left + width_ret;
-                        long bottom = top + height_ret;
 
                         letter_x = left + ((right - left) - s_width) / 2;
                         letter_y = top + osu_y * 0.117;
@@ -168,7 +167,7 @@ class MouseSfml : public IMouse
 {
 public:
 
-    MouseSfml(int h, int v);
+    MouseSfml(unsigned int h, unsigned int v);
     ~MouseSfml() = default;
 
     // get the mouse position
@@ -178,7 +177,7 @@ private:
     bool is_left_handed;
 };
 
-MouseSfml::MouseSfml(int h, int v) {
+MouseSfml::MouseSfml(unsigned int h, unsigned int v) {
     is_left_handed = data::get_cfg()["decoration"]["leftHanded"].asBool();
 }
 
@@ -198,7 +197,7 @@ std::pair<double, double> MouseSfml::get_position() {
     return std::make_pair(x, y);
 }
 
-std::unique_ptr<IMouse> create_mouse_handler(int h, int v) {
+std::unique_ptr<IMouse> create_mouse_handler(unsigned int h, unsigned int v) {
     const char* xdg_session_type = getenv("XDG_SESSION_TYPE");
     // unfortunately, xdotool does not work on Wayland sessions. The probmlem is that Wayland does not allow to get the mouse position
     // if it is not hovered over the application. That's a security measure preventing applications from watching what a user does outside 
