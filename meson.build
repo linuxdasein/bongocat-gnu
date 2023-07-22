@@ -8,7 +8,6 @@ sources = files([
   'src/custom.cpp',
   'src/data.cpp',
   'src/input.cpp',
-  'src/jsoncpp.cpp',
   'src/main.cpp',
   'src/mania.cpp',
   'src/mouse.cpp',
@@ -27,6 +26,7 @@ link_deps = [
   dependency('xrandr'),
   dependency('libxdo'),
   dependency('sdl2'),
+  dependency('jsoncpp'),
   dependency('sfml-window'),
   dependency('sfml-graphics')
 ]

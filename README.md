@@ -29,7 +29,7 @@ If no config file is found the application launches with the default settings.
 Press Ctrl + R to reload configuration and images (will only reload configurations when the window is focused).
 
 ## For developers
-This project uses [SFML](https://www.sfml-dev.org/index.php) and [JsonCpp](https://github.com/open-source-parsers/jsoncpp). JsonCpp libraries are directly included in the source using the provided `amalgamation.py` from the developers.
+This project uses [SFML](https://www.sfml-dev.org/index.php) and [JsonCpp](https://github.com/open-source-parsers/jsoncpp).
 
 ### Dependencies
 
@@ -37,6 +37,7 @@ You need to have these dependencies installed. Check with your package manager f
 - g++
 - libxdo
 - sdl2
+- jsoncpp
 - sfml
 - x11
 - xrandr
