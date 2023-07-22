@@ -17,7 +17,7 @@ sources = files([
   'src/cats.cpp',
 ])
 
-cpp_flags = ['-std=c++17']
+cpp_flags = ['-std=c++17', '-Werror']
 
 inc_dirs = include_directories('include')
 
