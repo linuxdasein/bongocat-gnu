@@ -2,9 +2,12 @@
 
 #pragma once
 
+#include <SFML/Graphics/Drawable.hpp>
 #include <memory>
 #include <SFML/Graphics.hpp>
 #include <json/json.h>
+
+#include <list>
 
 namespace cats
 {
@@ -124,6 +127,27 @@ private:
     int paw_edge_r, paw_edge_g, paw_edge_b, paw_edge_a;
     int x_paw_start, y_paw_start;
     int x_paw_end, y_paw_end;
+};
+
+class ClassicCat : public ICat
+{
+public:
+
+    bool init(const Json::Value& cfg) override;
+    void draw(sf::RenderWindow& window) override;
+
+private:
+    void draw_mouse(sf::RenderWindow& window);
+
+    sf::Sprite cat, left_paw, mouse;
+    std::map<sf::Keyboard::Key, std::unique_ptr<sf::Drawable> > key_actions;
+
+    int offset_x, offset_y, scale;
+    int x_paw_start, y_paw_start;
+    int x_paw_end, y_paw_end;
+
+    std::list<sf::Keyboard::Key> keys;
+    std::list<sf::Keyboard::Key> pressed_keys;
 };
 
 std::unique_ptr<ICat> get_cat(int mode);

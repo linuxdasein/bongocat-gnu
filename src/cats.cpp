@@ -16,6 +16,8 @@ std::unique_ptr<ICat> get_cat(int mode)
         return std::make_unique<ManiaCat>();
     case 5:
         return std::make_unique<CustomCat>();
+    case 6:
+        return std::make_unique<ClassicCat>();
     default:
         data::error_msg("Mode value is not correct", "Error reading configs");
         return nullptr;
