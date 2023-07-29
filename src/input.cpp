@@ -6,7 +6,6 @@
 #include <SFML/Window.hpp>
 
 #include <X11/Xlib.h>
-#include <X11/extensions/Xrandr.h>
 #include <X11/keysym.h>
 
 #define TOTAl_INPUT_TABLE_SIZE 256
@@ -115,19 +114,7 @@ bool init() {
     // Set x11 error handler
     XSetErrorHandler(_XlibErrorHandler);
 
-    // Get desktop resolution
-    int num_sizes;
-    Rotation current_rotation;
-
     dpy = XOpenDisplay(NULL);
-    Window root = RootWindow(dpy, 0);
-    XRRScreenSize *xrrs = XRRSizes(dpy, 0, &num_sizes);
-
-    XRRScreenConfiguration *conf = XRRGetScreenInfo(dpy, root);
-    SizeID current_size_id = XRRConfigCurrentConfiguration(conf, &current_rotation);
-
-    int current_width = xrrs[current_size_id].width;
-    int current_height = xrrs[current_size_id].height;
 
     // loading font
     if (!debugFont.loadFromFile("share/RobotoMono-Bold.ttf")) {
@@ -145,7 +132,7 @@ bool init() {
     debugText.setPosition(10.0f, 4.0f);
     debugText.setString(debugMessage);
 
-    g_mouse = create_mouse_handler(current_width, current_height);
+    g_mouse = create_mouse_handler(dpy);
 
     return true;
 }

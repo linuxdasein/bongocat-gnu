@@ -19,6 +19,6 @@ public:
 };
 
 
-std::unique_ptr<IMouse> create_mouse_handler(unsigned int h, unsigned int v);
+std::unique_ptr<IMouse> create_mouse_handler(void* display);
 
 }

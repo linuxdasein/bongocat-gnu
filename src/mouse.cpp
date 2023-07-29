@@ -2,10 +2,13 @@
 #include <header.hpp>
 extern "C" {
 #include <xdo.h>
+#include <X11/Xlib.h>
+#include <X11/extensions/Xrandr.h>
 }
 
 #include <string>
 #include <cmath>
+#include <set>
 
 namespace input
 {
@@ -14,141 +17,178 @@ class MouseXdo : public IMouse
 {
 public:
 
-    MouseXdo(unsigned int h, unsigned int v);
+    MouseXdo(Display* display);
     ~MouseXdo();
 
     // Get the mouse position
     std::pair<double, double> get_position() override;
 
 private:
+    void poll_x11_events();
+    void process_x11_event(const XEvent& evt);
+    std::string print_window_name(Window w);
+
     xdo_t* xdo;
-    const unsigned int horizontal, vertical;
-    int osu_x, osu_y, osu_h, osu_v;
-    bool is_letterbox, is_left_handed;
+    Display* dpy;
+
+    bool is_left_handed;
+    bool is_mouse_grab_mode = false;
+    unsigned int screen_w, screen_h;
+    std::set<Window> active_windows;
+    Window curent_grabbing_window = 0;
 };
 
-MouseXdo::MouseXdo(unsigned int h, unsigned int v)
-    : horizontal(h), vertical(v) {
+MouseXdo::MouseXdo(Display* display)
+    : dpy(display) {
     xdo = xdo_new(NULL);
     auto cfg = data::get_cfg();
-    osu_x = cfg["resolution"]["width"].asInt();
-    osu_y = cfg["resolution"]["height"].asInt();
-    osu_h = cfg["resolution"]["horizontalPosition"].asInt();
-    osu_v = cfg["resolution"]["verticalPosition"].asInt();
-    is_letterbox = cfg["resolution"]["letterboxing"].asBool();
     is_left_handed = cfg["decoration"]["leftHanded"].asBool();
+
+    // Get the desktop resolution
+    int num_sizes;
+    Rotation current_rotation;
+
+    Window root = RootWindow(dpy, 0);
+    XRRScreenSize *xrrs = XRRSizes(dpy, 0, &num_sizes);
+
+    XRRScreenConfiguration *conf = XRRGetScreenInfo(dpy, root);
+    SizeID current_size_id = XRRConfigCurrentConfiguration(conf, &current_rotation);
+
+    screen_w = xrrs[current_size_id].width;
+    screen_h = xrrs[current_size_id].height;
 }
 
 MouseXdo::~MouseXdo() {
-    delete xdo;
+    xdo_free(xdo);
+}
+
+std::string MouseXdo::print_window_name(Window w) {
+    unsigned char* name_ret;
+    int name_len_ret;
+    int name_type;
+
+    std::string window_name;
+
+    xdo_get_window_name(xdo, w, &name_ret, &name_len_ret, &name_type);
+    if(name_ret!=nullptr)
+        window_name = std::string((const char*)name_ret, name_len_ret);
+    return window_name;
+}
+
+void MouseXdo::poll_x11_events() {
+    // Process all pending events
+    while(XPending(dpy)) {
+        XEvent evt;
+        XNextEvent(dpy, &evt);
+        process_x11_event(evt);
+    }
+}
+
+void MouseXdo::process_x11_event(const XEvent& evt) {
+    switch(evt.type) {
+        case EnterNotify: {
+            // The mouse cursor has entered a window
+            if(evt.xcrossing.mode == NotifyGrab) {
+                // The window has grabbed the mouse pointer
+                is_mouse_grab_mode = true;
+                curent_grabbing_window = evt.xcrossing.window;
+            }
+        }
+        break;
+        case LeaveNotify: {
+            // The mouse cursor has left a window
+            if(evt.xcrossing.mode == NotifyGrab) {
+                // The window has grabbed the mouse pointer
+                is_mouse_grab_mode = true;
+                curent_grabbing_window = evt.xcrossing.window;
+            }
+            else if(evt.xcrossing.mode == NotifyUngrab) {
+                // The window has ungrabbed the mouse pointer
+                is_mouse_grab_mode = false;
+            }
+        }
+        break;
+        case FocusIn: {
+            // if the current grabbing window has got focused again,
+            // restore mouse grabbing mode
+            if(evt.xfocus.window == curent_grabbing_window) {
+                is_mouse_grab_mode = true;
+            }
+        }
+        break;
+        case FocusOut: {
+            // if the current grabbing window has lost focus,
+            // disable mouse grabbing mode
+            if(evt.xfocus.window == curent_grabbing_window) {
+                is_mouse_grab_mode = false;
+            }
+        }
+        break;
+        case DestroyNotify: {
+            // if the current grabbing window has been closed,
+            // disable mouse grabbing mode and delete the window's handle
+            // from the set of windows we receive events from
+            if(evt.xdestroywindow.window == curent_grabbing_window) {
+                is_mouse_grab_mode = false;
+            }
+            active_windows.erase(evt.xdestroywindow.window);
+        }
+        break;
+    }
 }
 
 std::pair<double, double> MouseXdo::get_position() {
-    double letter_x, letter_y, s_height, s_width;
+    // The point of this code is that we want to track mouse position differently
+    // depending on whether the mouse cursor is grabbed by a window or not.
+    // If the active window is grabbing the cursor, then we limit the tracking box
+    // size to the active windows's dimensions.
+    double sbox_pos_x, sbox_pos_y, sbox_width, sbox_height;
     Window foreground_window;
-    bool found_window = (xdo_get_focused_window_sane(xdo, &foreground_window) == 0);
 
-    if (found_window) {
-        unsigned char* name_ret;
-        int name_len_ret;
-        int name_type;
-
-        xdo_get_window_name(xdo, foreground_window, &name_ret, &name_len_ret, &name_type);
-        bool can_get_name = (name_len_ret > 0);
-
-        if (can_get_name) {
-
-            std::string title = "";
-
-            if (name_ret != NULL)
-            {
-                std::string foreground_title(reinterpret_cast<char*>(name_ret));
-                title = foreground_title;
-            }
-
-            if (title.find("osu!") == 0) {
-                if (!is_letterbox) {
-
-                    int x_ret;
-                    int y_ret;
-                    unsigned int width_ret;
-                    unsigned int height_ret;
-
-                    bool can_get_location = (xdo_get_window_location(xdo, foreground_window, &x_ret, &y_ret, NULL) == 0);
-                    bool can_get_size = (xdo_get_window_size(xdo, foreground_window, &width_ret, &height_ret) == 0);
-
-                    bool can_get_rect = (can_get_location && can_get_size);
-
-                    bool is_fullscreen_window = (horizontal == width_ret) && (vertical == height_ret);
-                    bool should_not_resize_screen = (!can_get_rect || is_fullscreen_window);
-
-                    if (should_not_resize_screen) {
-                        s_width = horizontal;
-                        s_height = vertical;
-
-                        letter_x = 0;
-                        letter_y = 0;
-                    }
-                    else {
-                        s_height = osu_y * 0.8;
-                        s_width = s_height * 4 / 3;
-
-                        long left = x_ret;
-                        long top = y_ret;
-                        long right = left + width_ret;
-
-                        letter_x = left + ((right - left) - s_width) / 2;
-                        letter_y = top + osu_y * 0.117;
-                    }
-                }
-                else {
-                    s_height = osu_y * 0.8;
-                    s_width = s_height * 4 / 3;
-
-                    double l = (horizontal - osu_x) * (osu_h + 100) / 200.0;
-                    double r = l + osu_x;
-                    letter_x = l + ((r - l) - s_width) / 2;
-                    letter_y = (vertical - osu_y) * (osu_v + 100) / 200.0 + osu_y * 0.117;
-                }
-            }
-            else {
-                s_width = horizontal;
-                s_height = vertical;
-                letter_x = 0;
-                letter_y = 0;
-            }
+    if (0 == xdo_get_active_window(xdo, &foreground_window)) {
+        // Check if we've already subcribed on the window's events
+        if (active_windows.find(foreground_window) == active_windows.end()) {
+            // Once an active window is found, subscribe to its events we want to receive
+            long evt_types = EnterWindowMask | LeaveWindowMask | FocusChangeMask | StructureNotifyMask;
+            XSelectInput(dpy, foreground_window, evt_types);
+            active_windows.insert(foreground_window);
         }
-        else {
-            s_width = horizontal;
-            s_height = vertical;
-            letter_x = 0;
-            letter_y = 0;
+        poll_x11_events();
+    }
+
+    if (is_mouse_grab_mode) {
+        // The mouse cursor is being grabbed by the active window
+        int window_pos_x, window_pos_y;
+        if(0 == xdo_get_window_location(xdo, foreground_window, &window_pos_x, &window_pos_y, NULL)) {
+            unsigned int width_ret, height_ret;
+
+            if(0 == xdo_get_window_size(xdo, foreground_window, &width_ret, &height_ret)) {
+                sbox_width = width_ret;
+                sbox_height = height_ret;
+                sbox_pos_x = window_pos_x;
+                sbox_pos_y = window_pos_y;
+            }
         }
     }
     else {
-        s_width = horizontal;
-        s_height = vertical;
-        letter_x = 0;
-        letter_y = 0;
+        // No window is grabbing the mouse cursor
+        sbox_width = screen_w;
+        sbox_height = screen_h;
+        sbox_pos_x = sbox_pos_y = 0;
     }
 
     double x = 0, y = 0;
     int px = 0, py = 0;
 
-    if (xdo_get_mouse_location(xdo, &px, &py, NULL) == 0) {
-
-        if (!is_letterbox) {
-            letter_x = floor(1.0 * px / osu_x) * osu_x;
-            letter_y = floor(1.0 * py / osu_y) * osu_y;
-        }
-
-        double fx = (1.0 * px - letter_x) / s_width;
+    if (0 == xdo_get_mouse_location(xdo, &px, &py, NULL)) {
+        // transform mouse screen coordinates into coordinates in a unit box
+        double fx = (1.0 * px - sbox_pos_x) / sbox_width;
 
         if (is_left_handed) {
             fx = 1 - fx;
         }
 
-        double fy = (1.0 * py - letter_y) / s_height;
+        double fy = (1.0 * py - sbox_pos_y) / sbox_height;
 
         fx = std::min(fx, 1.0);
         fx = std::max(fx, 0.0);
@@ -167,7 +207,7 @@ class MouseSfml : public IMouse
 {
 public:
 
-    MouseSfml(unsigned int h, unsigned int v);
+    MouseSfml(Display* display);
     ~MouseSfml() = default;
 
     // get the mouse position
@@ -177,7 +217,7 @@ private:
     bool is_left_handed;
 };
 
-MouseSfml::MouseSfml(unsigned int h, unsigned int v) {
+MouseSfml::MouseSfml(Display* display) {
     is_left_handed = data::get_cfg()["decoration"]["leftHanded"].asBool();
 }
 
@@ -197,7 +237,8 @@ std::pair<double, double> MouseSfml::get_position() {
     return std::make_pair(x, y);
 }
 
-std::unique_ptr<IMouse> create_mouse_handler(unsigned int h, unsigned int v) {
+std::unique_ptr<IMouse> create_mouse_handler(void* pdisplay) {
+    Display *display = static_cast<Display *>(pdisplay);
     const char* xdg_session_type = getenv("XDG_SESSION_TYPE");
     // unfortunately, xdotool does not work on Wayland sessions. The probmlem is that Wayland does not allow to get the mouse position
     // if it is not hovered over the application. That's a security measure preventing applications from watching what a user does outside 
@@ -207,11 +248,11 @@ std::unique_ptr<IMouse> create_mouse_handler(unsigned int h, unsigned int v) {
     if(xdg_session_type && !strcmp(xdg_session_type, "wayland")) {
         // some wayland specific implementations may be added here later, but for now
         // use a simple implementation which utilizes only SFML API to discover mouse position
-        return std::make_unique<MouseSfml>(h, v);
+        return std::make_unique<MouseSfml>(display);
     }
     else {
         // Leave Xorg specific stuff here
-        return std::make_unique<MouseXdo>(h, v);
+        return std::make_unique<MouseXdo>(display);
     }
 }
 
