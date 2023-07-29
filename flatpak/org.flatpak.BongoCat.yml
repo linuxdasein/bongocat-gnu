@@ -1,0 +1,41 @@
+app-id: org.flatpak.BongoCat
+runtime: org.freedesktop.Platform
+runtime-version: '22.08'
+sdk: org.freedesktop.Sdk
+command: bongocat
+finish-args:
+  # X11 access
+  - --socket=x11
+
+modules:
+  - name: sfml
+    buildsystem: cmake
+    config-opts:
+      - -DSFML_PKGCONFIG_INSTALL_PREFIX=/app/lib/pkgconfig
+    sources:
+      - type: archive
+        url: https://www.sfml-dev.org/files/SFML-2.6.0-sources.zip
+        sha256: dc477fc7266641709046bd38628c909f5748bd2564b388cf6c750a9e20cdfef1
+
+  - name: libxdo
+    buildsystem: simple
+    build-commands:
+      - make DESTDIR=/app PREFIX=
+      - make install DESTDIR=/app PREFIX=
+    sources:
+      - type: archive
+        url: https://github.com/jordansissel/xdotool/archive/refs/tags/v3.20211022.1.tar.gz
+        sha256: 82b15a944a5e82fee15e0f6116bd9f642bc3d0bb6989fc0ca5ad9dfe35de0847
+
+  - name: jsoncpp
+    buildsystem: meson
+    sources:
+      - type: archive
+        url: https://github.com/open-source-parsers/jsoncpp/archive/refs/tags/1.9.5.tar.gz
+        sha256: f409856e5920c18d0c2fb85276e24ee607d2a09b5e7d5f0a371368903c275da2
+
+  - name: bongocat
+    buildsystem: meson
+    sources:
+      - type: dir
+        path: ..
