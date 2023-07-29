@@ -93,6 +93,12 @@ void MouseXdo::process_x11_event(const XEvent& evt) {
                 is_mouse_grab_mode = true;
                 curent_grabbing_window = evt.xcrossing.window;
             }
+            else if(evt.xcrossing.mode == NotifyUngrab) {
+                // Ignore event if ungrabbed cursor enters the grabbing window
+                if(evt.xcrossing.window != curent_grabbing_window) {
+                    is_mouse_grab_mode = false;
+                }
+            }
         }
         break;
         case LeaveNotify: {
@@ -100,7 +106,6 @@ void MouseXdo::process_x11_event(const XEvent& evt) {
             if(evt.xcrossing.mode == NotifyGrab) {
                 // The window has grabbed the mouse pointer
                 is_mouse_grab_mode = true;
-                curent_grabbing_window = evt.xcrossing.window;
             }
             else if(evt.xcrossing.mode == NotifyUngrab) {
                 // The window has ungrabbed the mouse pointer
