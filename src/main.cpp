@@ -3,7 +3,7 @@
 
 int main(int argc, char ** argv) {
     sf::RenderWindow window;
-    window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Bongo Cat for osu!", sf::Style::Titlebar | sf::Style::Close);
+    window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Bongo Cat", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(MAX_FRAMERATE);
     std::unique_ptr<cats::ICat> cat;
     int mode;

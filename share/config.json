@@ -1,12 +1,5 @@
 {
     "mode": 1,
-    "resolution": {
-        "letterboxing": false,
-        "width": 1920,
-        "height": 1080,
-        "horizontalPosition": 0,
-        "verticalPosition": 0
-    },
     "decoration": {
         "leftHanded": false,
         "rgb": [255, 255, 255],
