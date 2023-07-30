@@ -161,6 +161,12 @@ std::pair<double, double> MouseXdo::get_position() {
         poll_x11_events();
     }
 
+    // Initialize with the default values; by default
+    // assume that no window is grabbing the mouse cursor
+    sbox_width = screen_w;
+    sbox_height = screen_h;
+    sbox_pos_x = sbox_pos_y = 0;
+
     if (is_mouse_grab_mode) {
         // The mouse cursor is being grabbed by the active window
         int window_pos_x, window_pos_y;
@@ -174,12 +180,6 @@ std::pair<double, double> MouseXdo::get_position() {
                 sbox_pos_y = window_pos_y;
             }
         }
-    }
-    else {
-        // No window is grabbing the mouse cursor
-        sbox_width = screen_w;
-        sbox_height = screen_h;
-        sbox_pos_x = sbox_pos_y = 0;
     }
 
     double x = 0, y = 0;
