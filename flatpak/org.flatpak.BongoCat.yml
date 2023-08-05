@@ -2,7 +2,7 @@ app-id: org.flatpak.BongoCat
 runtime: org.freedesktop.Platform
 runtime-version: '22.08'
 sdk: org.freedesktop.Sdk
-command: bongo
+command: bongo.sh
 finish-args:
   # X11 access
   - --share=ipc
@@ -43,3 +43,7 @@ modules:
     sources:
       - type: dir
         path: ..
+    post-install:
+      - cp -r ../img /app/bin/
+      - cp -r ../share /app/bin/
+      - install -D ../flatpak/bongo.sh /app/bin
