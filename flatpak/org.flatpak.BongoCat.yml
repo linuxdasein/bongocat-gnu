@@ -5,7 +5,11 @@ sdk: org.freedesktop.Sdk
 command: bongo
 finish-args:
   # X11 access
+  - --share=ipc
   - --socket=x11
+  - --device=dri
+  # user config dir
+  - --filesystem=xdg-config
 
 modules:
   - name: sfml
