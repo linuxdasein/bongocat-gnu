@@ -16,10 +16,14 @@ modules:
     buildsystem: cmake
     config-opts:
       - -DSFML_PKGCONFIG_INSTALL_PREFIX=/app/lib/pkgconfig
+      - -DSFML_BUILD_NETWORK=false
+      - -DSFML_BUILD_AUDIO=false
     sources:
       - type: archive
         url: https://www.sfml-dev.org/files/SFML-2.6.0-sources.zip
         sha256: dc477fc7266641709046bd38628c909f5748bd2564b388cf6c750a9e20cdfef1
+    cleanup:
+      - '/share/doc'
 
   - name: libxdo
     buildsystem: simple
@@ -30,6 +34,9 @@ modules:
       - type: archive
         url: https://github.com/jordansissel/xdotool/archive/refs/tags/v3.20211022.1.tar.gz
         sha256: 82b15a944a5e82fee15e0f6116bd9f642bc3d0bb6989fc0ca5ad9dfe35de0847
+    cleanup:
+      - '/bin/xdotool'
+      - '/man'
 
   - name: jsoncpp
     buildsystem: meson
@@ -53,3 +60,9 @@ modules:
       - install -D ../flatpak/bongo-48x48.png /app/share/icons/hicolor/48x48/apps/org.flatpak.BongoCat.png
       - install -D ../flatpak/bongo-170x170.png /app/share/icons/hicolor/170x170/apps/org.flatpak.BongoCat.png
       - install -D ../flatpak/bongocat-gnu.desktop /app/share/applications/org.flatpak.BongoCat.desktop
+
+cleanup:
+  - '/include'
+  - '/lib/debug'
+  - '/lib/cmake'
+  - '/lib/pkgconfig'
