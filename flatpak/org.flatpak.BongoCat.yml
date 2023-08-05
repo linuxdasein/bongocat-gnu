@@ -2,7 +2,7 @@ app-id: org.flatpak.BongoCat
 runtime: org.freedesktop.Platform
 runtime-version: '22.08'
 sdk: org.freedesktop.Sdk
-command: bongocat
+command: bongo
 finish-args:
   # X11 access
   - --socket=x11
