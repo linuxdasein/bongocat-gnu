@@ -1,0 +1,19 @@
+name: '[CI]: Flatpak build'
+on:
+  push:
+    branches: 
+      - master
+jobs:
+  flatpak:
+    name: "Flatpak build"
+    runs-on: ubuntu-latest
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:freedesktop-22.08
+      options: --privileged
+    steps:
+    - uses: actions/checkout@v3
+    - uses: flatpak/flatpak-github-actions/flatpak-builder@v6.1
+      with:
+        bundle: bongocat.flatpak
+        manifest-path: flatpak/org.linuxdasein.BongoCat.yml
+        cache-key: flatpak-builder-${{ github.sha }}

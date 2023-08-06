@@ -35,4 +35,5 @@ link_deps = [
 executable('bongo', sources,
   cpp_args: cpp_flags,
   dependencies: link_deps,
-  include_directories: inc_dirs)
+  include_directories: inc_dirs,
+  install: true)

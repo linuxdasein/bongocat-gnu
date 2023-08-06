@@ -1,0 +1,69 @@
+app-id: org.linuxdasein.BongoCat
+runtime: org.freedesktop.Platform
+runtime-version: '22.08'
+sdk: org.freedesktop.Sdk
+command: bongo.sh
+finish-args:
+  # X11 access
+  - --share=ipc
+  - --socket=x11
+  # Device access (can't be reduced since we need joystick)
+  - --device=all 
+  # User config dir
+  - --filesystem=xdg-config
+
+modules:
+  - name: sfml
+    buildsystem: cmake
+    config-opts:
+      - -DSFML_PKGCONFIG_INSTALL_PREFIX=/app/lib/pkgconfig
+      - -DSFML_BUILD_NETWORK=false
+      - -DSFML_BUILD_AUDIO=false
+    sources:
+      - type: archive
+        url: https://www.sfml-dev.org/files/SFML-2.6.0-sources.zip
+        sha256: dc477fc7266641709046bd38628c909f5748bd2564b388cf6c750a9e20cdfef1
+    cleanup:
+      - '/share/doc'
+
+  - name: libxdo
+    buildsystem: simple
+    build-commands:
+      - make DESTDIR=/app PREFIX=
+      - make install DESTDIR=/app PREFIX=
+    sources:
+      - type: archive
+        url: https://github.com/jordansissel/xdotool/archive/refs/tags/v3.20211022.1.tar.gz
+        sha256: 82b15a944a5e82fee15e0f6116bd9f642bc3d0bb6989fc0ca5ad9dfe35de0847
+    cleanup:
+      - '/bin/xdotool'
+      - '/man'
+
+  - name: jsoncpp
+    buildsystem: meson
+    sources:
+      - type: archive
+        url: https://github.com/open-source-parsers/jsoncpp/archive/refs/tags/1.9.5.tar.gz
+        sha256: f409856e5920c18d0c2fb85276e24ee607d2a09b5e7d5f0a371368903c275da2
+
+  - name: bongocat
+    buildsystem: meson
+    sources:
+      - type: dir
+        path: ..
+    post-install:
+      - cp -r ../img /app/bin/
+      - cp -r ../share /app/bin/
+      - install -D ../flatpak/bongo.sh /app/bin
+      - install -D ../flatpak/bongo-16x16.png /app/share/icons/hicolor/16x16/apps/org.linuxdasein.BongoCat.png
+      - install -D ../flatpak/bongo-24x24.png /app/share/icons/hicolor/24x24/apps/org.linuxdasein.BongoCat.png
+      - install -D ../flatpak/bongo-32x32.png /app/share/icons/hicolor/32x32/apps/org.linuxdasein.BongoCat.png
+      - install -D ../flatpak/bongo-48x48.png /app/share/icons/hicolor/48x48/apps/org.linuxdasein.BongoCat.png
+      - install -D ../flatpak/bongo-170x170.png /app/share/icons/hicolor/170x170/apps/org.linuxdasein.BongoCat.png
+      - install -D ../flatpak/bongocat-gnu.desktop /app/share/applications/org.linuxdasein.BongoCat.desktop
+
+cleanup:
+  - '/include'
+  - '/lib/debug'
+  - '/lib/cmake'
+  - '/lib/pkgconfig'

@@ -19,6 +19,8 @@ public:
         // By default use the current directory
         return "";
     };
+
+    virtual ~ISystemInfo() {}
 };
 
 std::unique_ptr<ISystemInfo> create_system_info();

@@ -67,5 +67,16 @@ cd Archlinux
 makepkg -fi
 ```
 
+#### Flatpak
+Also the project can be built as a flatpak package. In order to do this one may execute the following command:
+```
+flatpak-builder --user --install --install-deps-from=flathub --force-clean build flatpak/org.linuxdasein.BongoCat.yml 
+```
+This command will build the application in the directory named `build` and automatically install the buit package. After 
+building and installation is done, the application can be lauched via flatpak:
+```
+flatpak run org.linuxdasein.BongoCat
+```
+
 If you have troubles compiling, it can be due to version mismatch between your compiler and SFML. See [#43](https://github.com/kuroni/bongocat-osu/issues/43) for more information.
 
