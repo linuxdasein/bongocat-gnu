@@ -7,8 +7,9 @@ finish-args:
   # X11 access
   - --share=ipc
   - --socket=x11
-  - --device=dri
-  # user config dir
+  # Device access (can't be reduced since we need joystick)
+  - --device=all 
+  # User config dir
   - --filesystem=xdg-config
 
 modules:
