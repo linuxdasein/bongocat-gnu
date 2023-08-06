@@ -1,7 +1,7 @@
 [Desktop Entry]
 Exec=
 Type=Application
-Icon=org.flatpak.BongoCat
+Icon=org.linuxdasein.BongoCat
 Name=BongoCat
 Comment=A fork of the Bongo Cat overlay for GNU/Linux
 Categories=Utility;

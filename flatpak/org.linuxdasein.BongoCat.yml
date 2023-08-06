@@ -1,4 +1,4 @@
-app-id: org.flatpak.BongoCat
+app-id: org.linuxdasein.BongoCat
 runtime: org.freedesktop.Platform
 runtime-version: '22.08'
 sdk: org.freedesktop.Sdk
@@ -55,12 +55,12 @@ modules:
       - cp -r ../img /app/bin/
       - cp -r ../share /app/bin/
       - install -D ../flatpak/bongo.sh /app/bin
-      - install -D ../flatpak/bongo-16x16.png /app/share/icons/hicolor/16x16/apps/org.flatpak.BongoCat.png
-      - install -D ../flatpak/bongo-24x24.png /app/share/icons/hicolor/24x24/apps/org.flatpak.BongoCat.png
-      - install -D ../flatpak/bongo-32x32.png /app/share/icons/hicolor/32x32/apps/org.flatpak.BongoCat.png
-      - install -D ../flatpak/bongo-48x48.png /app/share/icons/hicolor/48x48/apps/org.flatpak.BongoCat.png
-      - install -D ../flatpak/bongo-170x170.png /app/share/icons/hicolor/170x170/apps/org.flatpak.BongoCat.png
-      - install -D ../flatpak/bongocat-gnu.desktop /app/share/applications/org.flatpak.BongoCat.desktop
+      - install -D ../flatpak/bongo-16x16.png /app/share/icons/hicolor/16x16/apps/org.linuxdasein.BongoCat.png
+      - install -D ../flatpak/bongo-24x24.png /app/share/icons/hicolor/24x24/apps/org.linuxdasein.BongoCat.png
+      - install -D ../flatpak/bongo-32x32.png /app/share/icons/hicolor/32x32/apps/org.linuxdasein.BongoCat.png
+      - install -D ../flatpak/bongo-48x48.png /app/share/icons/hicolor/48x48/apps/org.linuxdasein.BongoCat.png
+      - install -D ../flatpak/bongo-170x170.png /app/share/icons/hicolor/170x170/apps/org.linuxdasein.BongoCat.png
+      - install -D ../flatpak/bongocat-gnu.desktop /app/share/applications/org.linuxdasein.BongoCat.desktop
 
 cleanup:
   - '/include'
