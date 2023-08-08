@@ -9,16 +9,6 @@ bool OsuCat::init(const Json::Value& cfg) {
     is_mouse = osu["mouse"].asBool();
     is_enable_toggle_smoke = osu["toggleSmoke"].asBool();
 
-    paw_r = osu["paw"][0].asInt();
-    paw_g = osu["paw"][1].asInt();
-    paw_b = osu["paw"][2].asInt();
-    paw_a = osu["paw"].size() == 3 ? 255 : osu["paw"][3].asInt();
-
-    paw_edge_r = osu["pawEdge"][0].asInt();
-    paw_edge_g = osu["pawEdge"][1].asInt();
-    paw_edge_b = osu["pawEdge"][2].asInt();
-    paw_edge_a = osu["pawEdge"].size() == 3 ? 255 : osu["pawEdge"][3].asInt();
-
     bool chk[256];
     std::fill(chk, chk + 256, false);
     left_key_value = osu["key1"];
@@ -43,6 +33,36 @@ bool OsuCat::init(const Json::Value& cfg) {
 
     is_left_handed = cfg["decoration"]["leftHanded"].asBool();
 
+    // importing sprites
+    up.setTexture(data::load_texture("img/osu/up.png"));
+    left.setTexture(data::load_texture("img/osu/left.png"));
+    right.setTexture(data::load_texture("img/osu/right.png"));
+    wave.setTexture(data::load_texture("img/osu/wave.png"));
+    if (is_mouse) {
+        bg.setTexture(data::load_texture("img/osu/mousebg.png"));
+    } else {
+        bg.setTexture(data::load_texture("img/osu/tabletbg.png"));
+    }
+    smoke.setTexture(data::load_texture("img/osu/smoke.png"));
+
+    // initialize thew mouse paw
+    MousePaw::init(cfg, cfg["osu"]);
+
+    return true;
+}
+
+bool MousePaw::init(const Json::Value& cfg, const Json::Value& mouse_cfg) {
+    bool is_mouse = mouse_cfg["mouse"].asBool();
+    paw_r = mouse_cfg["paw"][0].asInt();
+    paw_g = mouse_cfg["paw"][1].asInt();
+    paw_b = mouse_cfg["paw"][2].asInt();
+    paw_a = mouse_cfg["paw"].size() == 3 ? 255 : mouse_cfg["paw"][3].asInt();
+
+    paw_edge_r = mouse_cfg["pawEdge"][0].asInt();
+    paw_edge_g = mouse_cfg["pawEdge"][1].asInt();
+    paw_edge_b = mouse_cfg["pawEdge"][2].asInt();
+    paw_edge_a = mouse_cfg["pawEdge"].size() == 3 ? 255 : mouse_cfg["pawEdge"][3].asInt();
+
     if (is_mouse) {
         offset_x = (cfg["decoration"]["offsetX"])[0].asInt();
         offset_y = (cfg["decoration"]["offsetY"])[0].asInt();
@@ -53,21 +73,6 @@ bool OsuCat::init(const Json::Value& cfg) {
         scale = (cfg["decoration"]["scalar"])[1].asDouble();
     }
 
-    // importing sprites
-    up.setTexture(data::load_texture("img/osu/up.png"));
-    left.setTexture(data::load_texture("img/osu/left.png"));
-    right.setTexture(data::load_texture("img/osu/right.png"));
-    wave.setTexture(data::load_texture("img/osu/wave.png"));
-    if (is_mouse) {
-        bg.setTexture(data::load_texture("img/osu/mousebg.png"));
-        device.setTexture(data::load_texture("img/osu/mouse.png"), true);
-    } else {
-        bg.setTexture(data::load_texture("img/osu/tabletbg.png"));
-        device.setTexture(data::load_texture("img/osu/tablet.png"), true);
-    }
-    smoke.setTexture(data::load_texture("img/osu/smoke.png"));
-    device.setScale(scale, scale);
-
     // initializing pss and pss2 (kuvster's magic)
     Json::Value paw_draw_info = cfg["mousePaw"];
     x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
@@ -76,13 +81,19 @@ bool OsuCat::init(const Json::Value& cfg) {
     x_paw_end = paw_draw_info["pawEndingPoint"][0].asInt();
     y_paw_end = paw_draw_info["pawEndingPoint"][1].asInt();
 
+    if (is_mouse) {
+        device.setTexture(data::load_texture("img/osu/mouse.png"), true);
+    } else {
+        device.setTexture(data::load_texture("img/osu/tablet.png"), true);
+    }
+
+    device.setScale(scale, scale);
+
     return true;
 }
 
-void OsuCat::draw(sf::RenderWindow& window) {
-    window.draw(bg);
-
-    auto [fx, fy] = input::get_mouse_input().get_position();
+std::vector<double> MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
+    auto [fx, fy] = mouse_pos;
     
     // apparently, this is a linear transform, intented to move the point to some position,
     // which in general can be specific for each mode. TODO: reduce the amount of arcane number magic in this code.
@@ -155,11 +166,10 @@ void OsuCat::draw(sf::RenderWindow& window) {
 
     device.setPosition(mpos0 + dx + offset_x, mpos1 + dy + offset_y);
 
-    // drawing mouse
-    if (is_mouse) {
-        window.draw(device);
-    }
+    return pss2;
+}
 
+void MousePaw::draw_paw(sf::RenderWindow& window, const std::vector<double>& pss2) {
     // drawing arms
     sf::VertexArray fill(sf::TriangleStrip, 26);
     for (int i = 0; i < 26; i += 2) {
@@ -190,7 +200,7 @@ void OsuCat::draw(sf::RenderWindow& window) {
     }
     double vec0 = pss2[50] - pss2[48];
     double vec1 = pss2[51] - pss2[49];
-    dist = hypot(vec0, vec1);
+    double dist = hypot(vec0, vec1);
     edge[51].position = sf::Vector2f(pss2[50] + vec1 / dist * width / 2, pss2[51] - vec0 / dist * width / 2);
     edge[50].position = sf::Vector2f(pss2[50] - vec1 / dist * width / 2, pss2[51] + vec0 / dist * width / 2);
     edge[50].color = sf::Color(paw_edge_r, paw_edge_g, paw_edge_b, shad);
@@ -228,6 +238,21 @@ void OsuCat::draw(sf::RenderWindow& window) {
     circ2.setRadius(width / 2);
     circ2.setPosition(pss2[50] - width / 2, pss2[51] - width / 2);
     window.draw(circ2);
+}
+
+void OsuCat::draw(sf::RenderWindow& window) {
+    window.draw(bg);
+
+    // update mous and paw position
+    auto pss2 = update_paw_position(input::get_mouse_input().get_position());
+
+    // drawing mouse
+    if (is_mouse) {
+        window.draw(device);
+    }
+
+    // draw mouse paw
+    draw_paw(window, pss2);
 
     // drawing keypresses
     bool left_key = false;

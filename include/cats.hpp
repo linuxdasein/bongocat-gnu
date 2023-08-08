@@ -26,7 +26,26 @@ public:
     virtual ~ICat() {}
 };
 
-class OsuCat : public ICat
+class MousePaw 
+{
+protected:
+    bool init(const Json::Value& cfg, const Json::Value& mouse_cfg);
+    std::vector<double> update_paw_position(std::pair<double, double> mouse_pos);
+    void draw_paw(sf::RenderWindow& window, const std::vector<double>& pss2);
+
+    sf::Sprite device;
+private:
+    int offset_x, offset_y;
+    int x_paw_start, y_paw_start;
+    int x_paw_end, y_paw_end;
+
+    double scale;
+
+    int paw_r, paw_g, paw_b, paw_a;
+    int paw_edge_r, paw_edge_g, paw_edge_b, paw_edge_a;
+};
+
+class OsuCat : public ICat, private MousePaw
 {
 public:
 
@@ -34,13 +53,10 @@ public:
     void draw(sf::RenderWindow& window) override;
 
 private:
+
     Json::Value left_key_value, right_key_value, smoke_key_value, wave_key_value;
-    int offset_x, offset_y;
-    int paw_r, paw_g, paw_b, paw_a;
-    int paw_edge_r, paw_edge_g, paw_edge_b, paw_edge_a;
-    double scale;
     bool is_mouse, is_left_handed, is_enable_toggle_smoke;
-    sf::Sprite bg, up, left, right, device, smoke, wave;
+    sf::Sprite bg, up, left, right, smoke, wave;
 
     int key_state = 0;
 
@@ -53,9 +69,6 @@ private:
     double timer_left_key = -1;
     double timer_right_key = -1;
     double timer_wave_key = -1;
-
-    int x_paw_start, y_paw_start;
-    int x_paw_end, y_paw_end;
 };
 
 class TaikoCat : public ICat
