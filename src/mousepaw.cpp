@@ -21,8 +21,12 @@ std::pair<double, double> bezier(double ratio, std::vector<double> &points, int 
     return std::make_pair(xx / 1000, yy / 1000);
 }
 
-bool MousePaw::init(const Json::Value& mouse_cfg, const Json::Value& paw_draw_info,
-    int ox, int oy, int sc) {
+void MousePaw::set_mouse_parameters(sf::Vector2i of, double sc) {
+    offset = of;
+    scale = sc;
+}
+
+bool MousePaw::init(const Json::Value& mouse_cfg, const Json::Value& paw_draw_info) {
     paw_r = mouse_cfg["paw"][0].asInt();
     paw_g = mouse_cfg["paw"][1].asInt();
     paw_b = mouse_cfg["paw"][2].asInt();
@@ -32,10 +36,6 @@ bool MousePaw::init(const Json::Value& mouse_cfg, const Json::Value& paw_draw_in
     paw_edge_g = mouse_cfg["pawEdge"][1].asInt();
     paw_edge_b = mouse_cfg["pawEdge"][2].asInt();
     paw_edge_a = mouse_cfg["pawEdge"].size() == 3 ? 255 : mouse_cfg["pawEdge"][3].asInt();
-
-    offset_x = ox;
-    offset_y = oy;
-    scale = sc;
 
     // initializing pss and pss2 (kuvster's magic)
     x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
@@ -121,7 +121,7 @@ std::vector<double> MousePaw::update_paw_position(std::pair<double, double> mous
     pss2.push_back(pss[36] + dx);
     pss2.push_back(pss[37] + dy);
 
-    device.setPosition(mpos0 + dx + offset_x, mpos1 + dy + offset_y);
+    device.setPosition(mpos0 + dx + offset.x, mpos1 + dy + offset.y);
 
     return pss2;
 }

@@ -47,20 +47,22 @@ bool OsuCat::init(const Json::Value& cfg) {
     }
     smoke.setTexture(data::load_texture("img/osu/smoke.png"));
 
-    int offset_x, offset_y, scale;
+    sf::Vector2i offset;
+    double scale;
 
     if (is_mouse) {
-        offset_x = (cfg["decoration"]["offsetX"])[0].asInt();
-        offset_y = (cfg["decoration"]["offsetY"])[0].asInt();
+        offset.x = (cfg["decoration"]["offsetX"])[0].asInt();
+        offset.y = (cfg["decoration"]["offsetY"])[0].asInt();
         scale = (cfg["decoration"]["scalar"])[0].asDouble();
     } else {
-        offset_x = (cfg["decoration"]["offsetX"])[1].asInt();
-        offset_y = (cfg["decoration"]["offsetY"])[1].asInt();
+        offset.x = (cfg["decoration"]["offsetX"])[1].asInt();
+        offset.y = (cfg["decoration"]["offsetY"])[1].asInt();
         scale = (cfg["decoration"]["scalar"])[1].asDouble();
     }
 
     // initialize thew mouse paw
-    MousePaw::init(cfg["osu"], cfg["mousePaw"], offset_x, offset_y, scale);
+    MousePaw::init(cfg["osu"], cfg["mousePaw"]);
+    MousePaw::set_mouse_parameters(offset, scale);
 
     return true;
 }

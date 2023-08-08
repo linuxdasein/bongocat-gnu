@@ -77,16 +77,17 @@ bool ClassicCat::init(const Json::Value& cfg) {
         keys.push_back(key.key_code);
     }
 
-    int offset_x = 0, offset_y = 0, scale = 1;
-    offset_x = (cfg["decoration"]["offsetX"])[0].asInt();
-    offset_y = (cfg["decoration"]["offsetY"])[0].asInt();
-    scale = (cfg["decoration"]["scalar"])[0].asDouble();
+    sf::Vector2i offset;
+    offset.x = (cfg["decoration"]["offsetX"])[0].asInt();
+    offset.y = (cfg["decoration"]["offsetY"])[0].asInt();
+    double scale = (cfg["decoration"]["scalar"])[0].asDouble();
 
     // for this mode use separate paw adjustments from the corresponding section
     Json::Value cfg_std = cfg["classic"];
 
     device.setTexture(data::load_texture("img/osu/mouse.png"), true);
-    MousePaw::init(cfg_std, cfg_std, offset_x, offset_y, scale);
+    MousePaw::init(cfg_std, cfg_std);
+    MousePaw::set_mouse_parameters(offset, scale);
 
     return true;
 }

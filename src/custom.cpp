@@ -133,14 +133,16 @@ bool CustomCat::init(const Json::Value& cfg) {
             return false;
         }
         bg.setTexture(data::load_texture(custom["background"].asString()));
-        int offset_x = 0, offset_y = 0, scale = 1;
+        
         is_mouse = custom["mouse"].asBool();
         if (is_mouse) {
             is_mouse_on_top = custom["mouseOnTop"].asBool();
             
-            offset_x = custom["offsetX"].asInt();
-            offset_y = custom["offsetY"].asInt();
-            scale = custom["scalar"].asDouble();
+            sf::Vector2i offset;
+            offset.x = custom["offsetX"].asInt();
+            offset.y = custom["offsetY"].asInt();
+            double scale = custom["scalar"].asDouble();
+            MousePaw::set_mouse_parameters(offset, scale);
 
             if (!custom.isMember("mouseImage") || !custom["mouseImage"].isString()) {
                 data::error_msg("Mouse image not found", "Error reading config");
@@ -149,7 +151,7 @@ bool CustomCat::init(const Json::Value& cfg) {
             device.setTexture(data::load_texture(custom["mouseImage"].asString()));
         }
 
-        MousePaw::init(custom, cfg["mousePaw"], offset_x, offset_y, scale);
+        MousePaw::init(custom, cfg["mousePaw"]);
     } catch (...) {
         return false;
     }
