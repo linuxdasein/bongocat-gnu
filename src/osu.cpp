@@ -40,28 +40,14 @@ bool OsuCat::init(const Json::Value& cfg) {
     wave.setTexture(data::load_texture("img/osu/wave.png"));
     if (is_mouse) {
         bg.setTexture(data::load_texture("img/osu/mousebg.png"));
+        device.setTexture(data::load_texture("img/osu/mouse.png"), true);
     } else {
         bg.setTexture(data::load_texture("img/osu/tabletbg.png"));
+        device.setTexture(data::load_texture("img/osu/tablet.png"), true);
     }
     smoke.setTexture(data::load_texture("img/osu/smoke.png"));
 
-    // initialize thew mouse paw
-    MousePaw::init(cfg, cfg["osu"]);
-
-    return true;
-}
-
-bool MousePaw::init(const Json::Value& cfg, const Json::Value& mouse_cfg) {
-    bool is_mouse = mouse_cfg["mouse"].asBool();
-    paw_r = mouse_cfg["paw"][0].asInt();
-    paw_g = mouse_cfg["paw"][1].asInt();
-    paw_b = mouse_cfg["paw"][2].asInt();
-    paw_a = mouse_cfg["paw"].size() == 3 ? 255 : mouse_cfg["paw"][3].asInt();
-
-    paw_edge_r = mouse_cfg["pawEdge"][0].asInt();
-    paw_edge_g = mouse_cfg["pawEdge"][1].asInt();
-    paw_edge_b = mouse_cfg["pawEdge"][2].asInt();
-    paw_edge_a = mouse_cfg["pawEdge"].size() == 3 ? 255 : mouse_cfg["pawEdge"][3].asInt();
+    int offset_x, offset_y, scale;
 
     if (is_mouse) {
         offset_x = (cfg["decoration"]["offsetX"])[0].asInt();
@@ -73,19 +59,34 @@ bool MousePaw::init(const Json::Value& cfg, const Json::Value& mouse_cfg) {
         scale = (cfg["decoration"]["scalar"])[1].asDouble();
     }
 
+    // initialize thew mouse paw
+    MousePaw::init(cfg["osu"], cfg["mousePaw"], offset_x, offset_y, scale);
+
+    return true;
+}
+
+bool MousePaw::init(const Json::Value& mouse_cfg, const Json::Value& paw_draw_info,
+    int ox, int oy, int sc) {
+    paw_r = mouse_cfg["paw"][0].asInt();
+    paw_g = mouse_cfg["paw"][1].asInt();
+    paw_b = mouse_cfg["paw"][2].asInt();
+    paw_a = mouse_cfg["paw"].size() == 3 ? 255 : mouse_cfg["paw"][3].asInt();
+
+    paw_edge_r = mouse_cfg["pawEdge"][0].asInt();
+    paw_edge_g = mouse_cfg["pawEdge"][1].asInt();
+    paw_edge_b = mouse_cfg["pawEdge"][2].asInt();
+    paw_edge_a = mouse_cfg["pawEdge"].size() == 3 ? 255 : mouse_cfg["pawEdge"][3].asInt();
+
+    offset_x = ox;
+    offset_y = oy;
+    scale = sc;
+
     // initializing pss and pss2 (kuvster's magic)
-    Json::Value paw_draw_info = cfg["mousePaw"];
     x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
     y_paw_start = paw_draw_info["pawStartingPoint"][1].asInt();
 
     x_paw_end = paw_draw_info["pawEndingPoint"][0].asInt();
     y_paw_end = paw_draw_info["pawEndingPoint"][1].asInt();
-
-    if (is_mouse) {
-        device.setTexture(data::load_texture("img/osu/mouse.png"), true);
-    } else {
-        device.setTexture(data::load_texture("img/osu/tablet.png"), true);
-    }
 
     device.setScale(scale, scale);
 
@@ -243,7 +244,7 @@ void MousePaw::draw_paw(sf::RenderWindow& window, const std::vector<double>& pss
 void OsuCat::draw(sf::RenderWindow& window) {
     window.draw(bg);
 
-    // update mous and paw position
+    // update mouse and paw position
     auto pss2 = update_paw_position(input::get_mouse_input().get_position());
 
     // drawing mouse
