@@ -12,8 +12,6 @@
 #include <map>
 
 #include <time.h>
-
-#include <math.h>
 #include <string.h>
 
 #include <cats.hpp>
@@ -38,8 +36,6 @@ bool is_joystick_connected();
 bool is_joystick_pressed(int key_code);
 
 IMouse& get_mouse_input();
-
-std::pair<double, double> bezier(double ratio, std::vector<double> &points, int length);
 
 void drawDebugPanel(sf::RenderWindow& window);
 
