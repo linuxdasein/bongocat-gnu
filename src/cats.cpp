@@ -3,23 +3,22 @@
 namespace cats
 {
 
-std::unique_ptr<ICat> get_cat(int mode)
+std::unique_ptr<ICat> get_cat(cats::CatModeId mode)
 {
     switch (mode) {
-    case 1:
+    case CatModeId::osu:
         return std::make_unique<OsuCat>();
-    case 2:
+    case CatModeId::taiko:
         return std::make_unique<TaikoCat>();
-    case 3:
+    case CatModeId::ctb:
         return std::make_unique<CtbCat>();
-    case 4:
+    case CatModeId::mania:
         return std::make_unique<ManiaCat>();
-    case 5:
+    case CatModeId::custom:
         return std::make_unique<CustomCat>();
-    case 6:
+    case CatModeId::classic:
         return std::make_unique<ClassicCat>();
     default:
-        data::error_msg("Mode value is not correct", "Error reading configs");
         return nullptr;
     }
 }
