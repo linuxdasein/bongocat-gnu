@@ -1,3 +1,4 @@
+#include <SFML/Graphics/Transform.hpp>
 #include <cats.hpp>
 #include <input.hpp>
 #include <math.h>
@@ -27,15 +28,15 @@ void MousePaw::set_mouse_parameters(sf::Vector2i of, double sc) {
 }
 
 bool MousePaw::init(const Json::Value& mouse_cfg, const Json::Value& paw_draw_info) {
-    paw_r = mouse_cfg["paw"][0].asInt();
-    paw_g = mouse_cfg["paw"][1].asInt();
-    paw_b = mouse_cfg["paw"][2].asInt();
-    paw_a = mouse_cfg["paw"].size() == 3 ? 255 : mouse_cfg["paw"][3].asInt();
+    paw_color.r = mouse_cfg["paw"][0].asInt();
+    paw_color.g = mouse_cfg["paw"][1].asInt();
+    paw_color.b = mouse_cfg["paw"][2].asInt();
+    paw_color.a = mouse_cfg["paw"].size() == 3 ? 255 : mouse_cfg["paw"][3].asInt();
 
-    paw_edge_r = mouse_cfg["pawEdge"][0].asInt();
-    paw_edge_g = mouse_cfg["pawEdge"][1].asInt();
-    paw_edge_b = mouse_cfg["pawEdge"][2].asInt();
-    paw_edge_a = mouse_cfg["pawEdge"].size() == 3 ? 255 : mouse_cfg["pawEdge"][3].asInt();
+    paw_edge_color.r = mouse_cfg["pawEdge"][0].asInt();
+    paw_edge_color.g = mouse_cfg["pawEdge"][1].asInt();
+    paw_edge_color.b = mouse_cfg["pawEdge"][2].asInt();
+    paw_edge_color.a = mouse_cfg["pawEdge"].size() == 3 ? 255 : mouse_cfg["pawEdge"][3].asInt();
 
     // initializing pss and pss2 (kuvster's magic)
     x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
@@ -49,7 +50,7 @@ bool MousePaw::init(const Json::Value& mouse_cfg, const Json::Value& paw_draw_in
     return true;
 }
 
-std::vector<double> MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
+std::vector<sf::Vector2f> MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
     auto [fx, fy] = mouse_pos;
     
     // apparently, this is a linear transform, intented to move the point to some position,
@@ -112,89 +113,81 @@ std::vector<double> MousePaw::update_paw_position(std::pair<double, double> mous
 
     const int iter = 25;
 
-    std::vector<double> pss2 = {pss[0] + dx, pss[1] + dy};
+    std::vector<sf::Vector2f> pss2 = { sf::Vector2f(pss[0] + dx, pss[1] + dy) };
     for (int i = 1; i < iter; i++) {
         auto [p0, p1] = bezier(1.0 * i / iter, pss, 38);
-        pss2.push_back(p0 + dx);
-        pss2.push_back(p1 + dy);
+        sf::Vector2f p(p0 + dx, p1 + dy);
+        pss2.push_back(p);
     }
-    pss2.push_back(pss[36] + dx);
-    pss2.push_back(pss[37] + dy);
+    pss2.push_back(sf::Vector2f(pss[36] + dx, pss[37] + dy));
 
     device.setPosition(mpos0 + dx + offset.x, mpos1 + dy + offset.y);
 
     return pss2;
 }
 
-void MousePaw::draw_paw(sf::RenderWindow& window, const std::vector<double>& pss2) {
-    // drawing arms
-    sf::VertexArray fill(sf::TriangleStrip, 26);
-    for (int i = 0; i < 26; i += 2) {
-        fill[i].position = sf::Vector2f(pss2[i], pss2[i + 1]);
-        fill[i + 1].position = sf::Vector2f(pss2[52 - i - 2], pss2[52 - i - 1]);
-        fill[i].color = sf::Color(paw_r, paw_g, paw_b, paw_a);
-        fill[i + 1].color = sf::Color(paw_r, paw_g, paw_b, paw_a);
+void MousePaw::draw_paw(sf::RenderWindow& window, const std::vector<sf::Vector2f>& pss2) {
+    // drawing arm's body
+    const size_t nump = pss2.size();
+    sf::VertexArray fill(sf::TriangleStrip, nump);
+    for (size_t i = 0; i < nump; i += 2) {
+        fill[i].position = pss2[i];
+        fill[i + 1].position = pss2[nump - i - 1];
+        fill[i].color = fill[i + 1].color = paw_color;
     }
     window.draw(fill);
 
-    // drawing first arm arc
-    int shad = paw_edge_a / 3;
-    sf::VertexArray edge(sf::TriangleStrip, 52);
-    double width = 7;
+    // drawing the shadow of the arm arc
+    auto paw_edge_color_shad = paw_edge_color;
+    paw_edge_color_shad.a /= 3;
+    draw_arc(window, pss2, paw_edge_color_shad, 7);
+
+    // drawing the line of the arm arc
+    draw_arc(window, pss2, paw_edge_color, 6);
+}
+
+void MousePaw::draw_arc(sf::RenderWindow& window, const std::vector<sf::Vector2f>& pss2, sf::Color color, float width) {
+    // at the first point of the arc we draw a circle shape
+    // in order to make arc's beginning rounded
     sf::CircleShape circ(width / 2);
-    circ.setFillColor(sf::Color(paw_edge_r, paw_edge_g, paw_edge_b, shad));
-    circ.setPosition(pss2[0] - width / 2, pss2[1] - width / 2);
-    window.draw(circ);
-    for (int i = 0; i < 50; i += 2) {
-        double vec0 = pss2[i] - pss2[i + 2];
-        double vec1 = pss2[i + 1] - pss2[i + 3];
-        double dist = hypot(vec0, vec1);
-        edge[i].position = sf::Vector2f(pss2[i] + vec1 / dist * width / 2, pss2[i + 1] - vec0 / dist * width / 2);
-        edge[i + 1].position = sf::Vector2f(pss2[i] - vec1 / dist * width / 2, pss2[i + 1] + vec0 / dist * width / 2);
-        edge[i].color = sf::Color(paw_edge_r, paw_edge_g, paw_edge_b, shad);
-        edge[i + 1].color = sf::Color(paw_edge_r, paw_edge_g, paw_edge_b, shad);
-        width -= 0.08;
-    }
-    double vec0 = pss2[50] - pss2[48];
-    double vec1 = pss2[51] - pss2[49];
-    double dist = hypot(vec0, vec1);
-    edge[51].position = sf::Vector2f(pss2[50] + vec1 / dist * width / 2, pss2[51] - vec0 / dist * width / 2);
-    edge[50].position = sf::Vector2f(pss2[50] - vec1 / dist * width / 2, pss2[51] + vec0 / dist * width / 2);
-    edge[50].color = sf::Color(paw_edge_r, paw_edge_g, paw_edge_b, shad);
-    edge[51].color = sf::Color(paw_edge_r, paw_edge_g, paw_edge_b, shad);
-    window.draw(edge);
-    circ.setRadius(width / 2);
-    circ.setPosition(pss2[50] - width / 2, pss2[51] - width / 2);
+    circ.setFillColor(color);
+    // the coordinates of the sprite are the coordinates of the upper left corner
+    // of the "enclosing box", so it's needed to set the coordinates accordingly
+    sf::Vector2f offset(width / 2, width / 2);
+    circ.setPosition(pss2[0] - offset);
     window.draw(circ);
 
-    // drawing second arm arc
-    sf::VertexArray edge2(sf::TriangleStrip, 52);
-    width = 6;
-    sf::CircleShape circ2(width / 2);
-    circ2.setFillColor(sf::Color(paw_edge_r, paw_edge_g, paw_edge_b, paw_edge_a));
-    circ2.setPosition(pss2[0] - width / 2, pss2[1] - width / 2);
-    window.draw(circ2);
-    for (int i = 0; i < 50; i += 2) {
-        vec0 = pss2[i] - pss2[i + 2];
-        vec1 = pss2[i + 1] - pss2[i + 3];
-        double dist = hypot(vec0, vec1);
-        edge2[i].position = sf::Vector2f(pss2[i] + vec1 / dist * width / 2, pss2[i + 1] - vec0 / dist * width / 2);
-        edge2[i + 1].position = sf::Vector2f(pss2[i] - vec1 / dist * width / 2, pss2[i + 1] + vec0 / dist * width / 2);
-        edge2[i].color = sf::Color(paw_edge_r, paw_edge_g, paw_edge_b, paw_edge_a);
-        edge2[i + 1].color = sf::Color(paw_edge_r, paw_edge_g, paw_edge_b, paw_edge_a);
-        width -= 0.08;
+    sf::Transform rotate_left, rotate_right;
+    rotate_left.rotate(-90); // counter-clockwise rotation
+    rotate_right.rotate(90); // clockwise rotation
+
+    // Next, we draw the arm's arc, using triangle strip
+    const size_t nump = pss2.size();
+    sf::VertexArray edge(sf::TriangleStrip, nump * 2);
+    for (size_t i = 0; i < nump; i += 1, width -= 0.08) {
+        // construct a vector, pointing at the direction of the next paw point
+        auto vec = (i == nump-1) 
+            ? pss2[i-1] - pss2[i]  // the last point edge case; use the 
+            : pss2[i] - pss2[i+1]; // previous point to construct the vector
+        // set the length of the vector to width/2
+        float dist = hypot(vec.x, vec.y);
+        vec = vec / dist * (width / 2);
+
+        // to form the triangle strip we use points from the left 
+        // and from the right of the current point
+        edge[2*i].position   = pss2[i] + rotate_left * vec;
+        edge[2*i+1].position = pss2[i] + rotate_right * vec;
+
+        // set the trianle's edge color
+        edge[2*i].color = edge[2*i+1].color = color;
     }
-    vec0 = pss2[50] - pss2[48];
-    vec1 = pss2[51] - pss2[49];
-    dist = hypot(vec0, vec1);
-    edge2[51].position = sf::Vector2f(pss2[50] + vec1 / dist * width / 2, pss2[51] - vec0 / dist * width / 2);
-    edge2[50].position = sf::Vector2f(pss2[50] - vec1 / dist * width / 2, pss2[51] + vec0 / dist * width / 2);
-    edge2[50].color = sf::Color(paw_edge_r, paw_edge_g, paw_edge_b, paw_edge_a);
-    edge2[51].color = sf::Color(paw_edge_r, paw_edge_g, paw_edge_b, paw_edge_a);
-    window.draw(edge2);
-    circ2.setRadius(width / 2);
-    circ2.setPosition(pss2[50] - width / 2, pss2[51] - width / 2);
-    window.draw(circ2);
+
+    // at the end of the arc also draw a circle shape
+    window.draw(edge);
+    circ.setRadius(width / 2);
+    offset = sf::Vector2f(width / 2, width / 2);
+    circ.setPosition(pss2[nump-1] - offset);
+    window.draw(circ);
 }
 
 }

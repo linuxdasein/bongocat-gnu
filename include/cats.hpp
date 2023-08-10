@@ -34,24 +34,27 @@ protected:
     bool init(const Json::Value& mouse_cfg, const Json::Value& paw_cfg);
 
     // Update deviice and paw position according to the mouse_pos
-    std::vector<double> update_paw_position(std::pair<double, double> mouse_pos);
+    std::vector<sf::Vector2f> update_paw_position(std::pair<double, double> mouse_pos);
 
     // Display paw represented by its coordinates pss2
-    void draw_paw(sf::RenderWindow& window, const std::vector<double>& pss2);
+    void draw_paw(sf::RenderWindow& window, const std::vector<sf::Vector2f>& pss2);
 
     // Set offset and scale for mouse sprite
     void set_mouse_parameters(sf::Vector2i offset, double scale);
 
     sf::Sprite device;
 private:
+    // draw an arc about an array of points
+    void draw_arc(sf::RenderWindow& window, const std::vector<sf::Vector2f>& pss2, sf::Color color, float width);
+
     double scale = 1.0;
     sf::Vector2i offset = {0, 0};
 
     int x_paw_start, y_paw_start;
     int x_paw_end, y_paw_end;
 
-    int paw_r, paw_g, paw_b, paw_a;
-    int paw_edge_r, paw_edge_g, paw_edge_b, paw_edge_a;
+    sf::Color paw_color;
+    sf::Color paw_edge_color;
 };
 
 class OsuCat : public ICat, private MousePaw
