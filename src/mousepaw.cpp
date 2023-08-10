@@ -1,26 +1,11 @@
 #include <SFML/Graphics/Transform.hpp>
 #include <cats.hpp>
 #include <input.hpp>
-#include <math.h>
+#include <math.hpp>
+#include <cmath>
 
 namespace cats
 {
-
-// bezier curve for osu and custom
-std::pair<double, double> bezier(double ratio, std::vector<double> &points, int length) {
-    double fact[22] = {0.001, 0.001, 0.002, 0.006, 0.024, 0.12, 0.72, 5.04, 40.32, 362.88, 3628.8, 39916.8, 479001.6, 6227020.8, 87178291.2, 1307674368.0, 20922789888.0, 355687428096.0, 6402373705728.0, 121645100408832.0, 2432902008176640.0, 51090942171709440.0};
-    int nn = (length / 2) - 1;
-    double xx = 0;
-    double yy = 0;
-
-    for (int point = 0; point <= nn; point++) {
-        double tmp = fact[nn] / (fact[point] * fact[nn - point]) * pow(ratio, point) * pow(1 - ratio, nn - point);
-        xx += points[2 * point] * tmp;
-        yy += points[2 * point + 1] * tmp;
-    }
-
-    return std::make_pair(xx / 1000, yy / 1000);
-}
 
 void MousePaw::set_mouse_parameters(sf::Vector2i of, double sc) {
     offset = of;
@@ -58,19 +43,32 @@ std::vector<sf::Vector2f> MousePaw::update_paw_position(std::pair<double, double
     double x = -97 * fx + 44 * fy + 184;
     double y = -76 * fx - 40 * fy + 324;
 
-    int oof = 6;
-    std::vector<double> pss = {(float) x_paw_start, (float) y_paw_start};
+    const int oof = 6;
+    math::BCurve B2(2);
+    math::BCurve B3(3);
+
+    // fixed point where the paw arc starts
+    const math::point2d paw_start = {(double) x_paw_start, (double) y_paw_start};
+    // fixed point where the paw arc ends
+    const math::point2d paw_end = {(double)x_paw_end, (double)y_paw_end};
+
+    std::vector<math::point2d> pss = {paw_start};
+
     double dist = hypot(x_paw_start - x, y_paw_start - y);
     double centreleft0 = x_paw_start - 0.7237 * dist / 2;
     double centreleft1 = y_paw_start + 0.69 * dist / 2;
+    // central control point of the left bezier arc
+    const math::point2d centreleft = {centreleft0, centreleft1};
+    
+    // the first segment
+    std::vector<math::point2d> bez1 = { paw_start, centreleft, {x, y}};
+    B2.set_control_points(bez1);
+
     for (int i = 1; i < oof; i++) {
-        std::vector<double> bez = {(float) x_paw_start, (float) y_paw_start, centreleft0, centreleft1, x, y};
-        auto [p0, p1] = bezier(1.0 * i / oof, bez, 6);
-        pss.push_back(p0);
-        pss.push_back(p1);
+        pss.push_back(B2(1.0 * i / oof));
     }
-    pss.push_back(x);
-    pss.push_back(y);
+
+    pss.push_back(math::point2d(x, y));
     double a = y - centreleft1;
     double b = centreleft0 - x;
     double le = hypot(a, b);
@@ -90,36 +88,39 @@ std::vector<sf::Vector2f> MousePaw::update_paw_position(std::pair<double, double
     le = hypot(s2, t2);
     s2 *= push / le;
     t2 *= push / le;
+
+    // the second segment
+    std::vector<math::point2d> bez2 = { {x, y}, {x + s, y + t}, {a + s2, b + t2}, {a, b}};
+    B3.set_control_points(bez2);
     for (int i = 1; i < oof; i++) {
-        std::vector<double> bez = {x, y, x + s, y + t, a + s2, b + t2, a, b};
-        auto [p0, p1] = bezier(1.0 * i / oof, bez, 8);
-        pss.push_back(p0);
-        pss.push_back(p1);
+        pss.push_back(B3(1.0 * i / oof));
     }
-    pss.push_back(a);
-    pss.push_back(b);
+    pss.push_back(math::point2d(a, b));
+
+    // the third segment
+    std::vector<math::point2d> bez3 = { paw_end, {centreright0, centreright1}, {a, b}};
+    B2.set_control_points(bez3);
     for (int i = oof - 1; i > 0; i--) {
-        std::vector<double> bez = {1.0 * x_paw_end, 1.0 * y_paw_end, centreright0, centreright1, a, b};
-        auto [p0, p1] = bezier(1.0 * i / oof, bez, 6);
-        pss.push_back(p0);
-        pss.push_back(p1);
+        pss.push_back(B2(1.0 * i / oof));
     }
-    pss.push_back(x_paw_end);
-    pss.push_back(y_paw_end);
+
+    pss.push_back(math::point2d(x_paw_end, y_paw_end));
     double mpos0 = (a + x) / 2 - 52 - 15;
     double mpos1 = (b + y) / 2 - 34 + 5;
     double dx = -38;
     double dy = -50;
 
     const int iter = 25;
+    math::BCurve B18(18);
+    B18.set_control_points(pss);
 
-    std::vector<sf::Vector2f> pss2 = { sf::Vector2f(pss[0] + dx, pss[1] + dy) };
+    std::vector<sf::Vector2f> pss2 = { sf::Vector2f(pss[0].x + dx, pss[0].y + dy) };
     for (int i = 1; i < iter; i++) {
-        auto [p0, p1] = bezier(1.0 * i / iter, pss, 38);
-        sf::Vector2f p(p0 + dx, p1 + dy);
-        pss2.push_back(p);
+        auto p = B18(1.0 * i / iter);
+        sf::Vector2f pf(p.x + dx, p.y + dy);
+        pss2.push_back(pf);
     }
-    pss2.push_back(sf::Vector2f(pss[36] + dx, pss[37] + dy));
+    pss2.push_back(sf::Vector2f(pss[18].x + dx, pss[18].y + dy));
 
     device.setPosition(mpos0 + dx + offset.x, mpos1 + dy + offset.y);
 
