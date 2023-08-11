@@ -1,4 +1,5 @@
 #include <SFML/Graphics/Transform.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <cats.hpp>
 #include <input.hpp>
 #include <math.hpp>
@@ -40,8 +41,10 @@ std::vector<sf::Vector2f> MousePaw::update_paw_position(std::pair<double, double
     
     // apparently, this is a linear transform, intented to move the point to some position,
     // which in general can be specific for each mode. TODO: reduce the amount of arcane number magic in this code.
-    double x = -97 * fx + 44 * fy + 184;
-    double y = -76 * fx - 40 * fy + 324;
+    const double x = -97 * fx + 44 * fy + 184;
+    const double y = -76 * fx - 40 * fy + 324;
+
+    const math::point2d m = {x, y};
 
     const int oof = 6;
     math::BCurve B2(2);
@@ -54,77 +57,96 @@ std::vector<sf::Vector2f> MousePaw::update_paw_position(std::pair<double, double
 
     std::vector<math::point2d> pss = {paw_start};
 
-    double dist = hypot(x_paw_start - x, y_paw_start - y);
-    double centreleft0 = x_paw_start - 0.7237 * dist / 2;
-    double centreleft1 = y_paw_start + 0.69 * dist / 2;
+    double dist = hypot(paw_start.x - x, paw_start.y - y);
+    // sort of unit tangent vector at the paw_start point of the arc
+    const math::point2d tangentleft = {-0.7237, 0.69};
     // central control point of the left bezier arc
-    const math::point2d centreleft = {centreleft0, centreleft1};
+    const math::point2d centreleft = paw_start + tangentleft * (dist / 2);
     
-    // the first segment
-    std::vector<math::point2d> bez1 = { paw_start, centreleft, {x, y}};
+    // the first arc segment
+    std::vector<math::point2d> bez1 = {paw_start, centreleft, m};
     B2.set_control_points(bez1);
 
     for (int i = 1; i < oof; i++) {
         pss.push_back(B2(1.0 * i / oof));
     }
 
-    pss.push_back(math::point2d(x, y));
-    double a = y - centreleft1;
-    double b = centreleft0 - x;
-    double le = hypot(a, b);
-    a = x + a / le * 60;
-    b = y + b / le * 60;
-    dist = hypot(x_paw_end - a, y_paw_end - b);
-    double centreright0 = x_paw_end - 0.6 * dist / 2;
-    double centreright1 = y_paw_end + 0.8 * dist / 2;
-    int push = 20;
-    double s = x - centreleft0;
-    double t = y - centreleft1;
-    le = hypot(s, t);
-    s *= push / le;
-    t *= push / le;
-    double s2 = a - centreright0;
-    double t2 = b - centreright1;
-    le = hypot(s2, t2);
-    s2 *= push / le;
-    t2 *= push / le;
+    pss.push_back(m);
+
+    // rotate centreleft by 90 degrees clockwise
+    math::point2d ab;
+    ab.x = m.y - centreleft.y;
+    ab.y = centreleft.x - m.x;
+    // calculate some middle point between mpos and ab
+    double le = hypot(ab.x, ab.y);
+    ab = m + ab / le * 60.0;
+    
+    dist = hypot(paw_end.x - ab.x, paw_end.y - ab.y);
+    // unit tangent vector at the paw_end point of the arc
+    const math::point2d tangentright = {-0.6, 0.8};
+    // central control point of the right bezier arc
+    const math::point2d centreright = paw_end + tangentright * (dist / 2);
+
+    // calculate "push" vectors, which are intended to move
+    // mpos and ab outside of the paw so they form the next 
+    // arc segment's control points
+    const int push = 20;
+    // push vector for mpos
+    math::point2d st = m - centreleft;
+    le = hypot(st.x, st.y);
+    st *= push / le;
+    // push vector for ab
+    math::point2d st2 = ab - centreright;
+    le = hypot(st2.x, st2.y);
+    st2 *= push / le;
 
     // the second segment
-    std::vector<math::point2d> bez2 = { {x, y}, {x + s, y + t}, {a + s2, b + t2}, {a, b}};
+    std::vector<math::point2d> bez2 = { m, m + st, ab + st2, ab};
     B3.set_control_points(bez2);
     for (int i = 1; i < oof; i++) {
         pss.push_back(B3(1.0 * i / oof));
     }
-    pss.push_back(math::point2d(a, b));
+    pss.push_back(ab);
 
     // the third segment
-    std::vector<math::point2d> bez3 = { paw_end, {centreright0, centreright1}, {a, b}};
+    std::vector<math::point2d> bez3 = { paw_end, centreright, ab};
     B2.set_control_points(bez3);
     for (int i = oof - 1; i > 0; i--) {
         pss.push_back(B2(1.0 * i / oof));
     }
+    pss.push_back(paw_end);
 
-    pss.push_back(math::point2d(x_paw_end, y_paw_end));
-    double mpos0 = (a + x) / 2 - 52 - 15;
-    double mpos1 = (b + y) / 2 - 34 + 5;
-    double dx = -38;
-    double dy = -50;
+    // mouse position is the corner of the mouse sprite
+    // need some offset depending on the actual sprite being used
+    const math::point2d moffset = {-52 - 15, -34 + 5};
+    const math::point2d mpos = (ab + m) / 2.0 + moffset;
+
+    // why is this offset needed ?
+    const math::point2d d = {-38, -50};
 
     const int iter = 25;
-    math::BCurve B18(18);
+    math::BCurve B18(3 * oof);
+    // constructing a high order curve over a set of control points from existing curves
+    // is pretty much messed up way to do things... TODO: use a spline instead
     B18.set_control_points(pss);
 
-    std::vector<sf::Vector2f> pss2 = { sf::Vector2f(pss[0].x + dx, pss[0].y + dy) };
+    std::vector<math::point2d> pss2d = {pss[0] + d};
     for (int i = 1; i < iter; i++) {
-        auto p = B18(1.0 * i / iter);
-        sf::Vector2f pf(p.x + dx, p.y + dy);
-        pss2.push_back(pf);
+        auto p = B18(1.0 * i / iter) + d;
+        pss2d.push_back(p);
     }
-    pss2.push_back(sf::Vector2f(pss[18].x + dx, pss[18].y + dy));
+    pss2d.push_back(pss[3 * oof] + d);
 
-    device.setPosition(mpos0 + dx + offset.x, mpos1 + dy + offset.y);
+    const math::point2d dpos = mpos + d;
+    device.setPosition(dpos.x + offset.x, dpos.y + offset.y);
 
-    return pss2;
+    // convert to float (consider to perfrom math in float in the first place)
+    std::vector<sf::Vector2f> pss2f;
+    for(auto pd : pss2d) {
+        pss2f.push_back(sf::Vector2f(pd.x, pd.y));
+    }
+
+    return pss2f;
 }
 
 void MousePaw::draw_paw(sf::RenderWindow& window, const std::vector<sf::Vector2f>& pss2) {

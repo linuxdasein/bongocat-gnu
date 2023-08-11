@@ -55,6 +55,7 @@ uint64_t BCurve::binomial_coefficient(uint32_t n, uint32_t k) const {
 }
 
 double BCurve::basis_polynomial(uint32_t k, double t) const {
+    // TODO: use the recurrent formula
     const size_t n = b_coeff.size() - 1;
     return b_coeff[k] * pow(t, k) * pow(1.0 - t, n - k);
 }
