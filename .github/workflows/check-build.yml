@@ -1,0 +1,13 @@
+name: '[CI]: Check build'
+on:
+  push:
+    branches: 
+      - master
+  workflow_dispatch:
+
+jobs:
+  flatpak:
+    name: "Check flatpak build"
+    uses: ./.github/workflows/flatpak-build.yml
+    with:
+      upload: false

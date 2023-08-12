@@ -1,0 +1,35 @@
+name: '[CD]: Publish release'
+
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+
+jobs:
+  build:
+    uses: ./.github/workflows/flatpak-build.yml
+    with:
+      upload: true
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - id: download
+        name: Download release artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: bongocat-x86_64
+          path: artifacts
+      - name: 'Display downloaded artifacts'
+        run: ls -R ${{ steps.download.outputs.download-path }}
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: ${{ steps.download.outputs.download-path }}/bongocat.flatpak
