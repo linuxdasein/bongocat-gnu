@@ -1,8 +1,12 @@
 name: '[CI]: Flatpak build'
 on:
-  push:
-    branches: 
-      - master
+  workflow_call:
+    inputs:
+      upload:
+        requiered: false
+        default: false
+        type: boolean
+
 jobs:
   flatpak:
     name: "Flatpak build"
@@ -15,5 +19,6 @@ jobs:
     - uses: flatpak/flatpak-github-actions/flatpak-builder@v6.1
       with:
         bundle: bongocat.flatpak
+        build-bundle: ${{ inputs.upload }}
         manifest-path: flatpak/org.linuxdasein.BongoCat.yml
         cache-key: flatpak-builder-${{ github.sha }}

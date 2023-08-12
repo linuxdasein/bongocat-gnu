@@ -1,0 +1,29 @@
+name: '[CD]: Publish release'
+on:
+  push:
+    branches: 
+      - master
+    tags:
+      - "*.*.*"
+
+jobs:
+  build:
+    uses: ./.github/workflows/flatpak-build.yml
+    with:
+      upload: true
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Download release artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: bongocat-x86_64
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        #if: startsWith(github.ref, 'refs/tags/')
+        draft: true
+        with:
+          files: bongocat-x86_64
