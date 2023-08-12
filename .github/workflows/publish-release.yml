@@ -23,11 +23,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: bongocat-x86_64
+          path: artifacts
       - name: 'Display downloaded artifacts'
-        run: ls -R ${{steps.download.outputs.download-path}}
+        run: ls -R ${{steps.download.outputs.download-path}}/artifacts
       - name: Release
         uses: softprops/action-gh-release@v1
         #if: startsWith(github.ref, 'refs/tags/')
         with:
           draft: true
-          files: ${{steps.download.outputs.download-path}}/bongocat-x86_64.zip
+          files: ${{steps.download.outputs.download-path}}/artifacts/bongocat.flatpak
