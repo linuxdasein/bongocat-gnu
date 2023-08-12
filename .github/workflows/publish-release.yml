@@ -1,4 +1,8 @@
 name: '[CD]: Publish release'
+
+permissions:
+  contents: write
+
 on:
   push:
     branches: 
