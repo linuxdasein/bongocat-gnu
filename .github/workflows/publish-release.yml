@@ -25,7 +25,7 @@ jobs:
           name: bongocat-x86_64
           path: artifacts
       - name: 'Display downloaded artifacts'
-        run: ls -R ${{steps.download.outputs.download-path}}/artifacts
+        run: ls -R ${{steps.download.outputs.download-path}}
       - name: Release
         uses: softprops/action-gh-release@v1
         #if: startsWith(github.ref, 'refs/tags/')
