@@ -22,9 +22,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: bongocat-x86_64
+          path: artifacts
       - name: Release
         uses: softprops/action-gh-release@v1
         #if: startsWith(github.ref, 'refs/tags/')
         with:
           draft: true
-          files: bongocat-x86_64
+          files: artifacts/bongocat-x86_64
