@@ -24,10 +24,11 @@ AppDir:
       - libsdl2-2.0-0
       - libjsoncpp1
       - libpulse0
-    #exclude:
-    #  - libpulse
+      - libxdo3
 
   files:
+    include:
+      - /usr/lib/x86_64-linux-gnu/libsfml*
     exclude:
       - usr/share/man
       - usr/share/doc/*
