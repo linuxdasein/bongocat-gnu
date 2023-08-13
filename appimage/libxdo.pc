@@ -1,0 +1,9 @@
+libdir=/usr/lib/x86_64-linux-gnu/
+includedir=/usr/include
+
+Name: libxdo
+Description: fake keyboard/mouse input, window management, and more
+Version: 3.20160805.1-3
+Requires: x11
+Libs: -L${libdir} -lxdo
+Cflags: -I${includedir}
