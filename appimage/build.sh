@@ -29,7 +29,7 @@ cp appimage/libxdo.pc /usr/share/pkgconfig/
 # the latest version. e.g. download the source and build locally
 wget https://github.com/SFML/SFML/archive/refs/tags/2.6.0.tar.gz
 # unpack the sources
-tar -xvzf 2.6.0.tar.gz && cd SFML-2.6.0
+tar -xzf 2.6.0.tar.gz && cd SFML-2.6.0
 # configure the library's sources
 cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
         -DSFML_PKGCONFIG_INSTALL_PREFIX=/usr/share/pkgconfig \
@@ -44,7 +44,15 @@ meson setup build --buildtype=release
 cd build && meson compile
 
 # install the application
-DESTDIR=../AppDir meson install & cd ..
+DESTDIR=../AppDir meson install && cd ..
+
+# install the app resources
+ICONDIR=./AppDir/usr/share/icons/hicolor/
+install -Dm644 ./flatpak/bongo-16x16.png ${ICONDIR}/16x16/apps/com.linuxdasein.BongoCat.png
+install -Dm644 ./flatpak/bongo-24x24.png ${ICONDIR}/24x24/apps/com.linuxdasein.BongoCat.png
+install -Dm644 ./flatpak/bongo-32x32.png ${ICONDIR}/32x32/apps/com.linuxdasein.BongoCat.png
+install -Dm644 ./flatpak/bongo-48x48.png ${ICONDIR}/48x48/apps/com.linuxdasein.BongoCat.png
+install -Dm644 ./flatpak/bongo-170x170.png ${ICONDIR}/170x170/apps/com.linuxdasein.BongoCat.png
 
 # create the AppImage
-#appimage-builder --recipe appimage/AppImageBuilder.yml
+appimage-builder --recipe appimage/AppImageBuilder.yml
