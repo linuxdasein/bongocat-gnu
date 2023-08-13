@@ -18,7 +18,15 @@ sources = files([
   'src/cats.cpp',
 ])
 
+ld_flags = []
 cpp_flags = ['-std=c++17', '-Werror']
+
+cpp = meson.get_compiler('cpp')
+
+if cpp.get_id() == 'gcc' and cpp.version().version_compare('<9.0.0')
+  # GCC 8 requires a specific flag to use std::filesystem
+  ld_flags += ['-lstdc++fs']
+endif
 
 inc_dirs = include_directories('include')
 
@@ -34,6 +42,7 @@ link_deps = [
 
 executable('bongo', sources,
   cpp_args: cpp_flags,
+  link_args: ld_flags,
   dependencies: link_deps,
   include_directories: inc_dirs,
   install: true)
