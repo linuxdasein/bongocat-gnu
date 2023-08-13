@@ -1,0 +1,23 @@
+name: '[CI]: AppImage build'
+on:
+  workflow_call:
+  push:
+    branches: 
+      - feature/appimage
+
+jobs:
+  appimage:
+  runs-on: ubuntu-latest
+  container:
+    image: appimagecrafters/appimage-builder:latest
+  steps:
+    - uses: actions/checkout@v3
+    - name: "Build AppImage in docker"
+      run: appimage-builder --recipe=appimage/AppImageBuilder.yml
+    - run: |
+        BUILD_VERSION=${{ git describe --tags --abbrev=0 }}
+        mv BongoCat-latest-x86_64.AppImage BongoCat-${{ BUILD_VERSION }}-x86_64.AppImage
+    - uses: actions/upload-artifact@v3
+      with:
+        name: bongocat-appimage-x86_64
+        path: BongoCat-${{ BUILD_VERSION }}-x86_64.AppImage
