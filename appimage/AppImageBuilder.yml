@@ -1,5 +1,8 @@
 version: 1
 
+script:
+  - appimage/build.sh
+
 AppDir:
   path: ./AppDir
 
