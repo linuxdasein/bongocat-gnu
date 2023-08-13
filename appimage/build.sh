@@ -47,7 +47,10 @@ cd build && meson compile
 DESTDIR=../AppDir meson install && cd ..
 
 # install the app resources
+cp -r ./img ./AppDir/usr/local/bin/
+cp -r ./share ./AppDir/usr/local/bin/
 ICONDIR=./AppDir/usr/share/icons/hicolor/
+install -Dm755 ./appimage/bongo.sh ./AppDir/usr/local/bin
 install -Dm644 ./flatpak/bongo-16x16.png ${ICONDIR}/16x16/apps/com.linuxdasein.BongoCat.png
 install -Dm644 ./flatpak/bongo-24x24.png ${ICONDIR}/24x24/apps/com.linuxdasein.BongoCat.png
 install -Dm644 ./flatpak/bongo-32x32.png ${ICONDIR}/32x32/apps/com.linuxdasein.BongoCat.png

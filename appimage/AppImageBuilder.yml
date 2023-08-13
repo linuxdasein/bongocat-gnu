@@ -8,7 +8,8 @@ AppDir:
     name: BongoCat
     icon: com.linuxdasein.BongoCat
     version: 0.1.1
-    exec: usr/local/bin/bongo
+    exec: bin/bash
+    exec_args: "$APPDIR/usr/local/bin/bongo.sh"
 
   apt:
     arch: amd64
@@ -19,6 +20,7 @@ AppDir:
       - sourceline: 'deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ bionic-backports main restricted universe multiverse'
 
     include:
+      - bash
       - libsdl2-2.0-0
       - libjsoncpp1
       - libpulse0
