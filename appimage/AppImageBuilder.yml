@@ -1,0 +1,42 @@
+version: 1
+
+AppDir:
+  path: ./AppDir
+
+  app_info:
+    id: org.linuxdasein.BongoCat
+    name: BongoCat
+    icon: com.linuxdasein.BongoCat
+    version: gnu
+    exec: bin/bash
+    exec_args: "$APPDIR/usr/local/bin/bongo.sh"
+
+  apt:
+    arch: amd64
+    sources:
+      - sourceline: 'deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ bionic main restricted universe multiverse'
+        key_url: 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3b4fe6acc0b21f32'
+      - sourceline: 'deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ bionic-updates main restricted universe multiverse'
+      - sourceline: 'deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ bionic-backports main restricted universe multiverse'
+
+    include:
+      - bash
+      - libsdl2-2.0-0
+      - libjsoncpp1
+      - libpulse0
+      - libxdo3
+
+  files:
+    include:
+      - /usr/lib/x86_64-linux-gnu/libsfml*
+    exclude:
+      - usr/share/man
+      - usr/share/doc/*
+  runtime:
+    env:
+      APPDIR_LIBRARY_PATH: $APPDIR/lib/x86_64-linux-gnu:$APPDIR/usr/lib/x86_64-linux-gnu:$APPDIR/usr/lib/x86_64-linux-gnu/pulseaudio
+
+AppImage:
+  update-information: None
+  sign-key: None
+  arch: x86_64
