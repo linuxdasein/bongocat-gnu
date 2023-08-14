@@ -14,7 +14,7 @@ jobs:
     with:
       upload: true
   build_appimage:
-    uses: ./github/workflows/appimage-build.yml
+    uses: ./.github/workflows/appimage-build.yml
   release:
     needs: [build_flatpak, build_appimage]
     runs-on: ubuntu-latest

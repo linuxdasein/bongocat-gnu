@@ -13,4 +13,4 @@ jobs:
       upload: false
   appimage:
     name: "Check AppImage build"
-    uses: ./github/workflows/appimage-build.yml
+    uses: ./.github/workflows/appimage-build.yml
