@@ -1,12 +1,10 @@
 name: '[CI]: AppImage build'
 on:
   workflow_call:
-  push:
-    branches: 
-      - feature/appimage
 
 jobs:
   appimage:
+    name: "AppImage build"
     runs-on: ubuntu-latest
     container:
       image: appimagecrafters/appimage-builder:latest

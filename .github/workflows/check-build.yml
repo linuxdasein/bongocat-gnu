@@ -11,3 +11,6 @@ jobs:
     uses: ./.github/workflows/flatpak-build.yml
     with:
       upload: false
+  appimage:
+    name: "Check AppImage build"
+    uses: ./github/workflows/appimage-build.yml

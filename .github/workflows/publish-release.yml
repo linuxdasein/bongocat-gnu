@@ -9,12 +9,14 @@ on:
       - "*.*.*"
 
 jobs:
-  build:
+  build_flatpak:
     uses: ./.github/workflows/flatpak-build.yml
     with:
       upload: true
+  build_appimage:
+    uses: ./github/workflows/appimage-build.yml
   release:
-    needs: build
+    needs: [build_flatpak, build_appimage]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
