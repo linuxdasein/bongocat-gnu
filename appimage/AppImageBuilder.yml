@@ -1,8 +1,5 @@
 version: 1
 
-script:
-  - appimage/build.sh
-
 AppDir:
   path: ./AppDir
 
@@ -10,7 +7,7 @@ AppDir:
     id: org.linuxdasein.BongoCat
     name: BongoCat
     icon: com.linuxdasein.BongoCat
-    version: latest
+    version: gnu
     exec: bin/bash
     exec_args: "$APPDIR/usr/local/bin/bongo.sh"
 
