@@ -60,10 +60,10 @@ meson setup build --buildtype=release
 Next, you can copy the newly-compiled `build/bongo` into the base directory and execute it.
 
 #### Archlinux
-On Arch based distros you can also use this [PKGBUILD](Archlinux/PKGBUILD) to build a package from your local repo by running,
+On Arch based distros you can also use this [PKGBUILD](archlinux/PKGBUILD) to build a package from your local repo by running,
 for instance, the following commands:
 ```
-cd Archlinux
+cd archlinux
 makepkg -fi
 ```
 
@@ -78,5 +78,10 @@ building and installation is done, the application can be lauched via flatpak:
 flatpak run org.linuxdasein.BongoCat
 ```
 
-If you have troubles compiling, it can be due to version mismatch between your compiler and SFML. See [#43](https://github.com/kuroni/bongocat-osu/issues/43) for more information.
-
+#### AppImage
+To build AppImage packages [this bash script](appimage/build.sh) is used. *Note*: the script is supposed to run inside
+a docker container; the docker image is `appimagecrafters/appimage-builder:latest`. To execute this one may use e.g.
+the folllowing command:
+```
+docker run -it --rm -v .:/root -w /root appimagecrafters/appimage-builder:latest appimage/build.sh
+```

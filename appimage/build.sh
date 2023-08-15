@@ -26,7 +26,7 @@ apt install -y libxrandr-dev libxdo-dev libsdl2-dev libjsoncpp-dev
 cp appimage/libxdo.pc /usr/share/pkgconfig/
 
 # the SFML version in the apt repo is way outdated, we need to backport
-# the latest version. e.g. download the source and build locally
+# the latest version. i.e. download the source and build locally
 wget https://github.com/SFML/SFML/archive/refs/tags/2.6.0.tar.gz
 # unpack the sources
 tar -xzf 2.6.0.tar.gz && cd SFML-2.6.0
