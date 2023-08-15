@@ -1,10 +1,13 @@
 name: '[CI]: Archlinux build'
 on:
+  push:
+    branches: 
+      - feature/archlinux_ci
   workflow_call:
 
 jobs:
   makepkg:
-    name: "Archlinux build"
+    name: "Build"
     runs-on: ubuntu-latest
     container:
       image: archlinux:latest
