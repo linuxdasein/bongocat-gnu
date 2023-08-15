@@ -4,7 +4,7 @@ on:
 
 jobs:
   appimage:
-    name: "AppImage build"
+    name: "Build"
     runs-on: ubuntu-latest
     container:
       image: appimagecrafters/appimage-builder:latest

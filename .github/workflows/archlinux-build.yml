@@ -1,0 +1,14 @@
+name: '[CI]: Archlinux build'
+on:
+  workflow_call:
+
+jobs:
+  makepkg:
+    name: "Build"
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Run makepkg in docker"
+        run: archlinux/build.sh

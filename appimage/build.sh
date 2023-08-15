@@ -26,7 +26,7 @@ apt install -y libxrandr-dev libxdo-dev libsdl2-dev libjsoncpp-dev
 cp appimage/libxdo.pc /usr/share/pkgconfig/
 
 # the SFML version in the apt repo is way outdated, we need to backport
-# the latest version. e.g. download the source and build locally
+# the latest version. i.e. download the source and build locally
 wget https://github.com/SFML/SFML/archive/refs/tags/2.6.0.tar.gz
 # unpack the sources
 tar -xzf 2.6.0.tar.gz && cd SFML-2.6.0
@@ -51,11 +51,11 @@ cp -r ./img ./AppDir/usr/local/bin/
 cp -r ./share ./AppDir/usr/local/bin/
 ICONDIR=./AppDir/usr/share/icons/hicolor/
 install -Dm755 ./appimage/bongo.sh ./AppDir/usr/local/bin/bongo.sh
-install -Dm644 ./flatpak/bongo-16x16.png ${ICONDIR}/16x16/apps/com.linuxdasein.BongoCat.png
-install -Dm644 ./flatpak/bongo-24x24.png ${ICONDIR}/24x24/apps/com.linuxdasein.BongoCat.png
-install -Dm644 ./flatpak/bongo-32x32.png ${ICONDIR}/32x32/apps/com.linuxdasein.BongoCat.png
-install -Dm644 ./flatpak/bongo-48x48.png ${ICONDIR}/48x48/apps/com.linuxdasein.BongoCat.png
-install -Dm644 ./flatpak/bongo-170x170.png ${ICONDIR}/170x170/apps/com.linuxdasein.BongoCat.png
+install -Dm644 ./ico/bongo-16x16.png ${ICONDIR}/16x16/apps/com.linuxdasein.BongoCat.png
+install -Dm644 ./ico/bongo-24x24.png ${ICONDIR}/24x24/apps/com.linuxdasein.BongoCat.png
+install -Dm644 ./ico/bongo-32x32.png ${ICONDIR}/32x32/apps/com.linuxdasein.BongoCat.png
+install -Dm644 ./ico/bongo-48x48.png ${ICONDIR}/48x48/apps/com.linuxdasein.BongoCat.png
+install -Dm644 ./ico/bongo-170x170.png ${ICONDIR}/170x170/apps/com.linuxdasein.BongoCat.png
 
 # build the appimage
 appimage-builder --recipe=appimage/AppImageBuilder.yml

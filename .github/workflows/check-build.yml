@@ -9,8 +9,9 @@ jobs:
   flatpak:
     name: "Check flatpak build"
     uses: ./.github/workflows/flatpak-build.yml
-    with:
-      upload: false
   appimage:
     name: "Check AppImage build"
     uses: ./.github/workflows/appimage-build.yml
+  archlinux:
+    name: "Check Archlinux build"
+    uses: ./.github/workflows/archlinux-build.yml
