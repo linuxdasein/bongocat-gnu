@@ -1,8 +1,5 @@
 name: '[CI]: Archlinux build'
 on:
-  push:
-    branches: 
-      - feature/archlinux_ci
   workflow_call:
 
 jobs:
