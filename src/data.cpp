@@ -111,13 +111,15 @@ void init() {
         // if a file exists in the current directory it takes precendence
         if(!std::filesystem::exists(conf_file_path)) {
             // otherwise try to load a file from user's home directory
-            conf_file_path = system_info->get_config_dir_path() + CONF_FILE_NAME;
+            auto cfg_dir_path = system_info->get_config_dir_path();
+            conf_file_path = cfg_dir_path + CONF_FILE_NAME;
             if(!std::filesystem::exists(conf_file_path)) {
                 // if no config file is present, create one with the default settings
                 const std::string cfg_file_template_path = "share/" CONF_FILE_NAME;
                 
                 if (std::filesystem::exists(cfg_file_template_path)) {
                     // create config from the default config template
+                    std::filesystem::create_directories(cfg_dir_path);
                     std::filesystem::copy(cfg_file_template_path, conf_file_path);
                 }
             }
