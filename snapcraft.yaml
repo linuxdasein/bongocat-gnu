@@ -1,0 +1,44 @@
+name: bongocat
+summary: A fork of bongocat osu with blackjack adn hookers
+description: |
+      An interactive bongocat fork for GNU/Linux.
+version: gnu
+grade: devel
+confinement: strict
+base: core22
+
+apps:
+  bongocat:
+    command: /usr/local/bin/bongo
+    plugs: [home]
+
+parts:
+  meson-deps:
+    plugin: nil
+    override-build: |
+      pip install meson
+    build-packages:
+      - python3-pip
+  libxdo-pkgconfig-file:
+    plugin: nil
+    override-build: |
+      cp $SNAPCRAFT_PART_SRC/libxdo.pc /usr/lib/pkgconfig/
+    source-type: local
+    source: ./snapcraft
+  bongocat:
+    after:
+      - meson-deps
+      - libxdo-pkgconfig-file
+    plugin: meson
+    meson-parameters:
+      - '--buildtype=release'
+    source-type: local
+    source: .
+    build-packages:
+      - pkg-config
+      - ninja-build
+      - libxrandr-dev
+      - libxdo-dev
+      - libsdl2-dev
+      - libjsoncpp-dev
+      - libsfml-dev
