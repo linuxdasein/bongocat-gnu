@@ -9,7 +9,7 @@ base: core22
 
 apps:
   bongocat:
-    command: snapcraft/bongo.sh
+    command: snap/local/bongo.sh
     plugs:
       - x11
       - opengl
@@ -30,7 +30,7 @@ parts:
     override-build: |
       cp $SNAPCRAFT_PART_SRC/libxdo.pc /usr/lib/pkgconfig/
     source-type: local
-    source: ./snapcraft
+    source: ./snap/local
   mesa-patchelf: # https://forum.snapcraft.io/t/opengl-broken-in-classic-core20-snap-on-22-04/29401/2
     plugin: nil
     stage-packages:
@@ -80,4 +80,4 @@ parts:
     stage:
       - img/*
       - share/*
-      - snapcraft/bongo.sh
+      - snap/local/*

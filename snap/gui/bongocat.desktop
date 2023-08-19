@@ -1,0 +1,7 @@
+[Desktop Entry]
+Exec=bongocat
+Type=Application
+Icon=${SNAP}/meta/gui/bongocat.ico
+Name=BongoCat
+Comment=A fork of the Bongo Cat overlay for GNU/Linux
+Categories=Utility;
