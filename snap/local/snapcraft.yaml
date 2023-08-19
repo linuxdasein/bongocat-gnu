@@ -1,4 +1,8 @@
+# Copy this to the project root directory before running snapcraft
+
 name: bongocat
+license: GPL-3.0+
+title: BongoCat
 summary: A GNU/Linux fork of the bongocat overlay
 description: |
       An interactive bongocat fork for GNU/Linux.
