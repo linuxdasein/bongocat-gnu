@@ -11,6 +11,8 @@ apps:
   bongocat:
     command: /usr/local/bin/bongo
     plugs: [home]
+    environment:
+      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/lib/x86_64-linux-gnu/pulseaudio/
 
 parts:
   meson-deps:
@@ -42,3 +44,11 @@ parts:
       - libsdl2-dev
       - libjsoncpp-dev
       - libsfml-dev
+    stage-packages:
+      - libxrandr2
+      - libxdo3
+      - libsdl2-2.0-0
+      - libjsoncpp25
+      - libsfml-system2.5
+      - libsfml-window2.5
+      - libsfml-graphics2.5
