@@ -15,8 +15,10 @@ jobs:
       upload: true
   build_appimage:
     uses: ./.github/workflows/appimage-build.yml
+  build_snap:
+    uses: ./.github/workflows/snap-build.yml
   release:
-    needs: [build_flatpak, build_appimage]
+    needs: [build_flatpak, build_appimage, build_snap]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

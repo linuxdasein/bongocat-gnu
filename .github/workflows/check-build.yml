@@ -12,6 +12,9 @@ jobs:
   appimage:
     name: "Check AppImage build"
     uses: ./.github/workflows/appimage-build.yml
+  snap:
+    name: "Check Snap build"
+    uses: ./.github/workflows/snap-build.yml
   archlinux:
     name: "Check Archlinux build"
     uses: ./.github/workflows/archlinux-build.yml
