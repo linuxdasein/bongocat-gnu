@@ -1,5 +1,5 @@
 name: bongocat
-summary: A fork of bongocat osu with blackjack adn hookers
+summary: A GNU/Linux fork of the bongocat overlay
 description: |
       An interactive bongocat fork for GNU/Linux.
 version: gnu
@@ -10,26 +10,46 @@ base: core22
 apps:
   bongocat:
     command: /usr/local/bin/bongo
-    plugs: [home]
+    plugs:
+      - x11
+      - opengl
+      - home
     environment:
       LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/lib/x86_64-linux-gnu/pulseaudio/
+      LIBGL_DRIVERS_PATH: $SNAP/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
 
 parts:
-  meson-deps:
+  meson-deps: # meson is not pre-installed in core22
     plugin: nil
     override-build: |
       pip install meson
     build-packages:
       - python3-pip
-  libxdo-pkgconfig-file:
+  libxdo-pkgconfig-file: # libxdo-dev misses a pkgbuild file
     plugin: nil
     override-build: |
       cp $SNAPCRAFT_PART_SRC/libxdo.pc /usr/lib/pkgconfig/
     source-type: local
     source: ./snapcraft
+  mesa-patchelf: # https://forum.snapcraft.io/t/opengl-broken-in-classic-core20-snap-on-22-04/29401/2
+    plugin: nil
+    stage-packages:
+      - libgl1-mesa-dri
+    stage:
+      - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+  mesa-no-patchelf:
+    plugin: nil
+    stage-packages:
+      - libgl1-mesa-dri
+    build-attributes:
+      - no-patchelf
+    stage:
+      - usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
   bongocat:
     after:
       - meson-deps
+      - mesa-patchelf
+      - mesa-no-patchelf
       - libxdo-pkgconfig-file
     plugin: meson
     meson-parameters:
