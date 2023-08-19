@@ -9,7 +9,7 @@ base: core22
 
 apps:
   bongocat:
-    command: /usr/local/bin/bongo
+    command: snapcraft/bongo.sh
     plugs:
       - x11
       - opengl
@@ -54,6 +54,7 @@ parts:
     plugin: meson
     meson-parameters:
       - '--buildtype=release'
+      - '--prefix=/'
     source-type: local
     source: .
     build-packages:
@@ -72,3 +73,11 @@ parts:
       - libsfml-system2.5
       - libsfml-window2.5
       - libsfml-graphics2.5
+  bongocat-data:
+    plugin: dump
+    source-type: local
+    source: .
+    stage:
+      - img/*
+      - share/*
+      - snapcraft/bongo.sh
