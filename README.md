@@ -85,3 +85,12 @@ the folllowing command:
 ```
 docker run -it --rm -v .:/root -w /root appimagecrafters/appimage-builder:latest appimage/build.sh
 ```
+
+#### Snap
+In order to build a snap package one need to install [snapcraft](https://snapcraft.io/) first. The snapcraft recipe is 
+stored [here](snap/local/snapcraft.yaml) and it's required to copy it in the root directory of the project before
+executing a snapcraft build. Commands to build a snap may look like this:
+```
+cp snap/local/snapcraft.yaml .
+snapcraft
+```
