@@ -1,6 +1,9 @@
 name: '[CI]: Snap build'
 on:
   workflow_call:
+  push:
+    branches: 
+      - feature/snap
 
 jobs:
   appimage:
