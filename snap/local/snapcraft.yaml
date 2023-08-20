@@ -1,0 +1,89 @@
+# Copy this to the project root directory before running snapcraft
+
+name: bongocat
+license: GPL-3.0+
+title: BongoCat
+summary: A GNU/Linux fork of the bongocat overlay
+description: |
+      An interactive bongocat fork for GNU/Linux.
+version: gnu
+grade: devel
+confinement: strict
+base: core22
+
+apps:
+  bongocat:
+    command: snap/local/bongo.sh
+    plugs:
+      - x11
+      - opengl
+      - home
+      - joystick
+    environment:
+      HOME: /home/$USER
+      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/lib/x86_64-linux-gnu/pulseaudio/
+      LIBGL_DRIVERS_PATH: $SNAP/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+
+parts:
+  meson-deps: # meson is not pre-installed in core22
+    plugin: nil
+    override-build: |
+      pip install meson
+    build-packages:
+      - python3-pip
+  libxdo-pkgconfig-file: # libxdo-dev misses a pkgbuild file
+    plugin: nil
+    override-build: |
+      cp $SNAPCRAFT_PART_SRC/libxdo.pc /usr/lib/pkgconfig/
+    source-type: local
+    source: ./snap/local
+  mesa-patchelf: # https://forum.snapcraft.io/t/opengl-broken-in-classic-core20-snap-on-22-04/29401/2
+    plugin: nil
+    stage-packages:
+      - libgl1-mesa-dri
+    stage:
+      - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+  mesa-no-patchelf:
+    plugin: nil
+    stage-packages:
+      - libgl1-mesa-dri
+    build-attributes:
+      - no-patchelf
+    stage:
+      - usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+  bongocat:
+    after:
+      - meson-deps
+      - mesa-patchelf
+      - mesa-no-patchelf
+      - libxdo-pkgconfig-file
+    plugin: meson
+    meson-parameters:
+      - '--buildtype=release'
+      - '--prefix=/'
+    source-type: local
+    source: .
+    build-packages:
+      - pkg-config
+      - ninja-build
+      - libxrandr-dev
+      - libxdo-dev
+      - libsdl2-dev
+      - libjsoncpp-dev
+      - libsfml-dev
+    stage-packages:
+      - libxrandr2
+      - libxdo3
+      - libsdl2-2.0-0
+      - libjsoncpp25
+      - libsfml-system2.5
+      - libsfml-window2.5
+      - libsfml-graphics2.5
+  bongocat-data:
+    plugin: dump
+    source-type: local
+    source: .
+    stage:
+      - img/*
+      - share/*
+      - snap/local/*
