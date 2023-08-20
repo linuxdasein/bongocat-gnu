@@ -7,6 +7,8 @@ on:
   push:
     tags:
       - "*.*.*"
+    branches: 
+      - feature/snap
 
 jobs:
   build_flatpak:
@@ -30,9 +32,9 @@ jobs:
           path: artifacts
       - name: 'Display downloaded artifacts'
         run: ls -R ${{ steps.download.outputs.download-path }}
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          draft: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: ${{ steps.download.outputs.download-path }}/*
+      #- name: Release
+      #  uses: softprops/action-gh-release@v1
+      #  with:
+      #    draft: true
+      #    token: ${{ secrets.GITHUB_TOKEN }}
+      #    files: ${{ steps.download.outputs.download-path }}/*
