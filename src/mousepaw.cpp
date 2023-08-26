@@ -140,7 +140,7 @@ std::vector<sf::Vector2f> MousePaw::update_paw_position(std::pair<double, double
     const math::point2d dpos = mpos + d;
     device.setPosition(dpos.x + offset.x, dpos.y + offset.y);
 
-    // convert to float (consider to perfrom math in float in the first place)
+    // convert to float (consider to perform math in float in the first place)
     std::vector<sf::Vector2f> pss2f;
     for(auto pd : pss2d) {
         pss2f.push_back(sf::Vector2f(pd.x, pd.y));

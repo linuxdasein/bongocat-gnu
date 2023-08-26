@@ -33,7 +33,7 @@ protected:
     // Initialize mouse paw with json config
     bool init(const Json::Value& mouse_cfg, const Json::Value& paw_cfg);
 
-    // Update deviice and paw position according to the mouse_pos
+    // Update device and paw position according to the mouse_pos
     std::vector<sf::Vector2f> update_paw_position(std::pair<double, double> mouse_pos);
 
     // Display paw represented by its coordinates pss2
