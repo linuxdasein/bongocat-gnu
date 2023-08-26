@@ -26,7 +26,38 @@ public:
     virtual ~ICat() {}
 };
 
-class OsuCat : public ICat
+class MousePaw 
+{
+protected:
+
+    // Initialize mouse paw with json config
+    bool init(const Json::Value& mouse_cfg, const Json::Value& paw_cfg);
+
+    // Update device and paw position according to the mouse_pos
+    std::vector<sf::Vector2f> update_paw_position(std::pair<double, double> mouse_pos);
+
+    // Display paw represented by its coordinates pss2
+    void draw_paw(sf::RenderWindow& window, const std::vector<sf::Vector2f>& pss2);
+
+    // Set offset and scale for mouse sprite
+    void set_mouse_parameters(sf::Vector2i offset, double scale);
+
+    sf::Sprite device;
+private:
+    // draw an arc about an array of points
+    void draw_arc(sf::RenderWindow& window, const std::vector<sf::Vector2f>& pss2, sf::Color color, float width);
+
+    double scale = 1.0;
+    sf::Vector2i offset = {0, 0};
+
+    int x_paw_start, y_paw_start;
+    int x_paw_end, y_paw_end;
+
+    sf::Color paw_color;
+    sf::Color paw_edge_color;
+};
+
+class OsuCat : public ICat, private MousePaw
 {
 public:
 
@@ -34,13 +65,10 @@ public:
     void draw(sf::RenderWindow& window) override;
 
 private:
+
     Json::Value left_key_value, right_key_value, smoke_key_value, wave_key_value;
-    int offset_x, offset_y;
-    int paw_r, paw_g, paw_b, paw_a;
-    int paw_edge_r, paw_edge_g, paw_edge_b, paw_edge_a;
-    double scale;
     bool is_mouse, is_left_handed, is_enable_toggle_smoke;
-    sf::Sprite bg, up, left, right, device, smoke, wave;
+    sf::Sprite bg, up, left, right, smoke, wave;
 
     int key_state = 0;
 
@@ -53,9 +81,6 @@ private:
     double timer_left_key = -1;
     double timer_right_key = -1;
     double timer_wave_key = -1;
-
-    int x_paw_start, y_paw_start;
-    int x_paw_end, y_paw_end;
 };
 
 class TaikoCat : public ICat
@@ -111,7 +136,7 @@ private:
     bool is_4K;
 };
 
-class CustomCat : public ICat
+class CustomCat : public ICat, private MousePaw
 {
 public:
 
@@ -119,17 +144,12 @@ public:
     void draw(sf::RenderWindow& window) override;
 
 private:
-    sf::Sprite bg, mouse;
+    sf::Sprite bg;
 
     bool is_mouse, is_mouse_on_top;
-    int offset_x, offset_y, scale;
-    int paw_r, paw_g, paw_b, paw_a;
-    int paw_edge_r, paw_edge_g, paw_edge_b, paw_edge_a;
-    int x_paw_start, y_paw_start;
-    int x_paw_end, y_paw_end;
 };
 
-class ClassicCat : public ICat
+class ClassicCat : public ICat, private MousePaw
 {
 public:
 
@@ -141,10 +161,6 @@ private:
 
     sf::Sprite cat, left_paw, mouse;
     std::map<sf::Keyboard::Key, std::unique_ptr<sf::Drawable> > key_actions;
-
-    int offset_x, offset_y, scale;
-    int x_paw_start, y_paw_start;
-    int x_paw_end, y_paw_end;
 
     std::list<sf::Keyboard::Key> keys;
     std::list<sf::Keyboard::Key> pressed_keys;
