@@ -147,7 +147,7 @@ void ManiaCat::draw_7K(sf::RenderWindow& window) {
     }
 }
 
-void ManiaCat::draw(sf::RenderWindow& window) {
+void ManiaCat::draw(sf::RenderWindow& window, const sf::RenderStates& rst) {
     if (is_4K) {
         draw_4K(window);
     } else {

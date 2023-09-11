@@ -67,7 +67,7 @@ bool OsuCat::init(const Json::Value& cfg) {
     return true;
 }
 
-void OsuCat::draw(sf::RenderWindow& window) {
+void OsuCat::draw(sf::RenderWindow& window, const sf::RenderStates& rst) {
     window.draw(bg);
 
     // update mouse and paw position
@@ -79,7 +79,7 @@ void OsuCat::draw(sf::RenderWindow& window) {
     }
 
     // draw mouse paw
-    draw_paw(window, pss2);
+    draw_paw(window, pss2, rst);
 
     // drawing keypresses
     bool left_key = false;

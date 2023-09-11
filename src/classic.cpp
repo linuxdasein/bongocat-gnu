@@ -92,9 +92,9 @@ bool ClassicCat::init(const Json::Value& cfg) {
     return true;
 }
 
-void ClassicCat::draw(sf::RenderWindow& window) {
+void ClassicCat::draw(sf::RenderWindow& window, const sf::RenderStates& rst) {
     window.draw(cat);
-    draw_mouse(window);
+    draw_mouse(window, rst);
 
     // First, update states for the keys which currently are not pressed down
     move_if(pressed_keys, keys, 
@@ -110,14 +110,14 @@ void ClassicCat::draw(sf::RenderWindow& window) {
         [&](sf::Keyboard::Key key){ return !sf::Keyboard::isKeyPressed(key); });
 }
 
-void ClassicCat::draw_mouse(sf::RenderWindow& window) {
+void ClassicCat::draw_mouse(sf::RenderWindow& window, const sf::RenderStates& rst) {
     // update mouse and paw position
     auto pss2 = update_paw_position(input::get_mouse_input().get_position());
 
     window.draw(device);
 
     // draw mouse paw
-    draw_paw(window, pss2);
+    draw_paw(window, pss2, rst);
 }
 
 } // namespace cats

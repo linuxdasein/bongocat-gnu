@@ -20,7 +20,7 @@ public:
     virtual bool init(const Json::Value& cfg) = 0;
 
     // Draws the cat: must not be called before init()
-    virtual void draw(sf::RenderWindow& window) = 0;
+    virtual void draw(sf::RenderWindow& window, const sf::RenderStates& rst) = 0;
 
     // Virtual destructor
     virtual ~ICat() {}
@@ -37,7 +37,7 @@ protected:
     std::vector<sf::Vector2f> update_paw_position(std::pair<double, double> mouse_pos);
 
     // Display paw represented by its coordinates pss2
-    void draw_paw(sf::RenderWindow& window, const std::vector<sf::Vector2f>& pss2);
+    void draw_paw(sf::RenderWindow& window, const std::vector<sf::Vector2f>& pss2, const sf::RenderStates& rst);
 
     // Set offset and scale for mouse sprite
     void set_mouse_parameters(sf::Vector2i offset, double scale);
@@ -45,7 +45,7 @@ protected:
     sf::Sprite device;
 private:
     // draw an arc about an array of points
-    void draw_arc(sf::RenderWindow& window, const std::vector<sf::Vector2f>& pss2, sf::Color color, float width);
+    void draw_arc(sf::RenderWindow& window, const sf::RenderStates& rst, const std::vector<sf::Vector2f>& pss2, sf::Color color, float width);
 
     double scale = 1.0;
     sf::Vector2i offset = {0, 0};
@@ -62,7 +62,7 @@ class OsuCat : public ICat, private MousePaw
 public:
 
     bool init(const Json::Value& cfg) override;
-    void draw(sf::RenderWindow& window) override;
+    void draw(sf::RenderWindow& window, const sf::RenderStates& rst) override;
 
 private:
 
@@ -88,7 +88,7 @@ class TaikoCat : public ICat
 public:
 
     bool init(const Json::Value& cfg) override;
-    void draw(sf::RenderWindow& window) override;
+    void draw(sf::RenderWindow& window, const sf::RenderStates& rst) override;
 
 private:
     Json::Value rim_key_value[2], centre_key_value[2];
@@ -105,7 +105,7 @@ class CtbCat : public ICat
 public:
 
     bool init(const Json::Value& cfg) override;
-    void draw(sf::RenderWindow& window) override;
+    void draw(sf::RenderWindow& window, const sf::RenderStates& rst) override;
 
 private:
     Json::Value left_key_value, right_key_value, dash_key_value;
@@ -123,7 +123,7 @@ class ManiaCat : public ICat
 public:
 
     bool init(const Json::Value& cfg) override;
-    void draw(sf::RenderWindow& window) override;
+    void draw(sf::RenderWindow& window, const sf::RenderStates& rst) override;
 
 private:
     void draw_4K(sf::RenderWindow& window);
@@ -141,7 +141,7 @@ class CustomCat : public ICat, private MousePaw
 public:
 
     bool init(const Json::Value& cfg) override;
-    void draw(sf::RenderWindow& window) override;
+    void draw(sf::RenderWindow& window, const sf::RenderStates& rst) override;
 
 private:
     sf::Sprite bg;
@@ -154,10 +154,10 @@ class ClassicCat : public ICat, private MousePaw
 public:
 
     bool init(const Json::Value& cfg) override;
-    void draw(sf::RenderWindow& window) override;
+    void draw(sf::RenderWindow& window, const sf::RenderStates& rst) override;
 
 private:
-    void draw_mouse(sf::RenderWindow& window);
+    void draw_mouse(sf::RenderWindow& window, const sf::RenderStates& rst);
 
     sf::Sprite cat, left_paw, mouse;
     std::map<sf::Keyboard::Key, std::unique_ptr<sf::Drawable> > key_actions;

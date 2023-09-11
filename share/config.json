@@ -1,5 +1,9 @@
 {
     "mode": 1,
+    "window": {
+        "size": [1280, 720],
+        "offset": [100, 100]
+    },
     "decoration": {
         "leftHanded": false,
         "rgb": [255, 255, 255],
