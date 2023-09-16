@@ -2,7 +2,9 @@
     "mode": 1,
     "window": {
         "size": [1280, 720],
-        "offset": [100, 100]
+        "offset": [100, 100],
+        "scale": 1.0,
+        "adaptive" : false
     },
     "decoration": {
         "leftHanded": false,

@@ -17,6 +17,8 @@
 
 namespace data {
 const Json::Value& get_cfg();
+sf::Vector2i get_cfg_window_size();
+sf::Transform get_cfg_window_transform();
 
 void error_msg(std::string error, std::string title);
 

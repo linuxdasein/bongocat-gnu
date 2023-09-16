@@ -4,16 +4,9 @@
 int main(int argc, char ** argv) {
     sf::RenderWindow window;
     data::init();
-    auto window_config = data::get_cfg()["window"];
-
-    auto value_or = [](const Json::Value& v, int defv) {
-        return v.isNull() ? defv : v.asInt();
-    };
-
-    const int window_width = value_or(window_config["size"][0], 612);
-    const int window_height = value_or(window_config["size"][1], 352);
-
-    window.create(sf::VideoMode(window_width, window_height), "Bongo Cat", sf::Style::Titlebar | sf::Style::Close);
+    
+    sf::Vector2i window_size = data::get_cfg_window_size();
+    window.create(sf::VideoMode(window_size.x, window_size.y), "Bongo Cat", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(MAX_FRAMERATE);
     std::unique_ptr<cats::ICat> cat;
     int mode;
@@ -26,22 +19,14 @@ int main(int argc, char ** argv) {
     }
 
     // initialize input
-    if (!input::init(window_width, window_height)) {
+    if (!input::init(window_size.x, window_size.y)) {
         return EXIT_FAILURE;
     }
 
     bool is_reload = false;
     bool is_show_input_debug = false;
 
-    const int window_offset_x = value_or(window_config["offset"][0], 0);
-    const int window_offset_y = value_or(window_config["offset"][1], 0);
-
-    sf::Vector2f scene_pos;
-    scene_pos.x = std::clamp(window_offset_x, 0, window_width);
-    scene_pos.y = std::clamp(window_offset_y, 0, window_height);
-
-    sf::Transform transform = sf::Transform();
-    transform.translate(scene_pos);
+    sf::Transform transform = data::get_cfg_window_transform();
     sf::RenderStates rstates = sf::RenderStates(transform);
 
     cat->init(data::get_cfg());
