@@ -61,30 +61,19 @@ bool OsuCat::init(const Json::Value& cfg) {
     }
 
     // initialize thew mouse paw
-    MousePaw::init(cfg["osu"], cfg["mousePaw"]);
     MousePaw::set_mouse_parameters(offset, scale);
+    MousePaw::init(cfg["osu"], cfg["mousePaw"]);
 
     return true;
 }
 
-void OsuCat::draw(sf::RenderWindow& window) {
-    window.draw(bg);
-
+void OsuCat::update() {
     // update mouse and paw position
-    auto pss2 = update_paw_position(input::get_mouse_input().get_position());
+    update_paw_position(input::get_mouse_input().get_position());
 
-    // drawing mouse
-    if (is_mouse) {
-        window.draw(device);
-    }
-
-    // draw mouse paw
-    draw_paw(window, pss2);
-
-    // drawing keypresses
     bool left_key = false;
 
-    for (Json::Value &v : left_key_value) {
+    for (const Json::Value &v : left_key_value) {
         if (input::is_pressed(v.asInt())) {
             left_key = true;
             break;
@@ -102,7 +91,7 @@ void OsuCat::draw(sf::RenderWindow& window) {
 
     bool right_key = false;
 
-    for (Json::Value &v : right_key_value) {
+    for (const Json::Value &v : right_key_value) {
         if (input::is_pressed(v.asInt())) {
             right_key = true;
             break;
@@ -120,7 +109,7 @@ void OsuCat::draw(sf::RenderWindow& window) {
     
     bool wave_key = false;
 
-    for (Json::Value &v : wave_key_value) {
+    for (const Json::Value &v : wave_key_value) {
         if (input::is_pressed(v.asInt())) {
             wave_key = true;
             break;
@@ -138,49 +127,11 @@ void OsuCat::draw(sf::RenderWindow& window) {
 
     if (!left_key_state && !right_key_state && !wave_key_state) {
         key_state = 0;
-        window.draw(up);
     }
 
-    if (key_state == 1) {
-        if ((clock() - std::max(timer_right_key, timer_wave_key)) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-            if (!is_left_handed) {
-                window.draw(left);
-            } else {
-                window.draw(right);
-            }
-            timer_left_key = clock();
-        } else {
-            window.draw(up);
-        }
-    } else if (key_state == 2) {
-        if ((clock() - std::max(timer_left_key, timer_wave_key)) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-            if (!is_left_handed) {
-                window.draw(right);
-            } else {
-                window.draw(left);
-            }
-            timer_right_key = clock();
-        } else {
-            window.draw(up);
-        }
-    } else if (key_state == 3) {
-        if ((clock() - std::max(timer_left_key, timer_right_key)) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-            window.draw(wave);
-            timer_wave_key = clock();
-        } else {
-            window.draw(up);
-        }
-    }
-
-    // drawing tablet
-    if (!is_mouse) {
-        window.draw(device);
-    }
-    
-    // draw smoke
     bool is_smoke_key_pressed = false;
 
-    for (Json::Value &v : smoke_key_value) {
+    for (const Json::Value &v : smoke_key_value) {
         if (input::is_pressed(v.asInt())) {
             is_smoke_key_pressed = true;
             break;
@@ -200,9 +151,63 @@ void OsuCat::draw(sf::RenderWindow& window) {
     else {
         is_toggle_smoke = is_smoke_key_pressed;
     }
+}
 
+void OsuCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
+    target.draw(bg, rst);
+
+    // drawing mouse
+    if (is_mouse) {
+        target.draw(device, rst);
+    }
+
+    // draw mouse paw
+    draw_paw(target, rst);
+
+    // drawing keypresses
+    if (!left_key_state && !right_key_state && !wave_key_state) {
+        target.draw(up, rst);
+    }
+
+    if (key_state == 1) {
+        if ((clock() - std::max(timer_right_key, timer_wave_key)) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
+            if (!is_left_handed) {
+                target.draw(left, rst);
+            } else {
+                target.draw(right, rst);
+            }
+            timer_left_key = clock();
+        } else {
+            target.draw(up, rst);
+        }
+    } else if (key_state == 2) {
+        if ((clock() - std::max(timer_left_key, timer_wave_key)) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
+            if (!is_left_handed) {
+                target.draw(right, rst);
+            } else {
+                target.draw(left, rst);
+            }
+            timer_right_key = clock();
+        } else {
+            target.draw(up, rst);
+        }
+    } else if (key_state == 3) {
+        if ((clock() - std::max(timer_left_key, timer_right_key)) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
+            target.draw(wave, rst);
+            timer_wave_key = clock();
+        } else {
+            target.draw(up, rst);
+        }
+    }
+
+    // drawing tablet
+    if (!is_mouse) {
+        target.draw(device, rst);
+    }
+    
+    // draw smoke
     if (is_toggle_smoke) {
-        window.draw(smoke);
+        target.draw(smoke, rst);
     }
 }
 

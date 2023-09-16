@@ -51,20 +51,20 @@ bool ManiaCat::init(const Json::Value& cfg) {
     return true;
 }
 
-void ManiaCat::draw_4K(sf::RenderWindow& window) {
-    window.draw(bg);
+void ManiaCat::draw_4K(sf::RenderTarget& target, sf::RenderStates rst) const {
+    target.draw(bg, rst);
 
     int left_cnt = 0, right_cnt = 0;
     int left_sum = 0, right_sum = 0;
 
     for (int i = 0; i < 2; i++) {
         if (input::is_pressed(left_key_value_4K[i])) {
-            window.draw(left_4K[i]);
+            target.draw(left_4K[i], rst);
             left_cnt++;
             left_sum += i;
         }
         if (input::is_pressed(right_key_value_4K[i])) {
-            window.draw(right_4K[i]);
+            target.draw(right_4K[i], rst);
             right_cnt++;
             right_sum += i;
         }
@@ -72,47 +72,47 @@ void ManiaCat::draw_4K(sf::RenderWindow& window) {
 
     // draw left hand
     if (left_cnt == 0) {
-        window.draw(left_handup);
+        target.draw(left_handup, rst);
     } else {
         double avg = 1.0 * left_sum / left_cnt;
         if (avg == 0) {
-            window.draw(left_hand[0]);
+            target.draw(left_hand[0], rst);
         } else if (avg == 0.5) {
-            window.draw(left_hand[1]);
+            target.draw(left_hand[1], rst);
         } else {
-            window.draw(left_hand[2]);
+            target.draw(left_hand[2], rst);
         }
     }
 
     // draw right hand
     if (right_cnt == 0) {
-        window.draw(right_handup);
+        target.draw(right_handup, rst);
     } else {
         double avg = 1.0 * right_sum / right_cnt;
         if (avg == 0) {
-            window.draw(right_hand[0]);
+            target.draw(right_hand[0], rst);
         } else if (avg == 0.5) {
-            window.draw(right_hand[1]);
+            target.draw(right_hand[1], rst);
         } else {
-            window.draw(right_hand[2]);
+            target.draw(right_hand[2], rst);
         }
     }
 }
 
-void ManiaCat::draw_7K(sf::RenderWindow& window) {
-    window.draw(bg);
+void ManiaCat::draw_7K(sf::RenderTarget& target, sf::RenderStates rst) const {
+    target.draw(bg, rst);
 
     int left_cnt = 0, right_cnt = 0;
     int left_sum = 0, right_sum = 0;
 
     for (int i = 0; i < 4; i++) {
         if (input::is_pressed(left_key_value_7K[i])) {
-            window.draw(left_7K[i]);
+            target.draw(left_7K[i], rst);
             left_cnt++;
             left_sum += i;
         }
         if (input::is_pressed(right_key_value_7K[i])) {
-            window.draw(right_7K[i]);
+            target.draw(right_7K[i], rst);
             right_cnt++;
             right_sum += i;
         }
@@ -120,38 +120,38 @@ void ManiaCat::draw_7K(sf::RenderWindow& window) {
 
     // draw left hand
     if (left_cnt == 0) {
-        window.draw(left_handup);
+        target.draw(left_handup, rst);
     } else {
         double avg = 1.0 * left_sum / left_cnt;
         if (avg < 1.0) {
-            window.draw(left_hand[0]);
+            target.draw(left_hand[0], rst);
         } else if (avg <= 2.0) {
-            window.draw(left_hand[1]);
+            target.draw(left_hand[1], rst);
         } else {
-            window.draw(left_hand[2]);
+            target.draw(left_hand[2], rst);
         }
     }
 
     // draw right hand
     if (right_cnt == 0) {
-        window.draw(right_handup);
+        target.draw(right_handup, rst);
     } else {
         double avg = 1.0 * right_sum / right_cnt;
         if (avg < 1.0) {
-            window.draw(right_hand[0]);
+            target.draw(right_hand[0], rst);
         } else if (avg <= 2.0) {
-            window.draw(right_hand[1]);
+            target.draw(right_hand[1], rst);
         } else {
-            window.draw(right_hand[2]);
+            target.draw(right_hand[2], rst);
         }
     }
 }
 
-void ManiaCat::draw(sf::RenderWindow& window) {
+void ManiaCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
     if (is_4K) {
-        draw_4K(window);
+        draw_4K(target, rst);
     } else {
-        draw_7K(window);
+        draw_7K(target, rst);
     }
 }
 

@@ -3,7 +3,10 @@
 
 int main(int argc, char ** argv) {
     sf::RenderWindow window;
-    window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Bongo Cat", sf::Style::Titlebar | sf::Style::Close);
+    data::init();
+    
+    sf::Vector2i window_size = data::get_cfg_window_size();
+    window.create(sf::VideoMode(window_size.x, window_size.y), "Bongo Cat", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(MAX_FRAMERATE);
     std::unique_ptr<cats::ICat> cat;
     int mode;
@@ -16,12 +19,15 @@ int main(int argc, char ** argv) {
     }
 
     // initialize input
-    if (!input::init()) {
+    if (!input::init(window_size.x, window_size.y)) {
         return EXIT_FAILURE;
     }
 
     bool is_reload = false;
     bool is_show_input_debug = false;
+
+    sf::Transform transform = data::get_cfg_window_transform();
+    sf::RenderStates rstates = sf::RenderStates(transform);
 
     cat->init(data::get_cfg());
 
@@ -68,7 +74,8 @@ int main(int argc, char ** argv) {
         int alpha_value = rgb.size() == 3 ? 255 : rgb[3].asInt();
 
         window.clear(sf::Color(red_value, green_value, blue_value, alpha_value));
-        cat->draw(window);
+        cat->update();
+        window.draw(*cat, rstates);
 
         if (is_show_input_debug) {
             input::drawDebugPanel(window);

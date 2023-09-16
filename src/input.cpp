@@ -56,7 +56,7 @@ static int _XlibErrorHandler(Display *display, XErrorEvent *event) {
 
 int INPUT_KEY_TABLE[TOTAl_INPUT_TABLE_SIZE];
 
-bool init() {
+bool init(int width, int height) {
     for (int i = 0; i < TOTAl_INPUT_TABLE_SIZE; i++) {
         if (i >= 48 && i <= 57) {           // number
             INPUT_KEY_TABLE[i] = i - 48 + (int)sf::Keyboard::Key::Num0;
@@ -123,7 +123,7 @@ bool init() {
     }
 
     // initialize debug resource
-    debugBackground.setSize(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
+    debugBackground.setSize(sf::Vector2f(width, height));
     debugBackground.setFillColor(sf::Color(0, 0, 0, 128));
 
     debugText.setFont(debugFont);

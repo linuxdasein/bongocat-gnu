@@ -52,8 +52,8 @@ struct key {
         return false;
     }
 
-    void draw(sf::RenderWindow& window) {
-        window.draw(sprite);
+    void draw(sf::RenderTarget& window, sf::RenderStates rst) {
+        window.draw(sprite, rst);
         timer = clock();
     }
 };
@@ -84,7 +84,7 @@ struct key_container {
         }
     }
 
-    void draw(sf::RenderWindow& window) {
+    void draw(sf::RenderTarget& window, sf::RenderStates rst) {
         bool is_any_key_pressed = false;
         for (size_t i = 0; i < keys.size(); i++) {
             key& current_key = keys[i];
@@ -99,7 +99,7 @@ struct key_container {
             }
         }
         if (!is_any_key_pressed) {
-            window.draw(default_sprite);
+            window.draw(default_sprite, rst);
         }
         else {
             key& on_key = keys[key_index];
@@ -110,9 +110,9 @@ struct key_container {
                 }
             }
             if ((clock() - last_press) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-                on_key.draw(window);
+                on_key.draw(window, rst);
             } else {
-                window.draw(default_sprite);
+                window.draw(default_sprite, rst);
             }
         }
     }
@@ -158,29 +158,33 @@ bool CustomCat::init(const Json::Value& cfg) {
     return true;
 }
 
-void CustomCat::draw(sf::RenderWindow& window) {
-    window.draw(bg);
-
+void CustomCat::update() {
     if (is_mouse) {
         // update mouse and paw position
-        auto pss2 = update_paw_position(input::get_mouse_input().get_position());
+        update_paw_position(input::get_mouse_input().get_position());
+    }
+}
 
+void CustomCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
+    target.draw(bg, rst);
+
+    if (is_mouse) {
         // drawing mouse on top
         if (is_mouse_on_top) {
-            window.draw(device);
+            target.draw(device, rst);
         }
 
         // draw mouse paw
-        draw_paw(window, pss2);
+        draw_paw(target, rst);
     }
 
     for (key_container& current : key_containers) {
-        current.draw(window);
+        current.draw(target, rst);
     }
 
     // drawing mouse at the bottom
     if (is_mouse && !is_mouse_on_top) {
-        window.draw(device);
+        target.draw(device, rst);
     }
 }
 

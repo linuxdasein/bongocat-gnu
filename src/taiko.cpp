@@ -45,13 +45,11 @@ bool TaikoCat::init(const Json::Value& cfg) {
     return true;
 }
 
-void TaikoCat::draw(sf::RenderWindow& window) {
-    window.draw(bg);
-
+void TaikoCat::update() {
     // 0 for left side, 1 for right side
     for (int i = 0; i < 2; i++) {
         bool rim_key = false;
-        for (Json::Value &v : rim_key_value[i]) {
+        for (const Json::Value &v : rim_key_value[i]) {
             if (input::is_pressed(v.asInt())) {
                 rim_key = true;
                 break;
@@ -67,7 +65,7 @@ void TaikoCat::draw(sf::RenderWindow& window) {
         }
 
         bool centre_key = false;
-        for (Json::Value &v : centre_key_value[i]) {
+        for (const Json::Value &v : centre_key_value[i]) {
             if (input::is_pressed(v.asInt())) {
                 centre_key = true;
                 break;
@@ -84,21 +82,31 @@ void TaikoCat::draw(sf::RenderWindow& window) {
 
         if (!rim_key_state[i] && !centre_key_state[i]) {
             key_state[i] = 0;
-            window.draw(up[i]);
+        }
+    }
+}
+
+void TaikoCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
+    target.draw(bg, rst);
+
+    // 0 for left side, 1 for right side
+    for (int i = 0; i < 2; i++) {
+        if (!rim_key_state[i] && !centre_key_state[i]) {
+            target.draw(up[i], rst);
         }
         if (key_state[i] == 1) {
             if ((clock() - timer_centre_key[i]) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-                window.draw(rim[i]);
+                target.draw(rim[i], rst);
                 timer_rim_key[i] = clock();
             } else {
-                window.draw(up[i]);
+                target.draw(up[i], rst);
             }
         } else if (key_state[i] == 2) {
             if ((clock() - timer_rim_key[i]) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-                window.draw(centre[i]);
+                target.draw(centre[i], rst);
                 timer_centre_key[i] = clock();
             } else {
-                window.draw(up[i]);
+                target.draw(up[i], rst);
             }
         }
     }

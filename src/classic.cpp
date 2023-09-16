@@ -86,38 +86,39 @@ bool ClassicCat::init(const Json::Value& cfg) {
     Json::Value cfg_std = cfg["classic"];
 
     device.setTexture(data::load_texture("img/osu/mouse.png"), true);
-    MousePaw::init(cfg_std, cfg_std);
     MousePaw::set_mouse_parameters(offset, scale);
+    MousePaw::init(cfg_std, cfg_std);
 
     return true;
 }
 
-void ClassicCat::draw(sf::RenderWindow& window) {
-    window.draw(cat);
-    draw_mouse(window);
-
-    // First, update states for the keys which currently are not pressed down
+void ClassicCat::update() {
+    // update mouse and paw position
+    update_paw_position(input::get_mouse_input().get_position());
+    // Update states for the keys which currently are not pressed down
     move_if(pressed_keys, keys, 
         [&](sf::Keyboard::Key key){ return sf::Keyboard::isKeyPressed(key); });
-
-    if(pressed_keys.empty())
-        window.draw(left_paw);
-    else // draw the latest pressed key sprite
-        window.draw(*key_actions[pressed_keys.back()]);
-
     // Update states for the keys which have been released
     move_if(keys, pressed_keys, 
         [&](sf::Keyboard::Key key){ return !sf::Keyboard::isKeyPressed(key); });
 }
 
-void ClassicCat::draw_mouse(sf::RenderWindow& window) {
-    // update mouse and paw position
-    auto pss2 = update_paw_position(input::get_mouse_input().get_position());
+void ClassicCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
+    target.draw(cat, rst);
+    draw_mouse(target, rst);
 
-    window.draw(device);
+    if(pressed_keys.empty())
+        target.draw(left_paw, rst);
+    else // draw the latest pressed key sprite
+        target.draw(*key_actions.at(pressed_keys.back()), rst);
+}
+
+void ClassicCat::draw_mouse(sf::RenderTarget& target, sf::RenderStates rst) const {
+    // draw mouse
+    target.draw(device, rst);
 
     // draw mouse paw
-    draw_paw(window, pss2);
+    draw_paw(target, rst);
 }
 
 } // namespace cats

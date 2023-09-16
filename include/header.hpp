@@ -1,7 +1,5 @@
 #pragma once
 #define BONGO_KEYPRESS_THRESHOLD 0
-#define WINDOW_WIDTH 612
-#define WINDOW_HEIGHT 352
 #define MAX_FRAMERATE 60
 
 #include <iostream>
@@ -19,6 +17,8 @@
 
 namespace data {
 const Json::Value& get_cfg();
+sf::Vector2i get_cfg_window_size();
+sf::Transform get_cfg_window_transform();
 
 void error_msg(std::string error, std::string title);
 
@@ -28,7 +28,7 @@ sf::Texture &load_texture(std::string path);
 }; // namespace data
 
 namespace input {
-bool init();
+bool init(int width, int height);
 
 bool is_pressed(int key_code);
 

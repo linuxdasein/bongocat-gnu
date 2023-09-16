@@ -36,7 +36,7 @@ bool MousePaw::init(const Json::Value& mouse_cfg, const Json::Value& paw_draw_in
     return true;
 }
 
-std::vector<sf::Vector2f> MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
+void MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
     auto [fx, fy] = mouse_pos;
     
     // apparently, this is a linear transform, intented to move the point to some position,
@@ -146,10 +146,10 @@ std::vector<sf::Vector2f> MousePaw::update_paw_position(std::pair<double, double
         pss2f.push_back(sf::Vector2f(pd.x, pd.y));
     }
 
-    return pss2f;
+    pss2 = std::move(pss2f);
 }
 
-void MousePaw::draw_paw(sf::RenderWindow& window, const std::vector<sf::Vector2f>& pss2) {
+void MousePaw::draw_paw(sf::RenderTarget& target, sf::RenderStates rst) const {
     // drawing arm's body
     const size_t nump = pss2.size();
     sf::VertexArray fill(sf::TriangleStrip, nump);
@@ -158,18 +158,18 @@ void MousePaw::draw_paw(sf::RenderWindow& window, const std::vector<sf::Vector2f
         fill[i + 1].position = pss2[nump - i - 1];
         fill[i].color = fill[i + 1].color = paw_color;
     }
-    window.draw(fill);
+    target.draw(fill, rst);
 
     // drawing the shadow of the arm arc
     auto paw_edge_color_shad = paw_edge_color;
     paw_edge_color_shad.a /= 3;
-    draw_arc(window, pss2, paw_edge_color_shad, 7);
+    draw_arc(target, rst, paw_edge_color_shad, 7);
 
     // drawing the line of the arm arc
-    draw_arc(window, pss2, paw_edge_color, 6);
+    draw_arc(target, rst, paw_edge_color, 6);
 }
 
-void MousePaw::draw_arc(sf::RenderWindow& window, const std::vector<sf::Vector2f>& pss2, sf::Color color, float width) {
+void MousePaw::draw_arc(sf::RenderTarget& target, sf::RenderStates rst, sf::Color color, float width) const {
     // at the first point of the arc we draw a circle shape
     // in order to make arc's beginning rounded
     sf::CircleShape circ(width / 2);
@@ -178,7 +178,7 @@ void MousePaw::draw_arc(sf::RenderWindow& window, const std::vector<sf::Vector2f
     // of the "enclosing box", so it's needed to set the coordinates accordingly
     sf::Vector2f offset(width / 2, width / 2);
     circ.setPosition(pss2[0] - offset);
-    window.draw(circ);
+    target.draw(circ, rst);
 
     sf::Transform rotate_left, rotate_right;
     rotate_left.rotate(-90); // counter-clockwise rotation
@@ -206,11 +206,11 @@ void MousePaw::draw_arc(sf::RenderWindow& window, const std::vector<sf::Vector2f
     }
 
     // at the end of the arc also draw a circle shape
-    window.draw(edge);
+    target.draw(edge, rst);
     circ.setRadius(width / 2);
     offset = sf::Vector2f(width / 2, width / 2);
     circ.setPosition(pss2[nump-1] - offset);
-    window.draw(circ);
+    target.draw(circ, rst);
 }
 
 }

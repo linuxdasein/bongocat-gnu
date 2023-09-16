@@ -15,6 +15,15 @@ namespace data {
 Json::Value cfg;
 std::map<std::string, sf::Texture> img_holder;
 
+const sf::Vector2i g_window_default_size(612, 352);
+
+static inline sf::Vector2i value_or(const Json::Value& v, sf::Vector2i defv) {
+    return sf::Vector2i(
+        v[0].isNull() ? defv.x : v[0].asInt(),
+        v[1].isNull() ? defv.y : v[1].asInt()
+    );
+}
+
 std::unique_ptr<Json::Value> parse_config_file(std::ifstream& cfg_file) {
     std::string cfg_string((std::istreambuf_iterator<char>(cfg_file)), std::istreambuf_iterator<char>()), error;
     Json::CharReaderBuilder cfg_builder;
@@ -33,6 +42,42 @@ std::unique_ptr<Json::Value> parse_config_file(std::ifstream& cfg_file) {
 
 const Json::Value& get_cfg() {
     return cfg;
+}
+
+sf::Vector2i get_cfg_window_size() {
+    auto window_config = data::get_cfg()["window"];
+    const sf::Vector2i window_size = value_or(window_config["size"], g_window_default_size);
+    return window_size;
+}
+
+sf::Transform get_cfg_window_transform() {
+    auto window_config = data::get_cfg()["window"];
+    const sf::Vector2i window_size = get_cfg_window_size();
+    const sf::Vector2i window_offset = value_or(window_config["offset"], sf::Vector2i(0, 0));
+
+    sf::Vector2f scene_pos;
+    scene_pos.x = std::clamp(window_offset.x, 0, window_size.x);
+    scene_pos.y = std::clamp(window_offset.y, 0, window_size.y);
+
+    const bool is_adaptive = window_config["adaptive"].isNull() ?
+        false : window_config["adaptive"].asBool();
+
+    const float cfg_scale = window_config["scale"].isNull() ?
+        1.0f : window_config["scale"].asFloat();
+
+    sf::Transform transform = sf::Transform();
+    transform.translate(scene_pos);
+    transform.scale(sf::Vector2f(cfg_scale, cfg_scale));
+
+    if(is_adaptive) {
+        sf::Vector2f relative_scale;
+        relative_scale.x = float(window_size.x - window_offset.x) / g_window_default_size.x;
+        relative_scale.y = float(window_size.y - window_offset.y) / g_window_default_size.y;
+        const float min_scale = std::min(relative_scale.x, relative_scale.y);
+        transform.scale(sf::Vector2f(min_scale, min_scale));
+    }
+
+    return transform;
 }
 
 void error_msg(std::string error, std::string title) {

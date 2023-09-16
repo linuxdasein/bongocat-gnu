@@ -1,5 +1,11 @@
 {
     "mode": 1,
+    "window": {
+        "size": [612, 352],
+        "offset": [0, 0],
+        "scale": 1.0,
+        "adaptive" : false
+    },
     "decoration": {
         "leftHanded": false,
         "rgb": [255, 255, 255],
