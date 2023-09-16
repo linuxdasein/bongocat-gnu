@@ -61,21 +61,21 @@ bool OsuCat::init(const Json::Value& cfg) {
     }
 
     // initialize thew mouse paw
-    MousePaw::init(cfg["osu"], cfg["mousePaw"]);
     MousePaw::set_mouse_parameters(offset, scale);
+    MousePaw::init(cfg["osu"], cfg["mousePaw"]);
 
     return true;
 }
 
 void OsuCat::draw(sf::RenderWindow& window, const sf::RenderStates& rst) {
-    window.draw(bg);
+    window.draw(bg, rst);
 
     // update mouse and paw position
     auto pss2 = update_paw_position(input::get_mouse_input().get_position());
 
     // drawing mouse
     if (is_mouse) {
-        window.draw(device);
+        window.draw(device, rst);
     }
 
     // draw mouse paw
@@ -138,43 +138,43 @@ void OsuCat::draw(sf::RenderWindow& window, const sf::RenderStates& rst) {
 
     if (!left_key_state && !right_key_state && !wave_key_state) {
         key_state = 0;
-        window.draw(up);
+        window.draw(up, rst);
     }
 
     if (key_state == 1) {
         if ((clock() - std::max(timer_right_key, timer_wave_key)) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
             if (!is_left_handed) {
-                window.draw(left);
+                window.draw(left, rst);
             } else {
-                window.draw(right);
+                window.draw(right, rst);
             }
             timer_left_key = clock();
         } else {
-            window.draw(up);
+            window.draw(up, rst);
         }
     } else if (key_state == 2) {
         if ((clock() - std::max(timer_left_key, timer_wave_key)) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
             if (!is_left_handed) {
-                window.draw(right);
+                window.draw(right, rst);
             } else {
-                window.draw(left);
+                window.draw(left, rst);
             }
             timer_right_key = clock();
         } else {
-            window.draw(up);
+            window.draw(up, rst);
         }
     } else if (key_state == 3) {
         if ((clock() - std::max(timer_left_key, timer_right_key)) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-            window.draw(wave);
+            window.draw(wave, rst);
             timer_wave_key = clock();
         } else {
-            window.draw(up);
+            window.draw(up, rst);
         }
     }
 
     // drawing tablet
     if (!is_mouse) {
-        window.draw(device);
+        window.draw(device, rst);
     }
     
     // draw smoke
@@ -202,7 +202,7 @@ void OsuCat::draw(sf::RenderWindow& window, const sf::RenderStates& rst) {
     }
 
     if (is_toggle_smoke) {
-        window.draw(smoke);
+        window.draw(smoke, rst);
     }
 }
 

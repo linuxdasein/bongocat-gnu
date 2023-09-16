@@ -46,7 +46,7 @@ bool TaikoCat::init(const Json::Value& cfg) {
 }
 
 void TaikoCat::draw(sf::RenderWindow& window, const sf::RenderStates& rst) {
-    window.draw(bg);
+    window.draw(bg, rst);
 
     // 0 for left side, 1 for right side
     for (int i = 0; i < 2; i++) {
@@ -84,21 +84,21 @@ void TaikoCat::draw(sf::RenderWindow& window, const sf::RenderStates& rst) {
 
         if (!rim_key_state[i] && !centre_key_state[i]) {
             key_state[i] = 0;
-            window.draw(up[i]);
+            window.draw(up[i], rst);
         }
         if (key_state[i] == 1) {
             if ((clock() - timer_centre_key[i]) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-                window.draw(rim[i]);
+                window.draw(rim[i], rst);
                 timer_rim_key[i] = clock();
             } else {
-                window.draw(up[i]);
+                window.draw(up[i], rst);
             }
         } else if (key_state[i] == 2) {
             if ((clock() - timer_rim_key[i]) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-                window.draw(centre[i]);
+                window.draw(centre[i], rst);
                 timer_centre_key[i] = clock();
             } else {
-                window.draw(up[i]);
+                window.draw(up[i], rst);
             }
         }
     }

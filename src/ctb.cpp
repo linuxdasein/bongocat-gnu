@@ -33,7 +33,7 @@ bool CtbCat::init(const Json::Value& cfg) {
 }
 
 void CtbCat::draw(sf::RenderWindow& window, const sf::RenderStates& rst) {
-    window.draw(bg);
+    window.draw(bg, rst);
     
     // drawing left-right keypresses
     bool left_key = false;
@@ -70,34 +70,34 @@ void CtbCat::draw(sf::RenderWindow& window, const sf::RenderStates& rst) {
 
     if (!left_key_state && !right_key_state) {
         key_state = 0;
-        window.draw(mid);
+        window.draw(mid, rst);
     }
     if (key_state == 1) {
         if ((clock() - timer_right_key) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-            window.draw(left);
+            window.draw(left, rst);
             timer_left_key = clock();
         } else {
-            window.draw(mid);
+            window.draw(mid, rst);
         }
     } else if (key_state == 2) {
         if ((clock() - timer_left_key) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-            window.draw(right);
+            window.draw(right, rst);
             timer_right_key = clock();
         } else {
-            window.draw(mid);
+            window.draw(mid, rst);
         }
     }
 
     bool is_dash = false;
     for (Json::Value &v : dash_key_value) {
         if (input::is_pressed(v.asInt())) {
-            window.draw(dash);
+            window.draw(dash, rst);
             is_dash = true;
             break;
         }
     }
     if (!is_dash) {
-        window.draw(up);
+        window.draw(up, rst);
     }
 }
 

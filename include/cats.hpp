@@ -126,8 +126,8 @@ public:
     void draw(sf::RenderWindow& window, const sf::RenderStates& rst) override;
 
 private:
-    void draw_4K(sf::RenderWindow& window);
-    void draw_7K(sf::RenderWindow& window);
+    void draw_4K(sf::RenderWindow& window, const sf::RenderStates& rst);
+    void draw_7K(sf::RenderWindow& window, const sf::RenderStates& rst);
 
     sf::Sprite bg, left_handup, right_handup, left_hand[3], right_hand[3];
     sf::Sprite left_4K[2], right_4K[2], left_7K[4], right_7K[4];
