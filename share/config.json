@@ -1,8 +1,8 @@
 {
     "mode": 1,
     "window": {
-        "size": [1280, 720],
-        "offset": [100, 100],
+        "size": [612, 352],
+        "offset": [0, 0],
         "scale": 1.0,
         "adaptive" : false
     },
