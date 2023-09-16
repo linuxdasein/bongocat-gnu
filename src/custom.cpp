@@ -52,7 +52,7 @@ struct key {
         return false;
     }
 
-    void draw(sf::RenderWindow& window, const sf::RenderStates& rst) {
+    void draw(sf::RenderTarget& window, sf::RenderStates rst) {
         window.draw(sprite, rst);
         timer = clock();
     }
@@ -84,7 +84,7 @@ struct key_container {
         }
     }
 
-    void draw(sf::RenderWindow& window, const sf::RenderStates& rst) {
+    void draw(sf::RenderTarget& window, sf::RenderStates rst) {
         bool is_any_key_pressed = false;
         for (size_t i = 0; i < keys.size(); i++) {
             key& current_key = keys[i];
@@ -158,7 +158,7 @@ bool CustomCat::init(const Json::Value& cfg) {
     return true;
 }
 
-void CustomCat::draw(sf::RenderWindow& window, const sf::RenderStates& rst) {
+void CustomCat::draw(sf::RenderTarget& window, sf::RenderStates rst) {
     window.draw(bg, rst);
 
     if (is_mouse) {

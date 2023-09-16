@@ -149,7 +149,7 @@ std::vector<sf::Vector2f> MousePaw::update_paw_position(std::pair<double, double
     return pss2f;
 }
 
-void MousePaw::draw_paw(sf::RenderWindow& window, const std::vector<sf::Vector2f>& pss2, const sf::RenderStates& rst) {
+void MousePaw::draw_paw(sf::RenderTarget& window, const std::vector<sf::Vector2f>& pss2, sf::RenderStates rst) {
     // drawing arm's body
     const size_t nump = pss2.size();
     sf::VertexArray fill(sf::TriangleStrip, nump);
@@ -169,7 +169,7 @@ void MousePaw::draw_paw(sf::RenderWindow& window, const std::vector<sf::Vector2f
     draw_arc(window, rst, pss2, paw_edge_color, 6);
 }
 
-void MousePaw::draw_arc(sf::RenderWindow& window, const sf::RenderStates& rst, const std::vector<sf::Vector2f>& pss2, sf::Color color, float width) {
+void MousePaw::draw_arc(sf::RenderTarget& window, sf::RenderStates rst, const std::vector<sf::Vector2f>& pss2, sf::Color color, float width) {
     // at the first point of the arc we draw a circle shape
     // in order to make arc's beginning rounded
     sf::CircleShape circ(width / 2);

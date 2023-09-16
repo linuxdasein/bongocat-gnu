@@ -67,7 +67,7 @@ bool OsuCat::init(const Json::Value& cfg) {
     return true;
 }
 
-void OsuCat::draw(sf::RenderWindow& window, const sf::RenderStates& rst) {
+void OsuCat::draw(sf::RenderTarget& window, sf::RenderStates rst) {
     window.draw(bg, rst);
 
     // update mouse and paw position
