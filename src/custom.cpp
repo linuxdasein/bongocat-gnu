@@ -165,26 +165,26 @@ void CustomCat::update() {
     }
 }
 
-void CustomCat::draw(sf::RenderTarget& window, sf::RenderStates rst) const {
-    window.draw(bg, rst);
+void CustomCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
+    target.draw(bg, rst);
 
     if (is_mouse) {
         // drawing mouse on top
         if (is_mouse_on_top) {
-            window.draw(device, rst);
+            target.draw(device, rst);
         }
 
         // draw mouse paw
-        draw_paw(window, rst);
+        draw_paw(target, rst);
     }
 
     for (key_container& current : key_containers) {
-        current.draw(window, rst);
+        current.draw(target, rst);
     }
 
     // drawing mouse at the bottom
     if (is_mouse && !is_mouse_on_top) {
-        window.draw(device, rst);
+        target.draw(device, rst);
     }
 }
 

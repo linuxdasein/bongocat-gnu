@@ -149,7 +149,7 @@ void MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
     pss2 = std::move(pss2f);
 }
 
-void MousePaw::draw_paw(sf::RenderTarget& window, sf::RenderStates rst) const {
+void MousePaw::draw_paw(sf::RenderTarget& target, sf::RenderStates rst) const {
     // drawing arm's body
     const size_t nump = pss2.size();
     sf::VertexArray fill(sf::TriangleStrip, nump);
@@ -158,18 +158,18 @@ void MousePaw::draw_paw(sf::RenderTarget& window, sf::RenderStates rst) const {
         fill[i + 1].position = pss2[nump - i - 1];
         fill[i].color = fill[i + 1].color = paw_color;
     }
-    window.draw(fill, rst);
+    target.draw(fill, rst);
 
     // drawing the shadow of the arm arc
     auto paw_edge_color_shad = paw_edge_color;
     paw_edge_color_shad.a /= 3;
-    draw_arc(window, rst, paw_edge_color_shad, 7);
+    draw_arc(target, rst, paw_edge_color_shad, 7);
 
     // drawing the line of the arm arc
-    draw_arc(window, rst, paw_edge_color, 6);
+    draw_arc(target, rst, paw_edge_color, 6);
 }
 
-void MousePaw::draw_arc(sf::RenderTarget& window, sf::RenderStates rst, sf::Color color, float width) const {
+void MousePaw::draw_arc(sf::RenderTarget& target, sf::RenderStates rst, sf::Color color, float width) const {
     // at the first point of the arc we draw a circle shape
     // in order to make arc's beginning rounded
     sf::CircleShape circ(width / 2);
@@ -178,7 +178,7 @@ void MousePaw::draw_arc(sf::RenderTarget& window, sf::RenderStates rst, sf::Colo
     // of the "enclosing box", so it's needed to set the coordinates accordingly
     sf::Vector2f offset(width / 2, width / 2);
     circ.setPosition(pss2[0] - offset);
-    window.draw(circ, rst);
+    target.draw(circ, rst);
 
     sf::Transform rotate_left, rotate_right;
     rotate_left.rotate(-90); // counter-clockwise rotation
@@ -206,11 +206,11 @@ void MousePaw::draw_arc(sf::RenderTarget& window, sf::RenderStates rst, sf::Colo
     }
 
     // at the end of the arc also draw a circle shape
-    window.draw(edge, rst);
+    target.draw(edge, rst);
     circ.setRadius(width / 2);
     offset = sf::Vector2f(width / 2, width / 2);
     circ.setPosition(pss2[nump-1] - offset);
-    window.draw(circ, rst);
+    target.draw(circ, rst);
 }
 
 }

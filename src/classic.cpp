@@ -103,22 +103,22 @@ void ClassicCat::update() {
         [&](sf::Keyboard::Key key){ return !sf::Keyboard::isKeyPressed(key); });
 }
 
-void ClassicCat::draw(sf::RenderTarget& window, sf::RenderStates rst) const {
-    window.draw(cat, rst);
-    draw_mouse(window, rst);
+void ClassicCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
+    target.draw(cat, rst);
+    draw_mouse(target, rst);
 
     if(pressed_keys.empty())
-        window.draw(left_paw, rst);
+        target.draw(left_paw, rst);
     else // draw the latest pressed key sprite
-        window.draw(*key_actions.at(pressed_keys.back()), rst);
+        target.draw(*key_actions.at(pressed_keys.back()), rst);
 }
 
-void ClassicCat::draw_mouse(sf::RenderTarget& window, sf::RenderStates rst) const {
+void ClassicCat::draw_mouse(sf::RenderTarget& target, sf::RenderStates rst) const {
     // draw mouse
-    window.draw(device, rst);
+    target.draw(device, rst);
 
     // draw mouse paw
-    draw_paw(window, rst);
+    draw_paw(target, rst);
 }
 
 } // namespace cats

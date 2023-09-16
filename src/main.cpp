@@ -75,7 +75,7 @@ int main(int argc, char ** argv) {
 
         window.clear(sf::Color(red_value, green_value, blue_value, alpha_value));
         cat->update();
-        cat->draw(window, rstates);
+        window.draw(*cat, rstates);
 
         if (is_show_input_debug) {
             input::drawDebugPanel(window);

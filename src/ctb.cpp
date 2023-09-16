@@ -71,38 +71,38 @@ void CtbCat::update() {
     }
 }
 
-void CtbCat::draw(sf::RenderTarget& window, sf::RenderStates rst) const {
-    window.draw(bg, rst);
+void CtbCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
+    target.draw(bg, rst);
     
     if (!left_key_state && !right_key_state) {
-        window.draw(mid, rst);
+        target.draw(mid, rst);
     }
     if (key_state == 1) {
         if ((clock() - timer_right_key) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-            window.draw(left, rst);
+            target.draw(left, rst);
             timer_left_key = clock();
         } else {
-            window.draw(mid, rst);
+            target.draw(mid, rst);
         }
     } else if (key_state == 2) {
         if ((clock() - timer_left_key) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-            window.draw(right, rst);
+            target.draw(right, rst);
             timer_right_key = clock();
         } else {
-            window.draw(mid, rst);
+            target.draw(mid, rst);
         }
     }
 
     bool is_dash = false;
     for (const Json::Value &v : dash_key_value) {
         if (input::is_pressed(v.asInt())) {
-            window.draw(dash, rst);
+            target.draw(dash, rst);
             is_dash = true;
             break;
         }
     }
     if (!is_dash) {
-        window.draw(up, rst);
+        target.draw(up, rst);
     }
 }
 

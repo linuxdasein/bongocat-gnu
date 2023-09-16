@@ -86,27 +86,27 @@ void TaikoCat::update() {
     }
 }
 
-void TaikoCat::draw(sf::RenderTarget& window, sf::RenderStates rst) const {
-    window.draw(bg, rst);
+void TaikoCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
+    target.draw(bg, rst);
 
     // 0 for left side, 1 for right side
     for (int i = 0; i < 2; i++) {
         if (!rim_key_state[i] && !centre_key_state[i]) {
-            window.draw(up[i], rst);
+            target.draw(up[i], rst);
         }
         if (key_state[i] == 1) {
             if ((clock() - timer_centre_key[i]) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-                window.draw(rim[i], rst);
+                target.draw(rim[i], rst);
                 timer_rim_key[i] = clock();
             } else {
-                window.draw(up[i], rst);
+                target.draw(up[i], rst);
             }
         } else if (key_state[i] == 2) {
             if ((clock() - timer_rim_key[i]) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-                window.draw(centre[i], rst);
+                target.draw(centre[i], rst);
                 timer_centre_key[i] = clock();
             } else {
-                window.draw(up[i], rst);
+                target.draw(up[i], rst);
             }
         }
     }

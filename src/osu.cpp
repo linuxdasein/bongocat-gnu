@@ -153,61 +153,61 @@ void OsuCat::update() {
     }
 }
 
-void OsuCat::draw(sf::RenderTarget& window, sf::RenderStates rst) const {
-    window.draw(bg, rst);
+void OsuCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
+    target.draw(bg, rst);
 
     // drawing mouse
     if (is_mouse) {
-        window.draw(device, rst);
+        target.draw(device, rst);
     }
 
     // draw mouse paw
-    draw_paw(window, rst);
+    draw_paw(target, rst);
 
     // drawing keypresses
     if (!left_key_state && !right_key_state && !wave_key_state) {
-        window.draw(up, rst);
+        target.draw(up, rst);
     }
 
     if (key_state == 1) {
         if ((clock() - std::max(timer_right_key, timer_wave_key)) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
             if (!is_left_handed) {
-                window.draw(left, rst);
+                target.draw(left, rst);
             } else {
-                window.draw(right, rst);
+                target.draw(right, rst);
             }
             timer_left_key = clock();
         } else {
-            window.draw(up, rst);
+            target.draw(up, rst);
         }
     } else if (key_state == 2) {
         if ((clock() - std::max(timer_left_key, timer_wave_key)) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
             if (!is_left_handed) {
-                window.draw(right, rst);
+                target.draw(right, rst);
             } else {
-                window.draw(left, rst);
+                target.draw(left, rst);
             }
             timer_right_key = clock();
         } else {
-            window.draw(up, rst);
+            target.draw(up, rst);
         }
     } else if (key_state == 3) {
         if ((clock() - std::max(timer_left_key, timer_right_key)) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-            window.draw(wave, rst);
+            target.draw(wave, rst);
             timer_wave_key = clock();
         } else {
-            window.draw(up, rst);
+            target.draw(up, rst);
         }
     }
 
     // drawing tablet
     if (!is_mouse) {
-        window.draw(device, rst);
+        target.draw(device, rst);
     }
     
     // draw smoke
     if (is_toggle_smoke) {
-        window.draw(smoke, rst);
+        target.draw(smoke, rst);
     }
 }
 
