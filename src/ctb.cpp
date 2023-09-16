@@ -32,9 +32,7 @@ bool CtbCat::init(const Json::Value& cfg) {
     return true;
 }
 
-void CtbCat::draw(sf::RenderTarget& window, sf::RenderStates rst) {
-    window.draw(bg, rst);
-    
+void CtbCat::update() {
     // drawing left-right keypresses
     bool left_key = false;
     for (Json::Value &v : left_key_value) {
@@ -70,6 +68,13 @@ void CtbCat::draw(sf::RenderTarget& window, sf::RenderStates rst) {
 
     if (!left_key_state && !right_key_state) {
         key_state = 0;
+    }
+}
+
+void CtbCat::draw(sf::RenderTarget& window, sf::RenderStates rst) const {
+    window.draw(bg, rst);
+    
+    if (!left_key_state && !right_key_state) {
         window.draw(mid, rst);
     }
     if (key_state == 1) {
@@ -89,7 +94,7 @@ void CtbCat::draw(sf::RenderTarget& window, sf::RenderStates rst) {
     }
 
     bool is_dash = false;
-    for (Json::Value &v : dash_key_value) {
+    for (const Json::Value &v : dash_key_value) {
         if (input::is_pressed(v.asInt())) {
             window.draw(dash, rst);
             is_dash = true;

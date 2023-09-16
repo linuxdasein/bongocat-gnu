@@ -67,24 +67,13 @@ bool OsuCat::init(const Json::Value& cfg) {
     return true;
 }
 
-void OsuCat::draw(sf::RenderTarget& window, sf::RenderStates rst) {
-    window.draw(bg, rst);
-
+void OsuCat::update() {
     // update mouse and paw position
-    auto pss2 = update_paw_position(input::get_mouse_input().get_position());
+    update_paw_position(input::get_mouse_input().get_position());
 
-    // drawing mouse
-    if (is_mouse) {
-        window.draw(device, rst);
-    }
-
-    // draw mouse paw
-    draw_paw(window, pss2, rst);
-
-    // drawing keypresses
     bool left_key = false;
 
-    for (Json::Value &v : left_key_value) {
+    for (const Json::Value &v : left_key_value) {
         if (input::is_pressed(v.asInt())) {
             left_key = true;
             break;
@@ -102,7 +91,7 @@ void OsuCat::draw(sf::RenderTarget& window, sf::RenderStates rst) {
 
     bool right_key = false;
 
-    for (Json::Value &v : right_key_value) {
+    for (const Json::Value &v : right_key_value) {
         if (input::is_pressed(v.asInt())) {
             right_key = true;
             break;
@@ -120,7 +109,7 @@ void OsuCat::draw(sf::RenderTarget& window, sf::RenderStates rst) {
     
     bool wave_key = false;
 
-    for (Json::Value &v : wave_key_value) {
+    for (const Json::Value &v : wave_key_value) {
         if (input::is_pressed(v.asInt())) {
             wave_key = true;
             break;
@@ -138,6 +127,45 @@ void OsuCat::draw(sf::RenderTarget& window, sf::RenderStates rst) {
 
     if (!left_key_state && !right_key_state && !wave_key_state) {
         key_state = 0;
+    }
+
+    bool is_smoke_key_pressed = false;
+
+    for (const Json::Value &v : smoke_key_value) {
+        if (input::is_pressed(v.asInt())) {
+            is_smoke_key_pressed = true;
+            break;
+        }
+    }
+
+    if (is_enable_toggle_smoke) {
+        previous_smoke_key_state = current_smoke_key_state;
+        current_smoke_key_state = is_smoke_key_pressed;
+
+        bool is_smoke_key_down = current_smoke_key_state && (current_smoke_key_state != previous_smoke_key_state);
+
+        if (is_smoke_key_down) {
+            is_toggle_smoke = !is_toggle_smoke;
+        }
+    }
+    else {
+        is_toggle_smoke = is_smoke_key_pressed;
+    }
+}
+
+void OsuCat::draw(sf::RenderTarget& window, sf::RenderStates rst) const {
+    window.draw(bg, rst);
+
+    // drawing mouse
+    if (is_mouse) {
+        window.draw(device, rst);
+    }
+
+    // draw mouse paw
+    draw_paw(window, rst);
+
+    // drawing keypresses
+    if (!left_key_state && !right_key_state && !wave_key_state) {
         window.draw(up, rst);
     }
 
@@ -178,29 +206,6 @@ void OsuCat::draw(sf::RenderTarget& window, sf::RenderStates rst) {
     }
     
     // draw smoke
-    bool is_smoke_key_pressed = false;
-
-    for (Json::Value &v : smoke_key_value) {
-        if (input::is_pressed(v.asInt())) {
-            is_smoke_key_pressed = true;
-            break;
-        }
-    }
-
-    if (is_enable_toggle_smoke) {
-        previous_smoke_key_state = current_smoke_key_state;
-        current_smoke_key_state = is_smoke_key_pressed;
-
-        bool is_smoke_key_down = current_smoke_key_state && (current_smoke_key_state != previous_smoke_key_state);
-
-        if (is_smoke_key_down) {
-            is_toggle_smoke = !is_toggle_smoke;
-        }
-    }
-    else {
-        is_toggle_smoke = is_smoke_key_pressed;
-    }
-
     if (is_toggle_smoke) {
         window.draw(smoke, rst);
     }

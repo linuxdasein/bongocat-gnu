@@ -36,7 +36,7 @@ bool MousePaw::init(const Json::Value& mouse_cfg, const Json::Value& paw_draw_in
     return true;
 }
 
-std::vector<sf::Vector2f> MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
+void MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
     auto [fx, fy] = mouse_pos;
     
     // apparently, this is a linear transform, intented to move the point to some position,
@@ -146,10 +146,10 @@ std::vector<sf::Vector2f> MousePaw::update_paw_position(std::pair<double, double
         pss2f.push_back(sf::Vector2f(pd.x, pd.y));
     }
 
-    return pss2f;
+    pss2 = std::move(pss2f);
 }
 
-void MousePaw::draw_paw(sf::RenderTarget& window, const std::vector<sf::Vector2f>& pss2, sf::RenderStates rst) {
+void MousePaw::draw_paw(sf::RenderTarget& window, sf::RenderStates rst) const {
     // drawing arm's body
     const size_t nump = pss2.size();
     sf::VertexArray fill(sf::TriangleStrip, nump);
@@ -163,13 +163,13 @@ void MousePaw::draw_paw(sf::RenderTarget& window, const std::vector<sf::Vector2f
     // drawing the shadow of the arm arc
     auto paw_edge_color_shad = paw_edge_color;
     paw_edge_color_shad.a /= 3;
-    draw_arc(window, rst, pss2, paw_edge_color_shad, 7);
+    draw_arc(window, rst, paw_edge_color_shad, 7);
 
     // drawing the line of the arm arc
-    draw_arc(window, rst, pss2, paw_edge_color, 6);
+    draw_arc(window, rst, paw_edge_color, 6);
 }
 
-void MousePaw::draw_arc(sf::RenderTarget& window, sf::RenderStates rst, const std::vector<sf::Vector2f>& pss2, sf::Color color, float width) {
+void MousePaw::draw_arc(sf::RenderTarget& window, sf::RenderStates rst, sf::Color color, float width) const {
     // at the first point of the arc we draw a circle shape
     // in order to make arc's beginning rounded
     sf::CircleShape circ(width / 2);

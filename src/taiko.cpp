@@ -45,13 +45,11 @@ bool TaikoCat::init(const Json::Value& cfg) {
     return true;
 }
 
-void TaikoCat::draw(sf::RenderTarget& window, sf::RenderStates rst) {
-    window.draw(bg, rst);
-
+void TaikoCat::update() {
     // 0 for left side, 1 for right side
     for (int i = 0; i < 2; i++) {
         bool rim_key = false;
-        for (Json::Value &v : rim_key_value[i]) {
+        for (const Json::Value &v : rim_key_value[i]) {
             if (input::is_pressed(v.asInt())) {
                 rim_key = true;
                 break;
@@ -67,7 +65,7 @@ void TaikoCat::draw(sf::RenderTarget& window, sf::RenderStates rst) {
         }
 
         bool centre_key = false;
-        for (Json::Value &v : centre_key_value[i]) {
+        for (const Json::Value &v : centre_key_value[i]) {
             if (input::is_pressed(v.asInt())) {
                 centre_key = true;
                 break;
@@ -84,6 +82,16 @@ void TaikoCat::draw(sf::RenderTarget& window, sf::RenderStates rst) {
 
         if (!rim_key_state[i] && !centre_key_state[i]) {
             key_state[i] = 0;
+        }
+    }
+}
+
+void TaikoCat::draw(sf::RenderTarget& window, sf::RenderStates rst) const {
+    window.draw(bg, rst);
+
+    // 0 for left side, 1 for right side
+    for (int i = 0; i < 2; i++) {
+        if (!rim_key_state[i] && !centre_key_state[i]) {
             window.draw(up[i], rst);
         }
         if (key_state[i] == 1) {

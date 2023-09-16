@@ -158,20 +158,24 @@ bool CustomCat::init(const Json::Value& cfg) {
     return true;
 }
 
-void CustomCat::draw(sf::RenderTarget& window, sf::RenderStates rst) {
+void CustomCat::update() {
+    if (is_mouse) {
+        // update mouse and paw position
+        update_paw_position(input::get_mouse_input().get_position());
+    }
+}
+
+void CustomCat::draw(sf::RenderTarget& window, sf::RenderStates rst) const {
     window.draw(bg, rst);
 
     if (is_mouse) {
-        // update mouse and paw position
-        auto pss2 = update_paw_position(input::get_mouse_input().get_position());
-
         // drawing mouse on top
         if (is_mouse_on_top) {
             window.draw(device, rst);
         }
 
         // draw mouse paw
-        draw_paw(window, pss2, rst);
+        draw_paw(window, rst);
     }
 
     for (key_container& current : key_containers) {

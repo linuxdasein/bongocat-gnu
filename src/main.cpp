@@ -74,6 +74,7 @@ int main(int argc, char ** argv) {
         int alpha_value = rgb.size() == 3 ? 255 : rgb[3].asInt();
 
         window.clear(sf::Color(red_value, green_value, blue_value, alpha_value));
+        cat->update();
         cat->draw(window, rstates);
 
         if (is_show_input_debug) {
