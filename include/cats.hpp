@@ -95,7 +95,7 @@ public:
     void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
 
 private:
-    Json::Value rim_key_value[2], centre_key_value[2];
+    std::set<int> rim_key_binding[2], centre_key_binding[2];
     sf::Sprite bg, up[2], rim[2], centre[2];
     int key_state[2] = {0, 0};
     bool rim_key_state[2] = {false, false};
