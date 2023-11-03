@@ -6,20 +6,13 @@ bool CtbCat::init(const Json::Value& cfg) {
     // getting configs
     Json::Value ctb = cfg["catch"];
 
-    bool chk[256];
-    std::fill(chk, chk + 256, false);
-    left_key_value = ctb["left"];
-    for (Json::Value &v : left_key_value) {
-        chk[v.asInt()] = true;
-    }
-    right_key_value = ctb["right"];
-    for (Json::Value &v : right_key_value) {
-        if (chk[v.asInt()]) {
-            data::error_msg("Overlapping osu!catch keybinds", "Error reading configs");
-            return false;
-        }
-    }
-    dash_key_value = ctb["dash"];
+    left_key_binding = data::json_key_to_scancodes(ctb["left"]);
+    right_key_binding = data::json_key_to_scancodes(ctb["right"]);
+
+    if(data::is_intersection({left_key_binding, right_key_binding}))
+        data::error_msg("Overlapping osu!catch keybinds", "Error reading configs");
+
+    dash_key_binding = data::json_key_to_scancodes(ctb["dash"]);
 
     // importing sprites
     bg.setTexture(data::load_texture("img/catch/bg.png"));
@@ -35,8 +28,8 @@ bool CtbCat::init(const Json::Value& cfg) {
 void CtbCat::update() {
     // drawing left-right keypresses
     bool left_key = false;
-    for (Json::Value &v : left_key_value) {
-        if (input::is_pressed(v.asInt())) {
+    for (int v : left_key_binding) {
+        if (input::is_pressed(v)) {
             left_key = true;
             break;
         }
@@ -51,8 +44,8 @@ void CtbCat::update() {
     }
 
     bool right_key = false;
-    for (Json::Value &v : right_key_value) {
-        if (input::is_pressed(v.asInt())) {
+    for (int v : right_key_binding) {
+        if (input::is_pressed(v)) {
             right_key = true;
             break;
         }
@@ -94,8 +87,8 @@ void CtbCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
     }
 
     bool is_dash = false;
-    for (const Json::Value &v : dash_key_value) {
-        if (input::is_pressed(v.asInt())) {
+    for (const int v : dash_key_binding) {
+        if (input::is_pressed(v)) {
             target.draw(dash, rst);
             is_dash = true;
             break;

@@ -113,7 +113,7 @@ public:
     void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
 
 private:
-    Json::Value left_key_value, right_key_value, dash_key_value;
+    std::set<int> left_key_binding, right_key_binding, dash_key_binding;
     sf::Sprite bg, mid, left, right, dash, up;
 
     int key_state = 0;
