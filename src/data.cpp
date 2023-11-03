@@ -1,7 +1,9 @@
 #include "header.hpp"
+#include <json/value.h>
 #include <memory>
 #include <system.hpp>
 #include <filesystem>
+#include <algorithm>
 #define BONGO_ERROR 1
 
 #include <unistd.h>
@@ -78,6 +80,66 @@ sf::Transform get_cfg_window_transform() {
     }
 
     return transform;
+}
+
+std::set<int> json_key_to_scancodes(const Json::Value& key_array) {
+    std::set<int> codes;
+
+    for (const Json::Value &v : key_array) {
+        if (v.isInt()) {
+            codes.insert(v.asInt());
+        }
+        else if (v.isString()) {
+            std::string s = v.asString();
+            if (s.size() != 1) {
+                std::string error = "Invalid key value: ";
+                error += s;
+                error_msg(error, "Error reading configs");
+            }
+            else {
+                // treat uppercase and lowercase letters equally
+                char c = std::toupper(s[0]);
+                codes.insert(static_cast<int>(c));
+            }
+        }
+        else {
+            std::string error = "Invalid key value: ";
+            error += v.asString();
+            error_msg(error, "Error reading configs");
+        }
+    }
+
+    return codes;
+}
+
+bool is_intersection(const std::vector<std::set<int>>& sets) {
+    // the algorithm here is meant to work with ordered sets
+    std::set<int> u = sets[0];
+
+    for(size_t i = 1; i < sets.size(); ++i) {
+        std::set<int> tmp;
+        auto s1 = u.cbegin();
+        auto s2 = sets[i].cbegin();
+        while( s1 != u.cend() && s2 != sets[i].cend()) {
+            if(*s1 < *s2) {
+                tmp.insert(*s1++);
+            }
+            else if(*s1 > *s2) {
+                tmp.insert(*s2++);
+            }
+            else {
+                // *s1 == *s2
+                return true;
+            }
+        }
+        u.merge(tmp);
+        while(s1 != u.cend())
+            u.insert(*s1++);
+        while(s2 != sets[i].cend())
+            u.insert(*s2++);
+    }
+
+    return false;
 }
 
 void error_msg(std::string error, std::string title) {

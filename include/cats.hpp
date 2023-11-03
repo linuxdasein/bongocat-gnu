@@ -8,6 +8,7 @@
 #include <json/json.h>
 
 #include <list>
+#include <set>
 
 namespace cats
 {
@@ -68,7 +69,7 @@ public:
 
 private:
 
-    Json::Value left_key_value, right_key_value, smoke_key_value, wave_key_value;
+    std::set<int> left_key_binding, right_key_binding, smoke_key_binding, wave_key_binding;
     bool is_mouse, is_left_handed, is_enable_toggle_smoke;
     sf::Sprite bg, up, left, right, smoke, wave;
 

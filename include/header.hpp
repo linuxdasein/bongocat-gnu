@@ -8,6 +8,7 @@
 #include <vector>
 #include <sstream>
 #include <map>
+#include <set>
 
 #include <time.h>
 #include <string.h>
@@ -19,6 +20,8 @@ namespace data {
 const Json::Value& get_cfg();
 sf::Vector2i get_cfg_window_size();
 sf::Transform get_cfg_window_transform();
+std::set<int> json_key_to_scancodes(const Json::Value& key_array);
+bool is_intersection(const std::vector<std::set<int>>& sets);
 
 void error_msg(std::string error, std::string title);
 
