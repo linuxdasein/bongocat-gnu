@@ -13,6 +13,16 @@
 namespace cats
 {
 
+enum class CatModeId
+{
+    osu,
+    taiko,
+    ctb,
+    mania,
+    custom,
+    classic
+};
+
 class ICat : public sf::Drawable
 {
 public:
@@ -173,6 +183,6 @@ private:
     std::list<sf::Keyboard::Key> pressed_keys;
 };
 
-std::unique_ptr<ICat> get_cat(int mode);
+std::unique_ptr<ICat> get_cat(cats::CatModeId mode);
 
 }

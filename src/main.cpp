@@ -1,5 +1,36 @@
+#include "cats.hpp"
 #include "header.hpp"
 #include <memory>
+#include <stdexcept>
+
+using Mode = std::pair<cats::CatModeId, std::string>;
+
+static const std::array<Mode, 6> modes = {
+    Mode{cats::CatModeId::osu,     "osu"},
+    Mode{cats::CatModeId::taiko,   "taiko"},
+    Mode{cats::CatModeId::ctb,     "ctb"},
+    Mode{cats::CatModeId::mania,   "mania"},
+    Mode{cats::CatModeId::custom,  "custom"},
+    Mode{cats::CatModeId::classic, "classic"}
+};
+
+static auto init_cat() {
+    auto mode_it = modes.cend();
+
+    while(mode_it == modes.cend()) {
+        data::init();
+        auto s = data::get_cfg()["mode"].asString();
+        mode_it = std::find_if(modes.cbegin(), modes.cend(),
+            [&s](const Mode& m) {return m.second == s;});
+
+        if(mode_it == modes.cend()) {
+            data::error_msg("Mode value " + s + " is not correct", 
+                "Error reading configs");
+        }
+    }
+
+    return mode_it;
+}
 
 int main(int argc, char ** argv) {
     sf::RenderWindow window;
@@ -8,15 +39,10 @@ int main(int argc, char ** argv) {
     sf::Vector2i window_size = data::get_cfg_window_size();
     window.create(sf::VideoMode(window_size.x, window_size.y), "Bongo Cat", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(MAX_FRAMERATE);
-    std::unique_ptr<cats::ICat> cat;
-    int mode;
-
+    
     // loading configs
-    while (!cat) {
-        data::init();
-        mode = data::get_cfg()["mode"].asInt();
-        cat = cats::get_cat(mode);
-    }
+    auto mode = init_cat();
+    std::unique_ptr<cats::ICat> cat = cats::get_cat(mode->first);
 
     // initialize input
     if (!input::init(window_size.x, window_size.y)) {
@@ -43,17 +69,21 @@ int main(int argc, char ** argv) {
                 // get reload config prompt
                 if (event.key.code == sf::Keyboard::R && event.key.control) {
                     if (!is_reload) {
-                        cat.reset();
-                        while (!cat) {
-                            data::init();
-                            mode = data::get_cfg()["mode"].asInt();
-                            cat = cats::get_cat(mode);
-                        }
-                        
+                        mode = init_cat();
+                        cat = cats::get_cat(mode->first);
                         cat->init(data::get_cfg());
                     }
                     is_reload = true;
                     break;
+                }
+
+                // switch to the next cat mode
+                if (event.key.code == sf::Keyboard::N && event.key.control) {
+                    ++mode;
+                    if (mode == modes.cend())
+                        mode = modes.cbegin();
+                    cat = cats::get_cat(mode->first);
+                    cat->init(data::get_cfg());
                 }
 
                 // toggle joystick debug panel
