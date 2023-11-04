@@ -2,7 +2,7 @@
 
 namespace cats {
 struct key {
-    Json::Value key_value;
+    std::set<int> key_value;
     Json::Value joy_value;
     sf::Sprite sprite;
     bool status;
@@ -11,7 +11,7 @@ struct key {
     key(Json::Value _key_value) {
         sprite = sf::Sprite();
         if (_key_value.isMember("keyCodes") && _key_value["keyCodes"].isArray()) {
-            key_value = _key_value["keyCodes"];
+            key_value = data::json_key_to_scancodes(_key_value["keyCodes"]);
         } else {
             data::error_msg("Custom keyCodes values is not set correctly", "Error reading configs");
             throw;
@@ -35,8 +35,8 @@ struct key {
     }
 
     bool is_pressed() {
-        for (Json::Value &v : key_value) {
-            if (input::is_pressed(v.asInt())) {
+        for (int v : key_value) {
+            if (input::is_pressed(v)) {
                 return true;
             }
         }
