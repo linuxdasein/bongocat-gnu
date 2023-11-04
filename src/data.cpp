@@ -4,6 +4,7 @@
 #include <system.hpp>
 #include <filesystem>
 #include <algorithm>
+#include <optional>
 #define BONGO_ERROR 1
 
 #include <unistd.h>
@@ -82,30 +83,46 @@ sf::Transform get_cfg_window_transform() {
     return transform;
 }
 
-std::set<int> json_key_to_scancodes(const Json::Value& key_array) {
-    std::set<int> codes;
-
-    for (const Json::Value &v : key_array) {
-        if (v.isInt()) {
-            codes.insert(v.asInt());
-        }
-        else if (v.isString()) {
-            std::string s = v.asString();
-            if (s.size() != 1) {
-                std::string error = "Invalid key value: ";
-                error += s;
-                error_msg(error, "Error reading configs");
-            }
-            else {
-                // treat uppercase and lowercase letters equally
-                char c = std::toupper(s[0]);
-                codes.insert(static_cast<int>(c));
-            }
+std::optional<int> json_key_to_scancode(const Json::Value& key) {
+    if (key.isInt()) {
+        return key.asInt();
+    }
+    else if (key.isString()) {
+        std::string s = key.asString();
+        if (s.size() != 1) {
+            std::string error = "Invalid key value: ";
+            error += s;
+            error_msg(error, "Error reading configs");
         }
         else {
-            std::string error = "Invalid key value: ";
-            error += v.asString();
-            error_msg(error, "Error reading configs");
+            // treat uppercase and lowercase letters equally
+            char c = std::toupper(s[0]);
+            return static_cast<int>(c);
+        }
+    }
+    else {
+        std::string error = "Invalid key value: ";
+        error += key.asString();
+        error_msg(error, "Error reading configs");
+    }
+    return std::nullopt;
+}
+
+std::set<int> json_key_to_scancodes(const Json::Value& key) {
+    std::set<int> codes;
+
+    if (key.isArray()) {
+        for (const Json::Value &v : key) {
+            auto code = json_key_to_scancode(v);
+            if (code.has_value()) {
+                codes.insert(*code);
+            }
+        }
+    }
+    else {
+        auto code = json_key_to_scancode(key);
+        if (code.has_value()) {
+            codes.insert(*code);
         }
     }
 

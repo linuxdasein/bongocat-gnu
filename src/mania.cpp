@@ -9,17 +9,13 @@ bool ManiaCat::init(const Json::Value& cfg) {
     is_4K = mania["4K"].asBool();
 
     for (int i = 0; i < 2; i++) {
-        left_key_value_4K[i] = mania["key4K"][i].asInt();
-    }
-    for (int i = 0; i < 2; i++) {
-        right_key_value_4K[i] = mania["key4K"][i + 2].asInt();
+        left_key_value_4K[i] = *data::json_key_to_scancodes(mania["key4K"][i]).cbegin();
+        right_key_value_4K[i] = *data::json_key_to_scancodes(mania["key4K"][i + 2]).cbegin();
     }
 
     for (int i = 0; i < 4; i++) {
-        left_key_value_7K[i] = mania["key7K"][i].asInt();
-    }
-    for (int i = 0; i < 4; i++) {
-        right_key_value_7K[i] = mania["key7K"][i + 3].asInt();
+        left_key_value_7K[i] = *data::json_key_to_scancodes(mania["key7K"][i]).cbegin();
+        right_key_value_7K[i] = *data::json_key_to_scancodes(mania["key7K"][i + 3]).cbegin();
     }
 
     // importing sprites
