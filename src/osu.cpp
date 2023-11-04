@@ -9,27 +9,13 @@ bool OsuCat::init(const Json::Value& cfg) {
     is_mouse = osu["mouse"].asBool();
     is_enable_toggle_smoke = osu["toggleSmoke"].asBool();
 
-    bool chk[256];
-    std::fill(chk, chk + 256, false);
-    left_key_value = osu["key1"];
-    for (Json::Value &v : left_key_value) {
-        chk[v.asInt()] = true;
-    }
-    right_key_value = osu["key2"];
-    for (Json::Value &v : right_key_value) {
-        if (chk[v.asInt()]) {
-            data::error_msg("Overlapping osu! keybinds", "Error reading configs");
-            return false;
-        }
-    }
-    wave_key_value = osu["wave"];
-    for (Json::Value &v : wave_key_value) {
-        if (chk[v.asInt()]) {
-            data::error_msg("Overlapping osu! keybinds", "Error reading configs");
-            return false;
-        }
-    }
-    smoke_key_value = osu["smoke"];
+    left_key_binding = data::json_key_to_scancodes(osu["key1"]);
+    right_key_binding = data::json_key_to_scancodes(osu["key2"]);
+    wave_key_binding = data::json_key_to_scancodes(osu["wave"]);
+    smoke_key_binding = data::json_key_to_scancodes(osu["smoke"]);
+
+    if(data::is_intersection({left_key_binding, right_key_binding, wave_key_binding}))
+        data::error_msg("Overlapping osu! keybinds", "Error reading configs");
 
     is_left_handed = cfg["decoration"]["leftHanded"].asBool();
 
@@ -73,8 +59,8 @@ void OsuCat::update() {
 
     bool left_key = false;
 
-    for (const Json::Value &v : left_key_value) {
-        if (input::is_pressed(v.asInt())) {
+    for (const int v : left_key_binding) {
+        if (input::is_pressed(v)) {
             left_key = true;
             break;
         }
@@ -91,8 +77,8 @@ void OsuCat::update() {
 
     bool right_key = false;
 
-    for (const Json::Value &v : right_key_value) {
-        if (input::is_pressed(v.asInt())) {
+    for (const int v : right_key_binding) {
+        if (input::is_pressed(v)) {
             right_key = true;
             break;
         }
@@ -109,8 +95,8 @@ void OsuCat::update() {
     
     bool wave_key = false;
 
-    for (const Json::Value &v : wave_key_value) {
-        if (input::is_pressed(v.asInt())) {
+    for (const int v : wave_key_binding) {
+        if (input::is_pressed(v)) {
             wave_key = true;
             break;
         }
@@ -131,8 +117,8 @@ void OsuCat::update() {
 
     bool is_smoke_key_pressed = false;
 
-    for (const Json::Value &v : smoke_key_value) {
-        if (input::is_pressed(v.asInt())) {
+    for (const int v : smoke_key_binding) {
+        if (input::is_pressed(v)) {
             is_smoke_key_pressed = true;
             break;
         }

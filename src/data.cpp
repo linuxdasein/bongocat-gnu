@@ -1,7 +1,10 @@
 #include "header.hpp"
+#include <json/value.h>
 #include <memory>
 #include <system.hpp>
 #include <filesystem>
+#include <algorithm>
+#include <optional>
 #define BONGO_ERROR 1
 
 #include <unistd.h>
@@ -12,8 +15,13 @@ extern "C" {
 }
 
 namespace data {
-Json::Value cfg;
+Json::Value g_cfg;
 std::map<std::string, sf::Texture> img_holder;
+
+template<class C, class T>
+bool contains(C container, T object) {
+    return std::find(container.begin(), container.end(), object) != std::end(container);
+}
 
 const sf::Vector2i g_window_default_size(612, 352);
 
@@ -41,7 +49,7 @@ std::unique_ptr<Json::Value> parse_config_file(std::ifstream& cfg_file) {
 }
 
 const Json::Value& get_cfg() {
-    return cfg;
+    return g_cfg;
 }
 
 sf::Vector2i get_cfg_window_size() {
@@ -78,6 +86,82 @@ sf::Transform get_cfg_window_transform() {
     }
 
     return transform;
+}
+
+std::optional<int> json_key_to_scancode(const Json::Value& key) {
+    if (key.isInt()) {
+        return key.asInt();
+    }
+    else if (key.isString()) {
+        std::string s = key.asString();
+        if (s.size() != 1) {
+            std::string error = "Invalid key value: ";
+            error += s;
+            error_msg(error, "Error reading configs");
+        }
+        else {
+            // treat uppercase and lowercase letters equally
+            char c = std::toupper(s[0]);
+            return static_cast<int>(c);
+        }
+    }
+    else {
+        std::string error = "Invalid key value: ";
+        error += key.asString();
+        error_msg(error, "Error reading configs");
+    }
+    return std::nullopt;
+}
+
+std::set<int> json_key_to_scancodes(const Json::Value& key) {
+    std::set<int> codes;
+
+    if (key.isArray()) {
+        for (const Json::Value &v : key) {
+            auto code = json_key_to_scancode(v);
+            if (code.has_value()) {
+                codes.insert(*code);
+            }
+        }
+    }
+    else {
+        auto code = json_key_to_scancode(key);
+        if (code.has_value()) {
+            codes.insert(*code);
+        }
+    }
+
+    return codes;
+}
+
+bool is_intersection(const std::vector<std::set<int>>& sets) {
+    // the algorithm here is meant to work with ordered sets
+    std::set<int> u = sets[0];
+
+    for(size_t i = 1; i < sets.size(); ++i) {
+        std::set<int> tmp;
+        auto s1 = u.cbegin();
+        auto s2 = sets[i].cbegin();
+        while( s1 != u.cend() && s2 != sets[i].cend()) {
+            if(*s1 < *s2) {
+                tmp.insert(*s1++);
+            }
+            else if(*s1 > *s2) {
+                tmp.insert(*s2++);
+            }
+            else {
+                // *s1 == *s2
+                return true;
+            }
+        }
+        u.merge(tmp);
+        while(s1 != u.cend())
+            u.insert(*s1++);
+        while(s2 != sets[i].cend())
+            u.insert(*s2++);
+    }
+
+    return false;
 }
 
 void error_msg(std::string error, std::string title) {
@@ -125,14 +209,26 @@ bool update(Json::Value &cfg_default, Json::Value &cfg) {
     for (const auto &key : cfg.getMemberNames()) {
         if (cfg_default.isMember(key)) {
             if (cfg_default[key].type() != cfg[key].type()) {
-                error_msg("Value type error in " CONF_FILE_NAME, "Error reading configs");
+                std::string msg = "Value type error in ";
+                error_msg(msg + cfg[key].asString(), "Error in " CONF_FILE_NAME);
                 return false;
             }
             if (cfg_default[key].isArray() && !cfg_default[key].empty()) {
                 for (Json::Value &v : cfg[key]) {
-                    if (v.type() != cfg_default[key][0].type()) {
-                        error_msg("Value type in array error in " CONF_FILE_NAME, "Error reading configs");
-                        return false;
+                    auto new_v_type = cfg_default[key][0].type();
+                    if (v.type() != new_v_type) {
+                        // explicitly allow to chenge int to string and other way around
+                        // since these types are used to represent key codes
+                        const auto interchangeable_types = {Json::ValueType::intValue, 
+                                                            Json::ValueType::stringValue};
+                        const bool is_interchange_allowed = 
+                            contains(interchangeable_types, v.type())
+                            && contains(interchangeable_types, new_v_type);
+                        if(!is_interchange_allowed) {
+                            std::string msg = "Value type error in array ";
+                            error_msg(msg + key, "Error in " CONF_FILE_NAME);
+                            return false;
+                        }
                     }
                 }
             }
@@ -186,7 +282,7 @@ void init() {
             continue;
         }
 
-        if (update(cfg, *cfg_read)) {
+        if (update(g_cfg, *cfg_read)) {
             break;
         }
     }

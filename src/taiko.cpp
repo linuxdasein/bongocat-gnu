@@ -4,34 +4,19 @@ namespace cats {
 
 bool TaikoCat::init(const Json::Value& cfg) {
     // getting configs
-    bool chk[256];
-    std::fill(chk, chk + 256, false);
     Json::Value taiko = cfg["taiko"];
 
-    rim_key_value[0] = taiko["leftRim"];
-    for (Json::Value &v : rim_key_value[0]) {
-        chk[v.asInt()] = true;
-    }
-    centre_key_value[0] = taiko["leftCentre"];
-    for (Json::Value &v : centre_key_value[0]) {
-        if (chk[v.asInt()]) {
-            data::error_msg("Overlapping osu!taiko keybinds", "Error reading configs");
-            return false;
-        }
-    }
+    rim_key_binding[0] = data::json_key_to_scancodes(taiko["leftRim"]);
+    centre_key_binding[0] = data::json_key_to_scancodes(taiko["leftCentre"]);
 
-    std::fill(chk, chk + 256, false);
-    rim_key_value[1] = taiko["rightRim"];
-    for (Json::Value &v : rim_key_value[1]) {
-        chk[v.asInt()] = true;
-    }
-    centre_key_value[1] = taiko["rightCentre"];
-    for (Json::Value &v : centre_key_value[1]) {
-        if (chk[v.asInt()]) {
-            data::error_msg("Overlapping osu!taiko keybinds", "Error reading configs");
-            return false;
-        }
-    }
+    if(data::is_intersection({rim_key_binding[0], centre_key_binding[0]}))
+        data::error_msg("Overlapping osu!taiko keybinds", "Error reading configs");
+
+    rim_key_binding[1] = data::json_key_to_scancodes(taiko["rightRim"]);
+    centre_key_binding[1] = data::json_key_to_scancodes(taiko["rightCentre"]);
+    
+    if(data::is_intersection({rim_key_binding[1], centre_key_binding[1]}))
+        data::error_msg("Overlapping osu!taiko keybinds", "Error reading configs");
 
     // importing sprites
     bg.setTexture(data::load_texture("img/taiko/bg.png"));
@@ -49,8 +34,8 @@ void TaikoCat::update() {
     // 0 for left side, 1 for right side
     for (int i = 0; i < 2; i++) {
         bool rim_key = false;
-        for (const Json::Value &v : rim_key_value[i]) {
-            if (input::is_pressed(v.asInt())) {
+        for (const int v : rim_key_binding[i]) {
+            if (input::is_pressed(v)) {
                 rim_key = true;
                 break;
             }
@@ -65,8 +50,8 @@ void TaikoCat::update() {
         }
 
         bool centre_key = false;
-        for (const Json::Value &v : centre_key_value[i]) {
-            if (input::is_pressed(v.asInt())) {
+        for (const int v : centre_key_binding[i]) {
+            if (input::is_pressed(v)) {
                 centre_key = true;
                 break;
             }
