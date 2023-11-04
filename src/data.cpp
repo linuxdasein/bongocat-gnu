@@ -15,8 +15,13 @@ extern "C" {
 }
 
 namespace data {
-Json::Value cfg;
+Json::Value g_cfg;
 std::map<std::string, sf::Texture> img_holder;
+
+template<class C, class T>
+bool contains(C container, T object) {
+    return std::find(container.begin(), container.end(), object) != std::end(container);
+}
 
 const sf::Vector2i g_window_default_size(612, 352);
 
@@ -44,7 +49,7 @@ std::unique_ptr<Json::Value> parse_config_file(std::ifstream& cfg_file) {
 }
 
 const Json::Value& get_cfg() {
-    return cfg;
+    return g_cfg;
 }
 
 sf::Vector2i get_cfg_window_size() {
@@ -204,14 +209,26 @@ bool update(Json::Value &cfg_default, Json::Value &cfg) {
     for (const auto &key : cfg.getMemberNames()) {
         if (cfg_default.isMember(key)) {
             if (cfg_default[key].type() != cfg[key].type()) {
-                error_msg("Value type error in " CONF_FILE_NAME, "Error reading configs");
+                std::string msg = "Value type error in ";
+                error_msg(msg + cfg[key].asString(), "Error in " CONF_FILE_NAME);
                 return false;
             }
             if (cfg_default[key].isArray() && !cfg_default[key].empty()) {
                 for (Json::Value &v : cfg[key]) {
-                    if (v.type() != cfg_default[key][0].type()) {
-                        error_msg("Value type in array error in " CONF_FILE_NAME, "Error reading configs");
-                        return false;
+                    auto new_v_type = cfg_default[key][0].type();
+                    if (v.type() != new_v_type) {
+                        // explicitly allow to chenge int to string and other way around
+                        // since these types are used to represent key codes
+                        const auto interchangeable_types = {Json::ValueType::intValue, 
+                                                            Json::ValueType::stringValue};
+                        const bool is_interchange_allowed = 
+                            contains(interchangeable_types, v.type())
+                            && contains(interchangeable_types, new_v_type);
+                        if(!is_interchange_allowed) {
+                            std::string msg = "Value type error in array ";
+                            error_msg(msg + key, "Error in " CONF_FILE_NAME);
+                            return false;
+                        }
                     }
                 }
             }
@@ -265,7 +282,7 @@ void init() {
             continue;
         }
 
-        if (update(cfg, *cfg_read)) {
+        if (update(g_cfg, *cfg_read)) {
             break;
         }
     }
