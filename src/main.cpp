@@ -24,8 +24,8 @@ static auto init_cat() {
             [&s](const Mode& m) {return m.second == s;});
 
         if(mode_it == modes.cend()) {
-            data::error_msg("Mode value " + s + " is not correct", 
-                "Error reading configs");
+            std::string msg = "Error reading configs: Mode value " + s + " is not correct";
+            logger::get().log(msg, logger::Severity::critical);
         }
     }
 
@@ -35,6 +35,7 @@ static auto init_cat() {
 int main(int argc, char ** argv) {
     sf::RenderWindow window;
     data::init();
+    logger::init();
     
     sf::Vector2i window_size = data::get_cfg_window_size();
     window.create(sf::VideoMode(window_size.x, window_size.y), "Bongo Cat", sf::Style::Titlebar | sf::Style::Close);
@@ -55,7 +56,8 @@ int main(int argc, char ** argv) {
     sf::Transform transform = data::get_cfg_window_transform();
     sf::RenderStates rstates = sf::RenderStates(transform);
 
-    cat->init(data::get_cfg());
+    while(!cat->init(data::get_cfg()))
+        data::init();
 
     while (window.isOpen()) {
         sf::Event event;

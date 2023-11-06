@@ -5,14 +5,9 @@
 #include <filesystem>
 #include <algorithm>
 #include <optional>
-#define BONGO_ERROR 1
 
 #include <unistd.h>
 #include <limits.h>
-
-extern "C" {
-#include <SDL2/SDL.h>
-}
 
 namespace data {
 Json::Value g_cfg;
@@ -95,9 +90,9 @@ std::optional<int> json_key_to_scancode(const Json::Value& key) {
     else if (key.isString()) {
         std::string s = key.asString();
         if (s.size() != 1) {
-            std::string error = "Invalid key value: ";
+            std::string error = "Error reading configs: Invalid key value: ";
             error += s;
-            error_msg(error, "Error reading configs");
+            logger::get().log(error, logger::Severity::critical);
         }
         else {
             // treat uppercase and lowercase letters equally
@@ -106,9 +101,9 @@ std::optional<int> json_key_to_scancode(const Json::Value& key) {
         }
     }
     else {
-        std::string error = "Invalid key value: ";
+        std::string error = "Error reading configs: Invalid key value: ";
         error += key.asString();
-        error_msg(error, "Error reading configs");
+        logger::get().log(error, logger::Severity::critical);
     }
     return std::nullopt;
 }
@@ -164,53 +159,13 @@ bool is_intersection(const std::vector<std::set<int>>& sets) {
     return false;
 }
 
-void error_msg(std::string error, std::string title) {
-    SDL_MessageBoxButtonData buttons[] = {
-        { SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 0, "Retry" },
-        { SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 1, "Cancel" },
-    };
-
-    SDL_MessageBoxColorScheme colorScheme = {
-        { /* .colors (.r, .g, .b) */
-     /* [SDL_MESSAGEBOX_COLOR_BACKGROUND] */
-        { 255, 255,255 },
-        /* [SDL_MESSAGEBOX_COLOR_TEXT] */
-        { 0, 0, 0 },
-        /* [SDL_MESSAGEBOX_COLOR_BUTTON_BORDER] */
-        { 0, 0, 0 },
-        /* [SDL_MESSAGEBOX_COLOR_BUTTON_BACKGROUND] */
-        { 255,255, 255 },
-        /* [SDL_MESSAGEBOX_COLOR_BUTTON_SELECTED] */
-        { 128, 128, 128 }
-        }
-    };
-
-    SDL_MessageBoxData messagebox_data = {
-    	SDL_MESSAGEBOX_ERROR,
-    	NULL,
-    	title.c_str(),
-    	error.c_str(),
-    	SDL_arraysize(buttons),
-    	buttons,
-    	&colorScheme
-    };
-
-    int button_id;
-
-    SDL_ShowMessageBox(&messagebox_data, &button_id);
-
-    if (button_id == -1 || button_id == 1) {
-        exit(BONGO_ERROR);
-    }
-}
-
 bool update(Json::Value &cfg_default, Json::Value &cfg) {
     bool is_update = true;
     for (const auto &key : cfg.getMemberNames()) {
         if (cfg_default.isMember(key)) {
             if (cfg_default[key].type() != cfg[key].type()) {
-                std::string msg = "Value type error in ";
-                error_msg(msg + cfg[key].asString(), "Error in " CONF_FILE_NAME);
+                std::string msg = "Error in " CONF_FILE_NAME ": Value type error in ";
+                logger::get().log(msg, logger::Severity::critical);
                 return false;
             }
             if (cfg_default[key].isArray() && !cfg_default[key].empty()) {
@@ -225,8 +180,8 @@ bool update(Json::Value &cfg_default, Json::Value &cfg) {
                             contains(interchangeable_types, v.type())
                             && contains(interchangeable_types, new_v_type);
                         if(!is_interchange_allowed) {
-                            std::string msg = "Value type error in array ";
-                            error_msg(msg + key, "Error in " CONF_FILE_NAME);
+                            std::string msg = "Error in " CONF_FILE_NAME ": Value type error in array ";
+                            logger::get().log(msg, logger::Severity::critical);
                             return false;
                         }
                     }
@@ -267,8 +222,9 @@ void init() {
         }
         std::ifstream cfg_file(conf_file_path);
         if (!cfg_file.good()) {
-            std::string msg = "Couldn't open config file " + conf_file_path + ":\n";
-            error_msg( msg, "Error reading configs");
+            std::string msg = "Error reading configs: Couldn't open config file " 
+                + conf_file_path + ":\n";
+            logger::get().log(msg, logger::Severity::critical);
             continue;
         }
 
@@ -277,8 +233,8 @@ void init() {
             cfg_read = parse_config_file(cfg_file);
         }
         catch(std::runtime_error& e) {
-            std::string msg = "Syntax error in " CONF_FILE_NAME ":\n";
-            error_msg( msg + e.what(), "Error reading configs");
+            std::string msg = "Error reading configs: Syntax error in " CONF_FILE_NAME ":\n";
+            logger::get().log( msg + e.what(), logger::Severity::critical);
             continue;
         }
 
@@ -293,7 +249,8 @@ void init() {
 sf::Texture &load_texture(std::string path) {
     if (img_holder.find(path) == img_holder.end()) {
         while (!img_holder[path].loadFromFile(path)) {
-            error_msg("Cannot find file " + path, "Error importing images");
+            std::string msg = "Error importing images: Cannot find file " + path;
+            logger::get().log(msg, logger::Severity::critical);
         }
     }
     return img_holder[path];

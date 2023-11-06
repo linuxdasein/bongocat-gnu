@@ -13,19 +13,19 @@ struct key {
         if (_key_value.isMember("keyCodes") && _key_value["keyCodes"].isArray()) {
             key_value = data::json_key_to_scancodes(_key_value["keyCodes"]);
         } else {
-            data::error_msg("Custom keyCodes values is not set correctly", "Error reading configs");
+            logger::get().error("Error reading configs: Custom keyCodes values is not set correctly");
             throw;
         }
         if (_key_value.isMember("image") && _key_value["image"].isString()) {
             sprite = sf::Sprite();
             sprite.setTexture(data::load_texture(_key_value["image"].asString()));
         } else {
-            data::error_msg("Custom image path is not set correctly", "Error reading configs");
+            logger::get().error("Error reading configs: Custom image path is not set correctly");
             throw;
         }
         if (_key_value.isMember("joyCodes")) {
             if (!_key_value["joyCodes"].isArray()) {
-                data::error_msg("Custom joyCodes values is not set correctly", "Error reading configs");
+                logger::get().error("Error reading configs: Custom joyCodes values is not set correctly");
                 throw;
             }
             joy_value = _key_value["joyCodes"];
@@ -69,7 +69,7 @@ struct key_container {
                 || !key_container_value["defaultImage"].isString()
                 || !key_container_value.isMember("keys")
                 || !key_container_value["keys"].isArray()) {
-                data::error_msg("Key container's object error", "Error reading configs");
+                logger::get().error("Error reading configs: Key container's object error");
                 throw;
             } else {
                 default_sprite = sf::Sprite();
@@ -79,7 +79,7 @@ struct key_container {
                 }
             }
         } else {
-            data::error_msg("Key container must be an object", "Error reading configs");
+            logger::get().error("Error reading configs: Key container must be an object");
             throw;
         }
     }
@@ -129,7 +129,7 @@ bool CustomCat::init(const Json::Value& cfg) {
             key_containers.push_back(key_container(current_key_container));
         }
         if (!custom.isMember("background") || !custom["background"].isString()) {
-            data::error_msg("Custom background not found", "Error reading config");
+            logger::get().error("Error reading config: Custom background not found");
             return false;
         }
         bg.setTexture(data::load_texture(custom["background"].asString()));
@@ -145,7 +145,7 @@ bool CustomCat::init(const Json::Value& cfg) {
             MousePaw::set_mouse_parameters(offset, scale);
 
             if (!custom.isMember("mouseImage") || !custom["mouseImage"].isString()) {
-                data::error_msg("Mouse image not found", "Error reading config");
+                logger::get().error("Error reading config: Mouse image not found");
                 return false;
             }
             device.setTexture(data::load_texture(custom["mouseImage"].asString()));

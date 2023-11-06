@@ -23,8 +23,6 @@ sf::Transform get_cfg_window_transform();
 std::set<int> json_key_to_scancodes(const Json::Value& key_array);
 bool is_intersection(const std::vector<std::set<int>>& sets);
 
-void error_msg(std::string error, std::string title);
-
 void init();
 
 sf::Texture &load_texture(std::string path);
@@ -44,3 +42,34 @@ void drawDebugPanel(sf::RenderWindow& window);
 
 void cleanup();
 }; // namespace input
+
+namespace logger {
+
+enum class Severity 
+{
+    critical,
+    medium,
+    info,
+    debug
+};
+
+class ILogger 
+{
+public:
+
+    // Log a message with a certain severity level
+    virtual void log(std::string message, Severity level) = 0;
+
+    // Log a critical error
+    void error(std::string message) {
+        return log(message, Severity::critical);
+    }
+
+    virtual ~ILogger() {};
+};
+
+void init();
+
+ILogger& get();
+
+} // namespace logger

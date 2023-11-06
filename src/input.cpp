@@ -118,7 +118,8 @@ bool init(int width, int height) {
 
     // loading font
     if (!debugFont.loadFromFile("share/RobotoMono-Bold.ttf")) {
-        data::error_msg("Cannot find the font : RobotoMono-Bold.ttf", "Error loading font");
+        std::string msg =  "Error loading font: Cannot find the font : RobotoMono-Bold.ttf";
+        logger::get().log(msg, logger::Severity::critical);
         return false;
     }
 

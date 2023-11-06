@@ -9,6 +9,7 @@ sources = files([
   'src/custom.cpp',
   'src/data.cpp',
   'src/input.cpp',
+  'src/logger.cpp',
   'src/main.cpp',
   'src/mania.cpp',
   'src/mouse.cpp',
