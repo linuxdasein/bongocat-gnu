@@ -11,6 +11,7 @@
 
 namespace data {
 Json::Value g_cfg;
+std::unique_ptr<sf::Font> debug_font_holder;
 std::map<std::string, sf::Texture> img_holder;
 
 template<class C, class T>
@@ -255,4 +256,17 @@ sf::Texture &load_texture(std::string path) {
     }
     return img_holder[path];
 }
+
+sf::Font &get_debug_font() {
+    if(!debug_font_holder) {
+        // loading font
+        debug_font_holder = std::make_unique<sf::Font>();
+        if (!debug_font_holder->loadFromFile("share/RobotoMono-Bold.ttf")) {
+            std::string msg =  "Error loading font: Cannot find the font : RobotoMono-Bold.ttf";
+            logger::get().log(msg, logger::Severity::critical);
+        }
+    }
+    return *debug_font_holder;
+}
+
 }; // namespace data

@@ -26,6 +26,7 @@ bool is_intersection(const std::vector<std::set<int>>& sets);
 void init();
 
 sf::Texture &load_texture(std::string path);
+sf::Font &get_debug_font();
 }; // namespace data
 
 namespace input {
@@ -67,8 +68,6 @@ public:
 
     virtual ~ILogger() {};
 };
-
-void init();
 
 ILogger& get();
 

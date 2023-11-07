@@ -1,5 +1,6 @@
 #include "cats.hpp"
 #include "header.hpp"
+#include "logger.hpp"
 #include <memory>
 #include <stdexcept>
 
@@ -18,7 +19,6 @@ static auto init_cat() {
     auto mode_it = modes.cend();
 
     while(mode_it == modes.cend()) {
-        data::init();
         auto s = data::get_cfg()["mode"].asString();
         mode_it = std::find_if(modes.cbegin(), modes.cend(),
             [&s](const Mode& m) {return m.second == s;});
@@ -35,12 +35,16 @@ static auto init_cat() {
 int main(int argc, char ** argv) {
     sf::RenderWindow window;
     data::init();
-    logger::init();
     
     sf::Vector2i window_size = data::get_cfg_window_size();
+    logger::GlobalLogger::init(window_size.x, window_size.y);
     window.create(sf::VideoMode(window_size.x, window_size.y), "Bongo Cat", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(MAX_FRAMERATE);
     
+    auto p_log_overlay = std::make_unique<logger::SfmlOverlayLogger>(window_size.x, window_size.y);
+    logger::SfmlOverlayLogger& log_overlay = *p_log_overlay.get();
+    logger::GlobalLogger::get().attach(std::move(p_log_overlay));
+
     // loading configs
     auto mode = init_cat();
     std::unique_ptr<cats::ICat> cat = cats::get_cat(mode->first);
@@ -56,8 +60,7 @@ int main(int argc, char ** argv) {
     sf::Transform transform = data::get_cfg_window_transform();
     sf::RenderStates rstates = sf::RenderStates(transform);
 
-    while(!cat->init(data::get_cfg()))
-        data::init();
+    bool is_cat_loaded = cat->init(data::get_cfg());
 
     while (window.isOpen()) {
         sf::Event event;
@@ -71,9 +74,10 @@ int main(int argc, char ** argv) {
                 // get reload config prompt
                 if (event.key.code == sf::Keyboard::R && event.key.control) {
                     if (!is_reload) {
+                        data::init();
                         mode = init_cat();
                         cat = cats::get_cat(mode->first);
-                        cat->init(data::get_cfg());
+                        is_cat_loaded = cat->init(data::get_cfg());
                     }
                     is_reload = true;
                     break;
@@ -97,6 +101,16 @@ int main(int argc, char ** argv) {
             default:
                 is_reload = false;
             }
+        }
+
+        window.draw(log_overlay, rstates);
+
+        if(!is_cat_loaded) {
+            window.display();
+            continue;
+        }
+        else {
+            log_overlay.set_visible(false);
         }
 
         Json::Value rgb = data::get_cfg()["decoration"]["rgb"];
