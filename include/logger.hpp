@@ -32,6 +32,8 @@ public:
 
     void set_visible(bool value);
 
+    void set_size(sf::Vector2i size);
+
 private:
     bool is_visible = false;
     sf::RectangleShape background;

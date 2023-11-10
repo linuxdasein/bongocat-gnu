@@ -92,6 +92,11 @@ void SfmlOverlayLogger::set_visible(bool value) {
     is_visible = value;
 }
 
+void SfmlOverlayLogger::set_size(sf::Vector2i size) {
+    sf::Vector2f f_size(size.x, size.y);
+    background.setSize(f_size);
+}
+
 void GlobalLogger::init() {
     auto tmp = std::make_unique<GlobalLogger>();
     auto e_logger = std::make_unique<StreamLogger>(std::cerr);

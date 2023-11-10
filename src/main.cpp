@@ -41,16 +41,15 @@ int main(int argc, char ** argv) {
     sf::Vector2i window_size = data::get_cfg_window_default_size();
     window.create(sf::VideoMode(window_size.x, window_size.y), "Bongo Cat", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(MAX_FRAMERATE);
+
+    // initialize input
+    if (!input::init(window_size.x, window_size.y))
+        return EXIT_FAILURE;
     
     // attach overlay logger
     auto p_log_overlay = std::make_unique<logger::SfmlOverlayLogger>(window_size.x, window_size.y);
     logger::SfmlOverlayLogger& log_overlay = *p_log_overlay.get();
     logger::GlobalLogger::get().attach(std::move(p_log_overlay));
-
-    // initialize input
-    if (!input::init(window_size.x, window_size.y)) {
-        return EXIT_FAILURE;
-    }
 
     bool is_config_loaded = false;
     bool try_reload_config = true;
@@ -58,8 +57,6 @@ int main(int argc, char ** argv) {
     
     std::unique_ptr<cats::ICat> cat;
     auto mode = modes.end();
-
-    sf::Transform transform;
     sf::RenderStates rstates;
 
     auto reload_config = [&]() {
@@ -81,7 +78,19 @@ int main(int argc, char ** argv) {
             return false;
 
         // update window transform data
-        transform = data::get_cfg_window_transform(cfg);
+        auto cfg_window_size = data::get_cfg_window_size(cfg);
+        if (window_size != cfg_window_size) {
+            // reinitialize window only if config size has changed
+            window_size = cfg_window_size;
+            window.create(sf::VideoMode(window_size.x, window_size.y), 
+                "Bongo Cat", sf::Style::Titlebar | sf::Style::Close);
+            log_overlay.set_size(window_size);
+            if (!input::init(window_size.x, window_size.y))
+                return false;
+        }
+
+        // update windows transform
+        sf::Transform transform = data::get_cfg_window_transform(cfg);
         rstates = sf::RenderStates(transform);
 
         return true;
