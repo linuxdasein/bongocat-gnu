@@ -48,15 +48,17 @@ const Json::Value& get_cfg() {
     return g_cfg;
 }
 
-sf::Vector2i get_cfg_window_size() {
-    auto window_config = data::get_cfg()["window"];
-    const sf::Vector2i window_size = value_or(window_config["size"], g_window_default_size);
-    return window_size;
+sf::Vector2i get_cfg_window_default_size() {
+    return g_window_default_size;
 }
 
-sf::Transform get_cfg_window_transform() {
-    auto window_config = data::get_cfg()["window"];
-    const sf::Vector2i window_size = get_cfg_window_size();
+sf::Vector2i get_cfg_window_size(const Json::Value &cfg) {
+    return value_or(cfg["window"]["size"], g_window_default_size);
+}
+
+sf::Transform get_cfg_window_transform(const Json::Value &cfg) {
+    auto window_config = cfg["window"];
+    const sf::Vector2i window_size = get_cfg_window_size(cfg);
     const sf::Vector2i window_offset = value_or(window_config["offset"], sf::Vector2i(0, 0));
 
     sf::Vector2f scene_pos;
@@ -200,51 +202,58 @@ bool update(Json::Value &cfg_default, Json::Value &cfg) {
     return is_update;
 }
 
-void init() {
-    const auto system_info = os::create_system_info();
-
-    while (true) {
-        std::string conf_file_path = CONF_FILE_NAME;
-        // if a file exists in the current directory it takes precendence
-        if(!std::filesystem::exists(conf_file_path)) {
-            // otherwise try to load a file from user's home directory
-            auto cfg_dir_path = system_info->get_config_dir_path();
-            conf_file_path = cfg_dir_path + CONF_FILE_NAME;
-            if(!std::filesystem::exists(conf_file_path)) {
-                // if no config file is present, create one with the default settings
-                const std::string cfg_file_template_path = "share/" CONF_FILE_NAME;
-                
-                if (std::filesystem::exists(cfg_file_template_path)) {
-                    // create config from the default config template
-                    std::filesystem::create_directories(cfg_dir_path);
-                    std::filesystem::copy(cfg_file_template_path, conf_file_path);
-                }
-            }
-        }
-        std::ifstream cfg_file(conf_file_path);
-        if (!cfg_file.good()) {
-            std::string msg = "Error reading configs: Couldn't open config file " 
-                + conf_file_path + ":\n";
-            logger::get().log(msg, logger::Severity::critical);
-            continue;
-        }
-
-        std::unique_ptr<Json::Value> cfg_read;
-        try {
-            cfg_read = parse_config_file(cfg_file);
-        }
-        catch(std::runtime_error& e) {
-            std::string msg = "Error reading configs: Syntax error in " CONF_FILE_NAME ":\n";
-            logger::get().log( msg + e.what(), logger::Severity::critical);
-            continue;
-        }
-
-        if (update(g_cfg, *cfg_read)) {
-            break;
-        }
+bool init() {
+    // load debug font
+    debug_font_holder = std::make_unique<sf::Font>();
+    if (!debug_font_holder->loadFromFile("share/RobotoMono-Bold.ttf")) {
+        std::string msg =  "Error loading font: Cannot find the font : RobotoMono-Bold.ttf";
+        logger::get().log(msg, logger::Severity::critical);
+        return false;
     }
 
     img_holder.clear();
+    return true;
+}
+
+bool reload_config() {
+    const auto system_info = os::create_system_info();
+
+    std::string conf_file_path = CONF_FILE_NAME;
+    // if a file exists in the current directory it takes precendence
+    if(!std::filesystem::exists(conf_file_path)) {
+        // otherwise try to load a file from user's home directory
+        auto cfg_dir_path = system_info->get_config_dir_path();
+        conf_file_path = cfg_dir_path + CONF_FILE_NAME;
+        if(!std::filesystem::exists(conf_file_path)) {
+            // if no config file is present, create one with the default settings
+            const std::string cfg_file_template_path = "share/" CONF_FILE_NAME;
+                
+            if (std::filesystem::exists(cfg_file_template_path)) {
+                // create config from the default config template
+                std::filesystem::create_directories(cfg_dir_path);
+                std::filesystem::copy(cfg_file_template_path, conf_file_path);
+            }
+        }
+    }
+    std::ifstream cfg_file(conf_file_path);
+    if (!cfg_file.good()) {
+        std::string msg = "Error reading configs: Couldn't open config file " 
+            + conf_file_path + ":\n";
+        logger::get().log(msg, logger::Severity::critical);
+        return false;
+    }
+
+    std::unique_ptr<Json::Value> cfg_read;
+    try {
+        cfg_read = parse_config_file(cfg_file);
+    }
+    catch(std::runtime_error& e) {
+        std::string msg = "Error reading configs: Syntax error in " CONF_FILE_NAME ":\n";
+        logger::get().log( msg + e.what(), logger::Severity::critical);
+        return false;
+    }
+
+    return update(g_cfg, *cfg_read);
 }
 
 sf::Texture &load_texture(std::string path) {
@@ -258,14 +267,6 @@ sf::Texture &load_texture(std::string path) {
 }
 
 sf::Font &get_debug_font() {
-    if(!debug_font_holder) {
-        // loading font
-        debug_font_holder = std::make_unique<sf::Font>();
-        if (!debug_font_holder->loadFromFile("share/RobotoMono-Bold.ttf")) {
-            std::string msg =  "Error loading font: Cannot find the font : RobotoMono-Bold.ttf";
-            logger::get().log(msg, logger::Severity::critical);
-        }
-    }
     return *debug_font_holder;
 }
 

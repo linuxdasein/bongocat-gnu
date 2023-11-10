@@ -17,14 +17,15 @@
 #include <input.hpp>
 
 namespace data {
-const Json::Value& get_cfg();
-sf::Vector2i get_cfg_window_size();
-sf::Transform get_cfg_window_transform();
+sf::Vector2i get_cfg_window_default_size();
+sf::Vector2i get_cfg_window_size(const Json::Value &cfg);
+sf::Transform get_cfg_window_transform(const Json::Value &cfg);
 std::set<int> json_key_to_scancodes(const Json::Value& key_array);
 bool is_intersection(const std::vector<std::set<int>>& sets);
 
-void init();
-
+bool init();
+bool reload_config();
+const Json::Value& get_cfg();
 sf::Texture &load_texture(std::string path);
 sf::Font &get_debug_font();
 }; // namespace data

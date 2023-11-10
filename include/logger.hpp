@@ -12,7 +12,7 @@ public:
 
     void log(std::string message, Severity level) override;
 
-    static void init(int width, int height);
+    static void init();
 
     static GlobalLogger& get();
 

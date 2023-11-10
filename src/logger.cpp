@@ -52,7 +52,10 @@ SfmlOverlayLogger::SfmlOverlayLogger(int w, int h)
 void SfmlOverlayLogger::log(std::string message, Severity level) {
     sf::Text log_message(message, data::get_debug_font(), 14);
     const float line_height = log_message.getLocalBounds().height;
-    log_message.setPosition(10.0f, 4.0f + log_text.size() * line_height);
+    float offset = log_text.empty() ? 0.f 
+        : log_text.back().getGlobalBounds().top 
+        + log_text.back().getGlobalBounds().height;
+    log_message.setPosition(10.0f, 4.0f + offset);
 
     switch(level) {
     case Severity::medium:
@@ -89,12 +92,10 @@ void SfmlOverlayLogger::set_visible(bool value) {
     is_visible = value;
 }
 
-void GlobalLogger::init(int w, int h) {
+void GlobalLogger::init() {
     auto tmp = std::make_unique<GlobalLogger>();
     auto e_logger = std::make_unique<StreamLogger>(std::cerr);
-    auto o_logger = std::make_unique<SfmlOverlayLogger>(w, h);
     tmp->attach(std::move(e_logger));
-    tmp->attach(std::move(o_logger));
     g_logger = std::move(tmp);
 }
 
