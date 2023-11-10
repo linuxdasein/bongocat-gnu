@@ -21,7 +21,6 @@ AppDir:
 
     include:
       - bash
-      - libsdl2-2.0-0
       - libjsoncpp1
       - libpulse0
       - libxdo3

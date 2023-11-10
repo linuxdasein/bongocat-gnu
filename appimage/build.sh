@@ -20,7 +20,7 @@ update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 \
                     --slave /usr/bin/g++ g++ /usr/bin/g++-8
 
 # install the build dependencies
-apt install -y libxrandr-dev libxdo-dev libsdl2-dev libjsoncpp-dev
+apt install -y libxrandr-dev libxdo-dev libjsoncpp-dev
 
 # for some reason libxdo-dev misses a pkg-config file, create it manually
 cp appimage/libxdo.pc /usr/share/pkgconfig/

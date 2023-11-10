@@ -36,7 +36,6 @@ This project uses [SFML](https://www.sfml-dev.org/index.php) and [JsonCpp](https
 You need to have these dependencies installed. Check with your package manager for the exact name of these dependencies on your distro:
 - g++
 - libxdo
-- sdl2
 - jsoncpp
 - sfml
 - x11

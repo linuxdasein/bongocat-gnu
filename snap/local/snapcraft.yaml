@@ -68,13 +68,11 @@ parts:
       - ninja-build
       - libxrandr-dev
       - libxdo-dev
-      - libsdl2-dev
       - libjsoncpp-dev
       - libsfml-dev
     stage-packages:
       - libxrandr2
       - libxdo3
-      - libsdl2-2.0-0
       - libjsoncpp25
       - libsfml-system2.5
       - libsfml-window2.5
