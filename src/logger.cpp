@@ -25,10 +25,10 @@ public:
 
         switch(level) {
             case Severity::critical:
-                tag = "[Fatal error]: ";
-                break;
-            case Severity::medium:
                 tag = "[Error]: ";
+                break;
+            case Severity::warning:
+                tag = "[Warning]: ";
                 break;
             case Severity::info:
                 tag = "[Info]: ";
@@ -58,7 +58,7 @@ void SfmlOverlayLogger::log(std::string message, Severity level) {
     log_message.setPosition(10.0f, 4.0f + offset);
 
     switch(level) {
-    case Severity::medium:
+    case Severity::warning:
         log_message.setFillColor(sf::Color::Yellow);
         break;
     case Severity::critical:

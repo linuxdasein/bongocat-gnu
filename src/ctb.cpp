@@ -10,7 +10,7 @@ bool CtbCat::init(const Json::Value& cfg) {
     right_key_binding = data::json_key_to_scancodes(ctb["right"]);
 
     if(data::is_intersection({left_key_binding, right_key_binding})) {
-        logger::get().error("Error reading configs: Overlapping osu!catch keybinds");
+        logger::error("Error reading configs: Overlapping osu!catch keybinds");
         return false;
     }
 

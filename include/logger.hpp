@@ -3,7 +3,7 @@
 namespace logger
 {
 
-// Interface for
+// logger class implementing a collection of loggers
 class GlobalLogger : public ILogger
 {
 public:
@@ -20,6 +20,7 @@ private:
     std::vector<std::unique_ptr<ILogger>> sinks;
 };
 
+// sfml overlay logger class
 class SfmlOverlayLogger : public ILogger, public sf::Drawable
 {
 public:

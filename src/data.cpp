@@ -93,9 +93,7 @@ std::optional<int> json_key_to_scancode(const Json::Value& key) {
     else if (key.isString()) {
         std::string s = key.asString();
         if (s.size() != 1) {
-            std::string error = "Error reading configs: Invalid key value: ";
-            error += s;
-            logger::get().log(error, logger::Severity::critical);
+            logger::error("Error reading configs: Invalid key value: " + s);
         }
         else {
             // treat uppercase and lowercase letters equally
@@ -104,9 +102,7 @@ std::optional<int> json_key_to_scancode(const Json::Value& key) {
         }
     }
     else {
-        std::string error = "Error reading configs: Invalid key value: ";
-        error += key.asString();
-        logger::get().log(error, logger::Severity::critical);
+        logger::error("Error reading configs: Invalid key value: " + key.asString());
     }
     return std::nullopt;
 }
@@ -167,8 +163,7 @@ bool update(Json::Value &cfg_default, Json::Value &cfg) {
     for (const auto &key : cfg.getMemberNames()) {
         if (cfg_default.isMember(key)) {
             if (cfg_default[key].type() != cfg[key].type()) {
-                std::string msg = "Error in " CONF_FILE_NAME ": Value type error in ";
-                logger::get().log(msg, logger::Severity::critical);
+                logger::error("Error in " CONF_FILE_NAME ": Value type error in ");
                 return false;
             }
             if (cfg_default[key].isArray() && !cfg_default[key].empty()) {
@@ -183,8 +178,7 @@ bool update(Json::Value &cfg_default, Json::Value &cfg) {
                             contains(interchangeable_types, v.type())
                             && contains(interchangeable_types, new_v_type);
                         if(!is_interchange_allowed) {
-                            std::string msg = "Error in " CONF_FILE_NAME ": Value type error in array ";
-                            logger::get().log(msg, logger::Severity::critical);
+                            logger::error("Error in " CONF_FILE_NAME ": Value type error in array ");
                             return false;
                         }
                     }
@@ -206,8 +200,7 @@ bool init() {
     // load debug font
     debug_font_holder = std::make_unique<sf::Font>();
     if (!debug_font_holder->loadFromFile("share/RobotoMono-Bold.ttf")) {
-        std::string msg =  "Error loading font: Cannot find the font : RobotoMono-Bold.ttf";
-        logger::get().log(msg, logger::Severity::critical);
+        logger::error("Error loading font: Cannot find the font : RobotoMono-Bold.ttf");
         return false;
     }
 
@@ -239,7 +232,7 @@ bool reload_config() {
     if (!cfg_file.good()) {
         std::string msg = "Error reading configs: Couldn't open config file " 
             + conf_file_path + ":\n";
-        logger::get().log(msg, logger::Severity::critical);
+        logger::error(msg);
         return false;
     }
 
@@ -249,7 +242,7 @@ bool reload_config() {
     }
     catch(std::runtime_error& e) {
         std::string msg = "Error reading configs: Syntax error in " CONF_FILE_NAME ":\n";
-        logger::get().log( msg + e.what(), logger::Severity::critical);
+        logger::error( msg + e.what());
         return false;
     }
 
@@ -259,8 +252,7 @@ bool reload_config() {
 sf::Texture &load_texture(std::string path) {
     if (img_holder.find(path) == img_holder.end()) {
         while (!img_holder[path].loadFromFile(path)) {
-            std::string msg = "Error importing images: Cannot find file " + path;
-            logger::get().log(msg, logger::Severity::critical);
+            logger::error("Error importing images: Cannot find file " + path);
         }
     }
     return img_holder[path];

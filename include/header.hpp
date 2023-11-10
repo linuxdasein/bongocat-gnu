@@ -50,7 +50,7 @@ namespace logger {
 enum class Severity 
 {
     critical,
-    medium,
+    warning,
     info,
     debug
 };
@@ -62,14 +62,31 @@ public:
     // Log a message with a certain severity level
     virtual void log(std::string message, Severity level) = 0;
 
-    // Log a critical error
-    void error(std::string message) {
-        return log(message, Severity::critical);
-    }
-
+    // virtual destructor
     virtual ~ILogger() {};
 };
 
+// get global logger instance
 ILogger& get();
+
+// Log a critical error
+inline void error(std::string message) {
+    get().log(message, Severity::critical);
+}
+
+// Log a warning message
+inline void warn(std::string message) {
+    get().log(message, Severity::warning);
+}
+
+// Log an information message
+inline void info(std::string message) {
+    get().log(message, Severity::info);
+}
+
+// Log a debug message
+inline void debug(std::string message) {
+    get().log(message, Severity::debug);
+}
 
 } // namespace logger

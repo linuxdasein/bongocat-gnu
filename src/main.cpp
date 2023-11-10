@@ -21,8 +21,7 @@ static auto get_cat_mode(const std::string &s) {
         [&s](const Mode& m) {return m.second == s;});
 
     if(mode_it == modes.cend()) {
-        std::string msg = "Error reading configs: Mode value " + s + " is not correct";
-        logger::get().log(msg, logger::Severity::critical);
+        logger::error("Error reading configs: Mode value " + s + " is not correct");
     }
 
     return mode_it;
@@ -33,7 +32,7 @@ int main(int argc, char ** argv) {
     logger::GlobalLogger::init();
 
     if(!data::init()) {
-        logger::get().error("Fatal error has occured. Exiting the application");
+        logger::error("Fatal error has occured. Exiting the application");
         return EXIT_FAILURE;
     }
 
