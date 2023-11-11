@@ -32,7 +32,7 @@ int main(int argc, char ** argv) {
     logger::GlobalLogger::init();
 
     if(!data::init()) {
-        logger::error("Fatal error has occured. Exiting the application");
+        logger::error("Fatal error has occured during data initialization");
         return EXIT_FAILURE;
     }
 
@@ -43,17 +43,22 @@ int main(int argc, char ** argv) {
     window.setFramerateLimit(MAX_FRAMERATE);
 
     // initialize input
-    if (!input::init(window_size.x, window_size.y))
+    if (!input::init(window_size.x, window_size.y)) {
+        logger::error("Fatal error has occured during input initialization");
         return EXIT_FAILURE;
+    }
     
     // attach overlay logger
     auto p_log_overlay = std::make_unique<logger::SfmlOverlayLogger>(window_size.x, window_size.y);
     logger::SfmlOverlayLogger& log_overlay = *p_log_overlay.get();
     logger::GlobalLogger::get().attach(std::move(p_log_overlay));
 
+    logger::info("Bongocat overlay logger has been sucsessfully attached");
+
     bool is_config_loaded = false;
     bool try_reload_config = true;
-    bool is_show_input_debug = false;
+    bool do_show_input_debug = false;
+    bool do_show_debug_overlay = false;
     
     std::unique_ptr<cats::ICat> cat;
     auto mode = modes.end();
@@ -125,11 +130,18 @@ int main(int argc, char ** argv) {
                         cat = cats::get_cat(mode->first);
                         is_config_loaded = cat->init(data::get_cfg());
                     }
+                    break;
                 }
 
                 // toggle joystick debug panel
                 if (event.key.code == sf::Keyboard::D && event.key.control) {
-                    is_show_input_debug = !is_show_input_debug;
+                    do_show_input_debug = !do_show_input_debug;
+                    break;
+                }
+
+                // toggle log overlay
+                if (event.key.code == sf::Keyboard::L && event.key.control) {
+                    do_show_debug_overlay = ! do_show_debug_overlay;
                     break;
                 }
 
@@ -137,14 +149,13 @@ int main(int argc, char ** argv) {
             }
         }
 
-        window.draw(log_overlay, rstates);
-
         if(!is_config_loaded) {
+            window.draw(log_overlay, rstates);
             window.display();
             continue;
         }
         else {
-            log_overlay.set_visible(false);
+            log_overlay.set_visible(do_show_debug_overlay);
         }
 
         Json::Value rgb = data::get_cfg()["decoration"]["rgb"];
@@ -157,7 +168,9 @@ int main(int argc, char ** argv) {
         cat->update();
         window.draw(*cat, rstates);
 
-        if (is_show_input_debug) {
+        window.draw(log_overlay, rstates);
+
+        if (do_show_input_debug) {
             input::drawDebugPanel(window);
         }
 

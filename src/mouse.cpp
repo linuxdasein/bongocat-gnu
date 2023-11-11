@@ -253,7 +253,7 @@ std::unique_ptr<IMouse> create_mouse_handler(void* pdisplay) {
     if(xdg_session_type && !strcmp(xdg_session_type, "wayland")) {
         // some wayland specific implementations may be added here later, but for now
         // use a simple implementation which utilizes only SFML API to discover mouse position
-        logger::info("Mouse tracking is not fully supported Wayland session");
+        logger::info("Mouse tracking is not fully supported in Wayland session");
         return std::make_unique<MouseSfml>(display);
     }
     else {
