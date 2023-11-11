@@ -51,7 +51,6 @@ SfmlOverlayLogger::SfmlOverlayLogger(int w, int h)
 
 void SfmlOverlayLogger::log(std::string message, Severity level) {
     sf::Text log_message(message, data::get_debug_font(), 14);
-    const float line_height = log_message.getLocalBounds().height;
     float offset = log_text.empty() ? 0.f 
         : log_text.back().getGlobalBounds().top 
         + log_text.back().getGlobalBounds().height;
@@ -69,8 +68,13 @@ void SfmlOverlayLogger::log(std::string message, Severity level) {
         break;
     }
 
-    if(log_message.getGlobalBounds().top + line_height > background.getSize().y)
+    const float log_height 
+        = log_message.getGlobalBounds().top 
+        + log_message.getLocalBounds().height;
+    if( log_height > background.getSize().y) {
+        log_message.setPosition(10.0f, 4.0f);
         log_text.clear();
+    }
 
     log_text.push_back(log_message);
 
