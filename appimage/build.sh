@@ -44,7 +44,7 @@ make && make install && cd ..
 rm -rf 2.6.0.tar.gz SFML-2.6.0
 
 # configure meson build
-meson setup build --buildtype=release --wipe
+meson setup build --buildtype=release
 
 # build the application
 cd build && meson compile
