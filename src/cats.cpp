@@ -19,6 +19,7 @@ std::unique_ptr<ICat> get_cat(cats::CatModeId mode)
     case CatModeId::classic:
         return std::make_unique<ClassicCat>();
     default:
+        logger::error("Fatal Error! Cat mode with the requested id not found");
         return nullptr;
     }
 }

@@ -14,8 +14,10 @@ bool OsuCat::init(const Json::Value& cfg) {
     wave_key_binding = data::json_key_to_scancodes(osu["wave"]);
     smoke_key_binding = data::json_key_to_scancodes(osu["smoke"]);
 
-    if(data::is_intersection({left_key_binding, right_key_binding, wave_key_binding}))
-        data::error_msg("Overlapping osu! keybinds", "Error reading configs");
+    if(data::is_intersection({left_key_binding, right_key_binding, wave_key_binding})) {
+        logger::error("Error reading configs: Overlapping osu! keybinds");
+        return false;
+    }
 
     is_left_handed = cfg["decoration"]["leftHanded"].asBool();
 

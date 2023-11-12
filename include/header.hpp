@@ -17,17 +17,17 @@
 #include <input.hpp>
 
 namespace data {
-const Json::Value& get_cfg();
-sf::Vector2i get_cfg_window_size();
-sf::Transform get_cfg_window_transform();
+sf::Vector2i get_cfg_window_default_size();
+sf::Vector2i get_cfg_window_size(const Json::Value &cfg);
+sf::Transform get_cfg_window_transform(const Json::Value &cfg);
 std::set<int> json_key_to_scancodes(const Json::Value& key_array);
 bool is_intersection(const std::vector<std::set<int>>& sets);
 
-void error_msg(std::string error, std::string title);
-
-void init();
-
+bool init();
+bool reload_config();
+const Json::Value& get_cfg();
 sf::Texture &load_texture(std::string path);
+sf::Font &get_debug_font();
 }; // namespace data
 
 namespace input {
@@ -44,3 +44,49 @@ void drawDebugPanel(sf::RenderWindow& window);
 
 void cleanup();
 }; // namespace input
+
+namespace logger {
+
+enum class Severity 
+{
+    critical,
+    warning,
+    info,
+    debug
+};
+
+class ILogger 
+{
+public:
+
+    // Log a message with a certain severity level
+    virtual void log(std::string message, Severity level) = 0;
+
+    // virtual destructor
+    virtual ~ILogger() {};
+};
+
+// get global logger instance
+ILogger& get();
+
+// Log a critical error
+inline void error(std::string message) {
+    get().log(message, Severity::critical);
+}
+
+// Log a warning message
+inline void warn(std::string message) {
+    get().log(message, Severity::warning);
+}
+
+// Log an information message
+inline void info(std::string message) {
+    get().log(message, Severity::info);
+}
+
+// Log a debug message
+inline void debug(std::string message) {
+    get().log(message, Severity::debug);
+}
+
+} // namespace logger

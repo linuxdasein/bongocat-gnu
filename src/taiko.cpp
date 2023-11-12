@@ -9,14 +9,18 @@ bool TaikoCat::init(const Json::Value& cfg) {
     rim_key_binding[0] = data::json_key_to_scancodes(taiko["leftRim"]);
     centre_key_binding[0] = data::json_key_to_scancodes(taiko["leftCentre"]);
 
-    if(data::is_intersection({rim_key_binding[0], centre_key_binding[0]}))
-        data::error_msg("Overlapping osu!taiko keybinds", "Error reading configs");
+    if(data::is_intersection({rim_key_binding[0], centre_key_binding[0]})) {
+        logger::error("Error reading configs: Overlapping osu!taiko keybinds");
+        return false;
+    }
 
     rim_key_binding[1] = data::json_key_to_scancodes(taiko["rightRim"]);
     centre_key_binding[1] = data::json_key_to_scancodes(taiko["rightCentre"]);
     
-    if(data::is_intersection({rim_key_binding[1], centre_key_binding[1]}))
-        data::error_msg("Overlapping osu!taiko keybinds", "Error reading configs");
+    if(data::is_intersection({rim_key_binding[1], centre_key_binding[1]})) {
+        logger::error("Error reading configs: Overlapping osu!taiko keybinds");
+        return false;
+    }
 
     // importing sprites
     bg.setTexture(data::load_texture("img/taiko/bg.png"));

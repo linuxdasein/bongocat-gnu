@@ -117,10 +117,7 @@ bool init(int width, int height) {
     dpy = XOpenDisplay(NULL);
 
     // loading font
-    if (!debugFont.loadFromFile("share/RobotoMono-Bold.ttf")) {
-        data::error_msg("Cannot find the font : RobotoMono-Bold.ttf", "Error loading font");
-        return false;
-    }
+    debugFont = data::get_debug_font();
 
     // initialize debug resource
     debugBackground.setSize(sf::Vector2f(width, height));
