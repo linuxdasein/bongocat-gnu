@@ -3,6 +3,9 @@
 # NOTE: This script is designed to run in a docker container. Do not run directly
 # The image for creating containers is appimagecrafters/appimage-builder:latest
 
+# set correct permissions for /tmp (why were they broken in the first place?)
+chmod 1777 /tmp
+
 # install meson (python has more recent version than apt)
 pip3 install meson
 
@@ -20,7 +23,7 @@ update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 \
                     --slave /usr/bin/g++ g++ /usr/bin/g++-8
 
 # install the build dependencies
-apt install -y libxrandr-dev libxdo-dev libjsoncpp-dev
+apt install -y libxrandr-dev libxdo-dev libjsoncpp-dev libgl-dev libudev-dev libxcursor-dev
 
 # for some reason libxdo-dev misses a pkg-config file, create it manually
 cp appimage/libxdo.pc /usr/share/pkgconfig/
@@ -37,8 +40,11 @@ cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
 # build and install SFML
 make && make install && cd ..
 
+# cleanup: delete SFML sources
+rm -rf 2.6.0.tar.gz SFML-2.6.0
+
 # configure meson build
-meson setup build --buildtype=release
+meson setup build --buildtype=release --wipe
 
 # build the application
 cd build && meson compile
