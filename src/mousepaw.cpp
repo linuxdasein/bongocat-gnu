@@ -41,8 +41,8 @@ void MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
     
     // apparently, this is a linear transform, intented to move the point to some position,
     // which in general can be specific for each mode. TODO: reduce the amount of arcane number magic in this code.
-    const double x = -97 * fx + 44 * fy + 184;
-    const double y = -76 * fx - 40 * fy + 324;
+    const double x = -97 * fx + 44 * fy + 146;
+    const double y = -76 * fx - 40 * fy + 274;
 
     const math::point2d m = {x, y};
 
@@ -116,28 +116,23 @@ void MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
     }
     pss.push_back(paw_end);
 
-    // mouse position is the corner of the mouse sprite
-    // need some offset depending on the actual sprite being used
-    const math::point2d moffset = {-52 - 15, -34 + 5};
-    const math::point2d mpos = (ab + m) / 2.0 + moffset;
-
-    // why is this offset needed ?
-    const math::point2d d = {-38, -50};
-
     const int iter = 25;
     math::BCurve B18(3 * oof);
     // constructing a high order curve over a set of control points from existing curves
     // is pretty much messed up way to do things... TODO: use a spline instead
     B18.set_control_points(pss);
 
-    std::vector<math::point2d> pss2d = {pss[0] + d};
+    std::vector<math::point2d> pss2d = {pss[0]};
     for (int i = 1; i < iter; i++) {
-        auto p = B18(1.0 * i / iter) + d;
+        auto p = B18(1.0 * i / iter);
         pss2d.push_back(p);
     }
-    pss2d.push_back(pss[3 * oof] + d);
+    pss2d.push_back(pss[3 * oof]);
 
-    const math::point2d dpos = mpos + d;
+    // mouse position is the corner of the mouse sprite
+    // need some offset depending on the actual sprite being used
+    const math::point2d moffset = {-52 - 15, -34 + 5};
+    const math::point2d dpos = (ab + m) / 2.0 + moffset;
     device.setPosition(dpos.x + offset.x, dpos.y + offset.y);
 
     // convert to float (consider to perform math in float in the first place)

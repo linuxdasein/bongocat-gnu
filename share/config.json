@@ -52,14 +52,14 @@
         "keyContainers": []
     },
     "classic": {
-        "pawStartingPoint": [202, 167],
-        "pawEndingPoint": [258, 228],
+        "pawStartingPoint": [164, 117],
+        "pawEndingPoint": [220, 178],
         "paw": [255, 255, 255],
         "pawEdge": [0, 0, 0]
     },
     "mousePaw": {
         "mousePawComment": "coordinates start in the top left of the window",
-        "pawStartingPoint": [211, 159],
-        "pawEndingPoint": [258, 228]
+        "pawStartingPoint": [173, 109],
+        "pawEndingPoint": [220, 178]
     }
 }
