@@ -54,12 +54,22 @@
     "classic": {
         "pawStartingPoint": [164, 117],
         "pawEndingPoint": [220, 178],
+        "pawBoundaryPoints": {
+            "A": [146, 274],
+            "B": [49, 198],
+            "C": [190, 234]
+        },
         "paw": [255, 255, 255],
         "pawEdge": [0, 0, 0]
     },
     "mousePaw": {
         "mousePawComment": "coordinates start in the top left of the window",
         "pawStartingPoint": [173, 109],
-        "pawEndingPoint": [220, 178]
+        "pawEndingPoint": [220, 178],
+        "pawBoundaryPoints": {
+            "A": [146, 274],
+            "B": [49, 198],
+            "C": [190, 234]
+        }
     }
 }

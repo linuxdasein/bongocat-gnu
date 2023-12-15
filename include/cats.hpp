@@ -63,6 +63,7 @@ private:
 
     int x_paw_start, y_paw_start;
     int x_paw_end, y_paw_end;
+    sf::Vector2i A, B, C;
 
     sf::Color paw_color;
     sf::Color paw_edge_color;

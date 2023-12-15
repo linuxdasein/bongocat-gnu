@@ -1,3 +1,4 @@
+#include "header.hpp"
 #include <SFML/Graphics/Transform.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <cats.hpp>
@@ -24,12 +25,65 @@ bool MousePaw::init(const Json::Value& mouse_cfg, const Json::Value& paw_draw_in
     paw_edge_color.b = mouse_cfg["pawEdge"][2].asInt();
     paw_edge_color.a = mouse_cfg["pawEdge"].size() == 3 ? 255 : mouse_cfg["pawEdge"][3].asInt();
 
-    // initializing pss and pss2 (kuvster's magic)
     x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
     y_paw_start = paw_draw_info["pawStartingPoint"][1].asInt();
 
     x_paw_end = paw_draw_info["pawEndingPoint"][0].asInt();
     y_paw_end = paw_draw_info["pawEndingPoint"][1].asInt();
+
+    auto paw_boundary_config = paw_draw_info["pawBoundaryPoints"];
+
+    auto get_point_from_json = [&paw_boundary_config](sf::Vector2i &pt, const std::string& id) {
+        auto jp = paw_boundary_config[id];
+        if (!jp.isArray() || jp.size() != 2) {
+            logger::error("Invalid value in pawBoundaryPoints:" 
+                + id + ". An array of two ints is expected");
+            return false;
+        }
+
+        if (!jp[0].isInt()) {
+            logger::error("Invalid value in pawBoundaryPoints:" 
+                + id + "[0]. An integer value is expected");
+            return false;
+        }
+
+        if (!jp[1].isInt()) {
+            logger::error("Invalid value in pawBoundaryPoints:" 
+                + id + "[1]. An integer value is expected");
+            return false;
+        }
+
+        pt = { jp[0].asInt(), jp[1].asInt() };
+
+        return true;
+    };
+
+    if( !paw_boundary_config.isNull() ) {
+        for (auto const& id : paw_boundary_config.getMemberNames()) {
+            if("A" == id) {
+                if(!get_point_from_json(A, id)) 
+                    return false;
+            }
+            else if ("B" == id) {
+                if(!get_point_from_json(B, id)) 
+                    return false;
+            }
+            else if ("C" == id) {
+                if(!get_point_from_json(C, id)) 
+                    return false;
+            }
+            else {
+                logger::warn("Unexpected key encountered in pawBoundaryPoints section:"
+                    + id + ", ignoring it");
+            }
+        }
+    }
+    else {
+        logger::info("No pawBoundaryPoints section found in config file, using default values");
+        A = {146, 274};
+        B = {49, 198};
+        C = {190, 234};
+    }
 
     device.setScale(scale, scale);
 
@@ -38,13 +92,13 @@ bool MousePaw::init(const Json::Value& mouse_cfg, const Json::Value& paw_draw_in
 
 void MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
     auto [fx, fy] = mouse_pos;
-    
-    // apparently, this is a linear transform, intented to move the point to some position,
-    // which in general can be specific for each mode. TODO: reduce the amount of arcane number magic in this code.
-    const double x = -97 * fx + 44 * fy + 146;
-    const double y = -76 * fx - 40 * fy + 274;
 
-    const math::point2d m = {x, y};
+    // project the position from the unit square to a parallelogram domain
+    // in the screen coordinates defined by three corner points A, B, C
+    const math::point2d m = {
+        (B.x - A.x) * fx + (C.x - A.x) * fy + A.x, 
+        (B.y - A.y) * fx + (C.y - A.y) * fy + A.y
+    };
 
     const int oof = 6;
     math::BCurve B2(2);
@@ -57,7 +111,7 @@ void MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
 
     std::vector<math::point2d> pss = {paw_start};
 
-    double dist = hypot(paw_start.x - x, paw_start.y - y);
+    double dist = hypot(paw_start.x - m.x, paw_start.y - m.y);
     // sort of unit tangent vector at the paw_start point of the arc
     const math::point2d tangentleft = {-0.7237, 0.69};
     // central control point of the left bezier arc

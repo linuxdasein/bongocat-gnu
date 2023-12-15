@@ -87,9 +87,8 @@ bool ClassicCat::init(const Json::Value& cfg) {
 
     device.setTexture(data::load_texture("img/osu/mouse.png"), true);
     MousePaw::set_mouse_parameters(offset, scale);
-    MousePaw::init(cfg_std, cfg_std);
 
-    return true;
+    return MousePaw::init(cfg_std, cfg_std);
 }
 
 void ClassicCat::update() {
