@@ -91,9 +91,8 @@ bool ClassicCat::init(const Json::Value& cfg) {
     offset += sf::Vector2i(24, 0);
 
     MousePaw::set_mouse_parameters(offset, scale);
-    MousePaw::init(cfg_std, cfg_std);
 
-    return true;
+    return MousePaw::init(cfg_std, cfg_std);
 }
 
 void ClassicCat::update() {
