@@ -53,7 +53,7 @@ protected:
     // Set offset and scale for mouse sprite
     void set_mouse_parameters(sf::Vector2i offset, double scale);
 
-    sf::Sprite device;
+    sf::Sprite device, left_button, right_button;
 private:
     // draw an arc about an array of points
     void draw_arc(sf::RenderTarget& target, sf::RenderStates rst, sf::Color color, float width) const;
@@ -176,7 +176,7 @@ public:
 private:
     void draw_mouse(sf::RenderTarget& target, sf::RenderStates rst) const;
 
-    sf::Sprite cat, left_paw, mouse;
+    sf::Sprite cat, left_paw;
     std::map<sf::Keyboard::Key, std::unique_ptr<sf::Drawable> > key_actions;
 
     std::list<sf::Keyboard::Key> keys;

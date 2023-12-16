@@ -13,7 +13,21 @@ extern "C" {
 namespace input
 {
 
-class MouseXdo : public IMouse
+class MouseBase : public IMouse {
+public:
+    bool is_left_button_pressed() override;
+    bool is_right_button_pressed() override;
+};
+
+bool MouseBase::is_left_button_pressed() {
+    return sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+}
+
+bool MouseBase::is_right_button_pressed() {
+    return sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
+}
+
+class MouseXdo : public MouseBase
 {
 public:
 
@@ -208,7 +222,7 @@ std::pair<double, double> MouseXdo::get_position() {
     return std::make_pair(x, y);
 }
 
-class MouseSfml : public IMouse
+class MouseSfml : public MouseBase
 {
 public:
 

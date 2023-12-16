@@ -32,6 +32,8 @@ bool MousePaw::init(const Json::Value& mouse_cfg, const Json::Value& paw_draw_in
     y_paw_end = paw_draw_info["pawEndingPoint"][1].asInt();
 
     device.setScale(scale, scale);
+    left_button.setScale(scale, scale);
+    right_button.setScale(scale, scale);
 
     return true;
 }
@@ -139,6 +141,8 @@ void MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
 
     const math::point2d dpos = mpos + d;
     device.setPosition(dpos.x + offset.x, dpos.y + offset.y);
+    left_button.setPosition(dpos.x + offset.x, dpos.y + offset.y);
+    right_button.setPosition(dpos.x + offset.x, dpos.y + offset.y);
 
     // convert to float (consider to perform math in float in the first place)
     std::vector<sf::Vector2f> pss2f;
