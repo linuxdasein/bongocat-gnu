@@ -66,8 +66,9 @@ bool ClassicCat::init(const Json::Value& cfg) {
 
     cat.setTexture(data::load_texture("img/classic/catbg.png"));
     left_paw.setTexture(data::load_texture("img/classic/lefthand/leftup.png"));
-    mouse.setTexture(data::load_texture("img/osu/mouse.png"), true);
-    mouse.setScale(1.0, 1.0f);
+    left_button.setTexture(data::load_texture("img/classic/righthand/leftb.png"));
+    right_button.setTexture(data::load_texture("img/classic/righthand/rightb.png"));
+    device.setTexture(data::load_texture("img/classic/righthand/mouse.png"));
 
     for( const auto& key: actions_data ) {
         key_actions[key.key_code] = std::make_unique<PawAction>(
@@ -85,11 +86,13 @@ bool ClassicCat::init(const Json::Value& cfg) {
     // for this mode use separate paw adjustments from the corresponding section
     Json::Value cfg_std = cfg["classic"];
 
-    device.setTexture(data::load_texture("img/osu/mouse.png"), true);
-    MousePaw::set_mouse_parameters(offset, scale);
-    MousePaw::init(cfg_std, cfg_std);
+    // special adjustemnts for classic mouse sprites
+    scale *= 2;
+    offset += sf::Vector2i(24, 0);
 
-    return true;
+    MousePaw::set_mouse_parameters(offset, scale);
+
+    return MousePaw::init(cfg_std, cfg_std);
 }
 
 void ClassicCat::update() {
@@ -116,6 +119,12 @@ void ClassicCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
 void ClassicCat::draw_mouse(sf::RenderTarget& target, sf::RenderStates rst) const {
     // draw mouse
     target.draw(device, rst);
+
+    // draw mouse buttons
+    if(input::get_mouse_input().is_left_button_pressed())
+        target.draw(left_button, rst);
+    if(input::get_mouse_input().is_right_button_pressed())
+        target.draw(right_button, rst);
 
     // draw mouse paw
     draw_paw(target, rst);
