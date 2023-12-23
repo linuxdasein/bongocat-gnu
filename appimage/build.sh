@@ -30,9 +30,9 @@ cp appimage/libxdo.pc /usr/share/pkgconfig/
 
 # the SFML version in the apt repo is way outdated, we need to backport
 # the latest version. i.e. download the source and build locally
-wget https://github.com/SFML/SFML/archive/refs/tags/2.6.0.tar.gz
+wget https://github.com/SFML/SFML/archive/refs/tags/2.6.1.tar.gz
 # unpack the sources
-tar -xzf 2.6.0.tar.gz && cd SFML-2.6.0
+tar -xzf 2.6.1.tar.gz && cd SFML-2.6.1
 # configure the library's sources
 cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
         -DSFML_PKGCONFIG_INSTALL_PREFIX=/usr/share/pkgconfig \
@@ -41,7 +41,7 @@ cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
 make && make install && cd ..
 
 # cleanup: delete SFML sources
-rm -rf 2.6.0.tar.gz SFML-2.6.0
+rm -rf 2.6.1.tar.gz SFML-2.6.1
 
 # configure meson build
 meson setup build --buildtype=release
