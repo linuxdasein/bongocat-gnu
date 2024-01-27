@@ -24,14 +24,13 @@ std::set<int> json_key_to_scancodes(const Json::Value& key_array);
 bool is_intersection(const std::vector<std::set<int>>& sets);
 
 bool init();
-bool reload_config();
-const Json::Value& get_cfg();
+bool reload_config(Json::Value& cfg);
 sf::Texture &load_texture(std::string path);
 sf::Font &get_debug_font();
 }; // namespace data
 
 namespace input {
-bool init(int width, int height);
+bool init(int width, int height, bool is_left_handed = false);
 
 bool is_pressed(int key_code);
 

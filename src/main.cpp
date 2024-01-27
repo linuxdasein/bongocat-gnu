@@ -60,42 +60,41 @@ int main(int argc, char ** argv) {
     bool do_show_input_debug = false;
     bool do_show_debug_overlay = false;
     
+    auto cfg = std::make_unique<Json::Value>();
     std::unique_ptr<cats::ICat> cat;
     auto mode = modes.end();
     sf::RenderStates rstates;
 
     auto reload_config = [&]() {
         // try to load config file
-        if(!data::reload_config())
+        if(!data::reload_config(*cfg))
             return false;
 
         // get cat mode from the config
-        auto cfg = data::get_cfg();
-
-        // load cat mode
-        mode = get_cat_mode(cfg["mode"].asString());
+        mode = get_cat_mode((*cfg)["mode"].asString());
         if (mode == modes.end())
             return false;
 
         // initialize cat mode
         cat = cats::get_cat(mode->first);
-        if (!cat->init(cfg))
+        if (!cat->init(*cfg))
             return false;
 
         // update window transform data
-        auto cfg_window_size = data::get_cfg_window_size(cfg);
+        auto cfg_window_size = data::get_cfg_window_size(*cfg);
         if (window_size != cfg_window_size) {
             // reinitialize window only if config size has changed
             window_size = cfg_window_size;
             window.create(sf::VideoMode(window_size.x, window_size.y), 
                 "Bongo Cat", sf::Style::Titlebar | sf::Style::Close);
             log_overlay.set_size(window_size);
-            if (!input::init(window_size.x, window_size.y))
+            const bool is_left_handed = (*cfg)["decoration"]["leftHanded"].asBool();
+            if (!input::init(window_size.x, window_size.y, is_left_handed))
                 return false;
         }
 
         // update windows transform
-        sf::Transform transform = data::get_cfg_window_transform(cfg);
+        sf::Transform transform = data::get_cfg_window_transform(*cfg);
         rstates = sf::RenderStates(transform);
 
         return true;
@@ -128,7 +127,7 @@ int main(int argc, char ** argv) {
                         if (mode == modes.cend())
                             mode = modes.cbegin();
                         cat = cats::get_cat(mode->first);
-                        is_config_loaded = cat->init(data::get_cfg());
+                        is_config_loaded = cat->init(*cfg);
                     }
                     break;
                 }
@@ -158,7 +157,7 @@ int main(int argc, char ** argv) {
             log_overlay.set_visible(do_show_debug_overlay);
         }
 
-        Json::Value rgb = data::get_cfg()["decoration"]["rgb"];
+        Json::Value rgb = (*cfg)["decoration"]["rgb"];
         int red_value = rgb[0].asInt();
         int green_value = rgb[1].asInt();
         int blue_value = rgb[2].asInt();

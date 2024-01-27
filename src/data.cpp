@@ -10,7 +10,6 @@
 #include <limits.h>
 
 namespace data {
-Json::Value g_cfg;
 std::unique_ptr<sf::Font> debug_font_holder;
 std::map<std::string, sf::Texture> img_holder;
 
@@ -42,10 +41,6 @@ std::unique_ptr<Json::Value> parse_config_file(std::ifstream& cfg_file) {
     delete cfg_reader;
 
     return cfg;
-}
-
-const Json::Value& get_cfg() {
-    return g_cfg;
 }
 
 sf::Vector2i get_cfg_window_default_size() {
@@ -160,6 +155,7 @@ bool is_intersection(const std::vector<std::set<int>>& sets) {
 
 bool update(Json::Value &cfg_default, Json::Value &cfg) {
     bool is_update = true;
+    
     for (const auto &key : cfg.getMemberNames()) {
         if (cfg_default.isMember(key)) {
             if (cfg_default[key].type() != cfg[key].type()) {
@@ -208,7 +204,7 @@ bool init() {
     return true;
 }
 
-bool reload_config() {
+bool reload_config(Json::Value& cfg) {
     const auto system_info = os::create_system_info();
 
     std::string conf_file_path = CONF_FILE_NAME;
@@ -246,7 +242,7 @@ bool reload_config() {
         return false;
     }
 
-    return update(g_cfg, *cfg_read);
+    return update(cfg, *cfg_read);
 }
 
 sf::Texture &load_texture(std::string path) {
