@@ -2,9 +2,9 @@
 
 namespace cats {
 
-bool OsuCat::init(const Json::Value& cfg) {
+bool OsuCat::init(const data::Settings& st) {
     // getting configs
-    Json::Value osu = cfg["osu"];
+    Json::Value osu = st.get_cat_config("osu");
 
     is_mouse = osu["mouse"].asBool();
     is_enable_toggle_smoke = osu["toggleSmoke"].asBool();
@@ -19,7 +19,7 @@ bool OsuCat::init(const Json::Value& cfg) {
         return false;
     }
 
-    is_left_handed = cfg["decoration"]["leftHanded"].asBool();
+    is_left_handed = st.is_mouse_left_handed();
 
     // importing sprites
     up.setTexture(data::load_texture("img/osu/up.png"));
@@ -35,24 +35,13 @@ bool OsuCat::init(const Json::Value& cfg) {
     }
     smoke.setTexture(data::load_texture("img/osu/smoke.png"));
 
-    sf::Vector2i offset;
-    double scale;
+    sf::Vector2i offset =  st.get_offset(is_mouse);
+    double scale = st.get_scale(is_mouse);
 
-    if (is_mouse) {
-        offset.x = (cfg["decoration"]["offsetX"])[0].asInt();
-        offset.y = (cfg["decoration"]["offsetY"])[0].asInt();
-        scale = (cfg["decoration"]["scalar"])[0].asDouble();
-    } else {
-        offset.x = (cfg["decoration"]["offsetX"])[1].asInt();
-        offset.y = (cfg["decoration"]["offsetY"])[1].asInt();
-        scale = (cfg["decoration"]["scalar"])[1].asDouble();
-    }
-
-    // initialize thew mouse paw
+    // initialize the mouse paw
     MousePaw::set_mouse_parameters(offset, scale);
-    MousePaw::init(cfg["osu"], cfg["mousePaw"]);
 
-    return true;
+    return MousePaw::init(osu, st.get_global_mouse_config());
 }
 
 void OsuCat::update() {

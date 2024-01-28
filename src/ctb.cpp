@@ -2,9 +2,9 @@
 
 namespace cats {
 
-bool CtbCat::init(const Json::Value& cfg) {
+bool CtbCat::init(const data::Settings& st) {
     // getting configs
-    Json::Value ctb = cfg["catch"];
+    Json::Value ctb = st.get_cat_config("catch");
 
     left_key_binding = data::json_key_to_scancodes(ctb["left"]);
     right_key_binding = data::json_key_to_scancodes(ctb["right"]);

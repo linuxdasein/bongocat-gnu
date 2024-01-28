@@ -2,9 +2,9 @@
 
 namespace cats {
 
-bool TaikoCat::init(const Json::Value& cfg) {
+bool TaikoCat::init(const data::Settings& st) {
     // getting configs
-    Json::Value taiko = cfg["taiko"];
+    Json::Value taiko = st.get_cat_config("taiko");
 
     rim_key_binding[0] = data::json_key_to_scancodes(taiko["leftRim"]);
     centre_key_binding[0] = data::json_key_to_scancodes(taiko["leftCentre"]);

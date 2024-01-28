@@ -120,10 +120,10 @@ struct key_container {
 
 std::vector<key_container> key_containers;
 
-bool CustomCat::init(const Json::Value& cfg) {
+bool CustomCat::init(const data::Settings& st) {
     // getting configs
     try {
-        Json::Value custom = cfg["custom"];
+        Json::Value custom = st.get_cat_config("custom");
         key_containers.clear();
         for (Json::Value& current_key_container : custom["keyContainers"]) {
             key_containers.push_back(key_container(current_key_container));
@@ -151,7 +151,7 @@ bool CustomCat::init(const Json::Value& cfg) {
             device.setTexture(data::load_texture(custom["mouseImage"].asString()));
         }
 
-        MousePaw::init(custom, cfg["mousePaw"]);
+        MousePaw::init(custom, st.get_global_mouse_config());
     } catch (...) {
         return false;
     }

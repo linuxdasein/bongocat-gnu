@@ -43,17 +43,13 @@ std::unique_ptr<Json::Value> parse_config_file(std::ifstream& cfg_file) {
     return cfg;
 }
 
-sf::Vector2i get_cfg_window_default_size() {
-    return g_window_default_size;
+sf::Vector2i Settings::get_window_size() const {
+    return value_or(config["window"]["size"], g_window_default_size);
 }
 
-sf::Vector2i get_cfg_window_size(const Json::Value &cfg) {
-    return value_or(cfg["window"]["size"], g_window_default_size);
-}
-
-sf::Transform get_cfg_window_transform(const Json::Value &cfg) {
-    auto window_config = cfg["window"];
-    const sf::Vector2i window_size = get_cfg_window_size(cfg);
+sf::Transform Settings::get_window_transform() const {
+    auto window_config = config["window"];
+    const sf::Vector2i window_size = get_window_size();
     const sf::Vector2i window_offset = value_or(window_config["offset"], sf::Vector2i(0, 0));
 
     sf::Vector2f scene_pos;
@@ -79,6 +75,52 @@ sf::Transform get_cfg_window_transform(const Json::Value &cfg) {
     }
 
     return transform;
+}
+
+bool Settings::is_mouse_left_handed() const {
+    return config["decoration"]["leftHanded"].asBool();
+}
+
+const Json::Value Settings::get_global_mouse_config() const {
+    return config["mousePaw"];
+}
+
+sf::Color Settings::get_background_color() const {
+    Json::Value rgb = config["decoration"]["rgb"];
+    int red_value = rgb[0].asInt();
+    int green_value = rgb[1].asInt();
+    int blue_value = rgb[2].asInt();
+    int alpha_value = rgb.size() == 3 ? 255 : rgb[3].asInt();
+
+    return sf::Color(red_value, green_value, blue_value, alpha_value);
+}
+
+sf::Vector2i Settings::get_offset(bool is_mouse) const {
+    sf::Vector2i offset;
+
+    if (is_mouse) {
+        offset.x = (config["decoration"]["offsetX"])[0].asInt();
+        offset.y = (config["decoration"]["offsetY"])[0].asInt();
+    } else {
+        offset.x = (config["decoration"]["offsetX"])[1].asInt();
+        offset.y = (config["decoration"]["offsetY"])[1].asInt();
+    }
+
+    return offset;
+}
+
+double Settings::get_scale(bool is_mouse) const {
+    return is_mouse
+        ? (config["decoration"]["scalar"])[0].asDouble()
+        : (config["decoration"]["scalar"])[1].asDouble();
+}
+
+std::string Settings::get_default_mode() const {
+    return config["mode"].asString();
+}
+
+const Json::Value& Settings::get_cat_config(const std::string& name) const{
+    return config[name];
 }
 
 std::optional<int> json_key_to_scancode(const Json::Value& key) {
@@ -153,7 +195,7 @@ bool is_intersection(const std::vector<std::set<int>>& sets) {
     return false;
 }
 
-bool update(Json::Value &cfg_default, Json::Value &cfg) {
+static bool update(Json::Value &cfg_default, const Json::Value &cfg) {
     bool is_update = true;
     
     for (const auto &key : cfg.getMemberNames()) {
@@ -163,7 +205,7 @@ bool update(Json::Value &cfg_default, Json::Value &cfg) {
                 return false;
             }
             if (cfg_default[key].isArray() && !cfg_default[key].empty()) {
-                for (Json::Value &v : cfg[key]) {
+                for (const Json::Value &v : cfg[key]) {
                     auto new_v_type = cfg_default[key][0].type();
                     if (v.type() != new_v_type) {
                         // explicitly allow to chenge int to string and other way around
@@ -204,7 +246,7 @@ bool init() {
     return true;
 }
 
-bool reload_config(Json::Value& cfg) {
+bool Settings::reload() {
     const auto system_info = os::create_system_info();
 
     std::string conf_file_path = CONF_FILE_NAME;
@@ -242,7 +284,7 @@ bool reload_config(Json::Value& cfg) {
         return false;
     }
 
-    return update(cfg, *cfg_read);
+    return update(config, *cfg_read);
 }
 
 sf::Texture &load_texture(std::string path) {
