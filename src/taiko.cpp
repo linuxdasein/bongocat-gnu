@@ -2,20 +2,17 @@
 
 namespace cats {
 
-bool TaikoCat::init(const data::Settings& st) {
-    // getting configs
-    Json::Value taiko = st.get_cat_config("taiko");
-
-    rim_key_binding[0] = data::json_key_to_scancodes(taiko["leftRim"]);
-    centre_key_binding[0] = data::json_key_to_scancodes(taiko["leftCentre"]);
+bool TaikoCat::init(const data::Settings& st, const Json::Value& config) {
+    rim_key_binding[0] = data::json_key_to_scancodes(config["leftRim"]);
+    centre_key_binding[0] = data::json_key_to_scancodes(config["leftCentre"]);
 
     if(data::is_intersection({rim_key_binding[0], centre_key_binding[0]})) {
         logger::error("Error reading configs: Overlapping osu!taiko keybinds");
         return false;
     }
 
-    rim_key_binding[1] = data::json_key_to_scancodes(taiko["rightRim"]);
-    centre_key_binding[1] = data::json_key_to_scancodes(taiko["rightCentre"]);
+    rim_key_binding[1] = data::json_key_to_scancodes(config["rightRim"]);
+    centre_key_binding[1] = data::json_key_to_scancodes(config["rightCentre"]);
     
     if(data::is_intersection({rim_key_binding[1], centre_key_binding[1]})) {
         logger::error("Error reading configs: Overlapping osu!taiko keybinds");

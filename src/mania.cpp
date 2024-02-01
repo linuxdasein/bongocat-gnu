@@ -2,20 +2,17 @@
 
 namespace cats {
 
-bool ManiaCat::init(const data::Settings& st) {
-    // getting configs
-    Json::Value mania = st.get_cat_config("mania");
-
-    is_4K = mania["4K"].asBool();
+bool ManiaCat::init(const data::Settings& st, const Json::Value& config) {
+    is_4K = config["4K"].asBool();
 
     for (int i = 0; i < 2; i++) {
-        left_key_value_4K[i] = *data::json_key_to_scancodes(mania["key4K"][i]).cbegin();
-        right_key_value_4K[i] = *data::json_key_to_scancodes(mania["key4K"][i + 2]).cbegin();
+        left_key_value_4K[i] = *data::json_key_to_scancodes(config["key4K"][i]).cbegin();
+        right_key_value_4K[i] = *data::json_key_to_scancodes(config["key4K"][i + 2]).cbegin();
     }
 
     for (int i = 0; i < 4; i++) {
-        left_key_value_7K[i] = *data::json_key_to_scancodes(mania["key7K"][i]).cbegin();
-        right_key_value_7K[i] = *data::json_key_to_scancodes(mania["key7K"][i + 3]).cbegin();
+        left_key_value_7K[i] = *data::json_key_to_scancodes(config["key7K"][i]).cbegin();
+        right_key_value_7K[i] = *data::json_key_to_scancodes(config["key7K"][i + 3]).cbegin();
     }
 
     // importing sprites

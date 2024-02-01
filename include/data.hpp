@@ -24,9 +24,13 @@ public:
     // cats' settings
     std::string get_default_mode() const;
     const Json::Value& get_cat_config(const std::string& name) const;
+    std::vector<std::string> get_cat_modes() const;
 
 private:
+    bool find_cat_modes(const Json::Value &cfg);
+
     Json::Value config;
+    std::vector<std::string> modes;
 };
 
 }

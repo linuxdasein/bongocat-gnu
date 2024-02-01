@@ -77,7 +77,7 @@ int main(int argc, char ** argv) {
 
         // initialize cat mode
         cat = cats::get_cat(mode->first);
-        if (!cat->init(settings))
+        if (!cat->init(settings, settings.get_cat_config(mode->second)))
             return false;
 
         // update window transform data
@@ -126,7 +126,7 @@ int main(int argc, char ** argv) {
                         if (mode == modes.cend())
                             mode = modes.cbegin();
                         cat = cats::get_cat(mode->first);
-                        is_config_loaded = cat->init(settings);
+                        is_config_loaded = cat->init(settings, settings.get_cat_config(mode->second));
                     }
                     break;
                 }

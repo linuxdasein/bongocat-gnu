@@ -2,19 +2,16 @@
 
 namespace cats {
 
-bool CtbCat::init(const data::Settings& st) {
-    // getting configs
-    Json::Value ctb = st.get_cat_config("catch");
-
-    left_key_binding = data::json_key_to_scancodes(ctb["left"]);
-    right_key_binding = data::json_key_to_scancodes(ctb["right"]);
+bool CtbCat::init(const data::Settings& st, const Json::Value& config) {
+    left_key_binding = data::json_key_to_scancodes(config["left"]);
+    right_key_binding = data::json_key_to_scancodes(config["right"]);
 
     if(data::is_intersection({left_key_binding, right_key_binding})) {
         logger::error("Error reading configs: Overlapping osu!catch keybinds");
         return false;
     }
 
-    dash_key_binding = data::json_key_to_scancodes(ctb["dash"]);
+    dash_key_binding = data::json_key_to_scancodes(config["dash"]);
 
     // importing sprites
     bg.setTexture(data::load_texture("img/catch/bg.png"));

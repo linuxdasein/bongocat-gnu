@@ -29,8 +29,8 @@ class ICat : public sf::Drawable
 {
 public:
 
-    // Initilizes cat
-    virtual bool init(const data::Settings& cfg) = 0;
+    // Initilizes the cat
+    virtual bool init(const data::Settings& st, const Json::Value& cfg) = 0;
 
     // Updates cat's state, called per frame
     virtual void update() {}
@@ -76,7 +76,7 @@ class OsuCat : public ICat, private MousePaw
 {
 public:
 
-    bool init(const data::Settings& cfg) override;
+    bool init(const data::Settings& st, const Json::Value& cfg) override;
     void update() override;
     void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
 
@@ -103,7 +103,7 @@ class TaikoCat : public ICat
 {
 public:
 
-    bool init(const data::Settings& cfg) override;
+    bool init(const data::Settings& st, const Json::Value& cfg) override;
     void update() override;
     void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
 
@@ -121,7 +121,7 @@ class CtbCat : public ICat
 {
 public:
 
-    bool init(const data::Settings& cfg) override;
+    bool init(const data::Settings& st, const Json::Value& cfg) override;
     void update() override;
     void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
 
@@ -140,7 +140,7 @@ class ManiaCat : public ICat
 {
 public:
 
-    bool init(const data::Settings& cfg) override;
+    bool init(const data::Settings& st, const Json::Value& cfg) override;
     void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
 
 private:
@@ -158,7 +158,7 @@ class CustomCat : public ICat, private MousePaw
 {
 public:
 
-    bool init(const data::Settings& cfg) override;
+    bool init(const data::Settings& st, const Json::Value& cfg) override;
     void update() override;
     void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
 
@@ -172,7 +172,7 @@ class ClassicCat : public ICat, private MousePaw
 {
 public:
 
-    bool init(const data::Settings& cfg) override;
+    bool init(const data::Settings& st, const Json::Value& cfg) override;
     void update() override;
     void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
 

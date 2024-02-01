@@ -62,7 +62,7 @@ void move_if(std::list<T>& dst, std::list<T>& src, P condition) {
 
 namespace cats {
 
-bool ClassicCat::init(const data::Settings& st) {
+bool ClassicCat::init(const data::Settings& st, const Json::Value& config) {
     cat.setTexture(data::load_texture("img/classic/catbg.png"));
     left_paw.setTexture(data::load_texture("img/classic/lefthand/leftup.png"));
     left_button.setTexture(data::load_texture("img/classic/righthand/leftb.png"));
@@ -80,16 +80,13 @@ bool ClassicCat::init(const data::Settings& st) {
     sf::Vector2i offset = st.get_offset(true);
     double scale = st.get_scale(true);
 
-    // for this mode use separate paw adjustments from the corresponding section
-    Json::Value cfg_std = st.get_cat_config("classic");
-
     // special adjustemnts for classic mouse sprites
     scale *= 2;
     offset += sf::Vector2i(24, 0);
 
     MousePaw::set_mouse_parameters(offset, scale);
 
-    return MousePaw::init(cfg_std, cfg_std);
+    return MousePaw::init(config, config);
 }
 
 void ClassicCat::update() {

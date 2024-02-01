@@ -120,38 +120,37 @@ struct key_container {
 
 std::vector<key_container> key_containers;
 
-bool CustomCat::init(const data::Settings& st) {
+bool CustomCat::init(const data::Settings& st, const Json::Value& config) {
     // getting configs
     try {
-        Json::Value custom = st.get_cat_config("custom");
         key_containers.clear();
-        for (Json::Value& current_key_container : custom["keyContainers"]) {
+        for (const Json::Value& current_key_container : config["keyContainers"]) {
             key_containers.push_back(key_container(current_key_container));
         }
-        if (!custom.isMember("background") || !custom["background"].isString()) {
+        if (!config.isMember("background") || !config["background"].isString()) {
             logger::error("Error reading config: Custom background not found");
             return false;
         }
-        bg.setTexture(data::load_texture(custom["background"].asString()));
+        bg.setTexture(data::load_texture(config["background"].asString()));
         
-        is_mouse = custom["mouse"].asBool();
+        is_mouse = config["mouse"].asBool();
         if (is_mouse) {
-            is_mouse_on_top = custom["mouseOnTop"].asBool();
+            is_mouse_on_top = config["mouseOnTop"].asBool();
             
             sf::Vector2i offset;
-            offset.x = custom["offsetX"].asInt();
-            offset.y = custom["offsetY"].asInt();
-            double scale = custom["scalar"].asDouble();
+            offset.x = config["offsetX"].asInt();
+            offset.y = config["offsetY"].asInt();
+            double scale = config["scalar"].asDouble();
             MousePaw::set_mouse_parameters(offset, scale);
 
-            if (!custom.isMember("mouseImage") || !custom["mouseImage"].isString()) {
+            if (!config.isMember("mouseImage") || !config["mouseImage"].isString()) {
                 logger::error("Error reading config: Mouse image not found");
                 return false;
             }
-            device.setTexture(data::load_texture(custom["mouseImage"].asString()));
+            device.setTexture(data::load_texture(config["mouseImage"].asString()));
         }
 
-        MousePaw::init(custom, st.get_global_mouse_config());
+        MousePaw::init(config, st.get_global_mouse_config());
     } catch (...) {
         return false;
     }

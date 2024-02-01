@@ -120,7 +120,11 @@ std::string Settings::get_default_mode() const {
 }
 
 const Json::Value& Settings::get_cat_config(const std::string& name) const{
-    return config[name];
+    return config.isMember(name) ? config[name] : config["modes"][name];
+}
+
+std::vector<std::string> Settings::get_cat_modes() const {
+    return modes;
 }
 
 std::optional<int> json_key_to_scancode(const Json::Value& key) {
@@ -234,6 +238,20 @@ static bool update(Json::Value &cfg_default, const Json::Value &cfg) {
     return is_update;
 }
 
+bool Settings::find_cat_modes(const Json::Value &cfg) {
+
+    if (!cfg.isMember("modes")) {
+        logger::error("No modes entry is found in config file");
+        return false;
+    }
+
+    for (const auto& m : cfg["modes"].getMemberNames()) {
+        modes.push_back(m);
+    }
+
+    return true;
+}
+
 bool init() {
     // load debug font
     debug_font_holder = std::make_unique<sf::Font>();
@@ -284,7 +302,10 @@ bool Settings::reload() {
         return false;
     }
 
-    return update(config, *cfg_read);
+    if (!update(config, *cfg_read))
+        return false;
+
+    return find_cat_modes(config);
 }
 
 sf::Texture &load_texture(std::string path) {

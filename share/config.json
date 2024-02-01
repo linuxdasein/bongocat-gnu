@@ -1,5 +1,21 @@
 {
     "mode": "osu",
+
+    "modes": {
+        "custom": {
+            "background": "img/osu/mousebg.png",
+            "mouse": false,
+            "mouseImage": "img/osu/mouse.png",
+            "mouseOnTop": true,
+            "offsetX": 0,
+            "offsetY": 0,
+            "scalar": 1.0,
+            "paw": [255, 255, 255],
+            "pawEdge": [0, 0, 0],
+            "keyContainers": []
+        }
+    },
+
     "window": {
         "size": [612, 352],
         "offset": [0, 0],
@@ -38,18 +54,6 @@
         "4K": true,
         "key4K": ["d", "f", "j", "k"],
         "key7K": ["s", "d", "f", 32, "j", "k", "l"]
-    },
-    "custom": {
-        "background": "img/osu/mousebg.png",
-        "mouse": false,
-        "mouseImage": "img/osu/mouse.png",
-        "mouseOnTop": true,
-        "offsetX": 0,
-        "offsetY": 0,
-        "scalar": 1.0,
-        "paw": [255, 255, 255],
-        "pawEdge": [0, 0, 0],
-        "keyContainers": []
     },
     "classic": {
         "pawStartingPoint": [164, 117],

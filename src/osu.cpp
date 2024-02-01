@@ -2,17 +2,14 @@
 
 namespace cats {
 
-bool OsuCat::init(const data::Settings& st) {
-    // getting configs
-    Json::Value osu = st.get_cat_config("osu");
+bool OsuCat::init(const data::Settings& st, const Json::Value& config) {
+    is_mouse = config["mouse"].asBool();
+    is_enable_toggle_smoke = config["toggleSmoke"].asBool();
 
-    is_mouse = osu["mouse"].asBool();
-    is_enable_toggle_smoke = osu["toggleSmoke"].asBool();
-
-    left_key_binding = data::json_key_to_scancodes(osu["key1"]);
-    right_key_binding = data::json_key_to_scancodes(osu["key2"]);
-    wave_key_binding = data::json_key_to_scancodes(osu["wave"]);
-    smoke_key_binding = data::json_key_to_scancodes(osu["smoke"]);
+    left_key_binding = data::json_key_to_scancodes(config["key1"]);
+    right_key_binding = data::json_key_to_scancodes(config["key2"]);
+    wave_key_binding = data::json_key_to_scancodes(config["wave"]);
+    smoke_key_binding = data::json_key_to_scancodes(config["smoke"]);
 
     if(data::is_intersection({left_key_binding, right_key_binding, wave_key_binding})) {
         logger::error("Error reading configs: Overlapping osu! keybinds");
@@ -41,7 +38,7 @@ bool OsuCat::init(const data::Settings& st) {
     // initialize the mouse paw
     MousePaw::set_mouse_parameters(offset, scale);
 
-    return MousePaw::init(osu, st.get_global_mouse_config());
+    return MousePaw::init(config, st.get_global_mouse_config());
 }
 
 void OsuCat::update() {
