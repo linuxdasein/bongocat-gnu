@@ -1,4 +1,5 @@
 #include "header.hpp"
+#include <stdexcept>
 
 namespace cats {
 struct key {
@@ -9,27 +10,26 @@ struct key {
     double timer;
 
     key(Json::Value _key_value) {
-        sprite = sf::Sprite();
-        if (_key_value.isMember("keyCodes") && _key_value["keyCodes"].isArray()) {
+        if (!_key_value.isMember("keyCodes") && !_key_value.isMember("joyCodes"))
+            throw std::runtime_error("One of the fields: keyCodes or joyCodes must be present");
+
+        if (_key_value.isMember("keyCodes")) {
+            if (!_key_value["keyCodes"].isArray())
+                throw std::runtime_error("Custom keyCodes values are not set correctly");
             key_value = data::json_key_to_scancodes(_key_value["keyCodes"]);
-        } else {
-            logger::error("Error reading configs: Custom keyCodes values is not set correctly");
-            throw;
         }
-        if (_key_value.isMember("image") && _key_value["image"].isString()) {
-            sprite = sf::Sprite();
-            sprite.setTexture(data::load_texture(_key_value["image"].asString()));
-        } else {
-            logger::error("Error reading configs: Custom image path is not set correctly");
-            throw;
-        }
+        
         if (_key_value.isMember("joyCodes")) {
-            if (!_key_value["joyCodes"].isArray()) {
-                logger::error("Error reading configs: Custom joyCodes values is not set correctly");
-                throw;
-            }
+            if (!_key_value["joyCodes"].isArray())
+                throw std::runtime_error("Custom joyCodes values is not set correctly");
             joy_value = _key_value["joyCodes"];
         }
+
+        if (_key_value.isMember("image") && _key_value["image"].isString())
+            sprite.setTexture(data::load_texture(_key_value["image"].asString()));
+        else
+            throw std::runtime_error("Custom image path is not set correctly");
+
         status = false;
         timer = -1;
     }
@@ -64,23 +64,22 @@ struct key_container {
     size_t key_index;
 
     key_container(Json::Value key_container_value) {
-        if (key_container_value.isObject()) {
-            if (!key_container_value.isMember("defaultImage")
-                || !key_container_value["defaultImage"].isString()
-                || !key_container_value.isMember("keys")
-                || !key_container_value["keys"].isArray()) {
-                logger::error("Error reading configs: Key container's object error");
-                throw;
-            } else {
-                default_sprite = sf::Sprite();
-                default_sprite.setTexture(data::load_texture(key_container_value["defaultImage"].asString()));
-                for (Json::Value &child_key : key_container_value["keys"]) {
-                    keys.push_back(key(child_key));
-                }
-            }
-        } else {
-            logger::error("Error reading configs: Key container must be an object");
-            throw;
+        if (!key_container_value.isObject())
+            throw std::runtime_error("Key container must be an object");
+
+        if (!key_container_value.isMember("defaultImage"))
+            throw std::runtime_error("key container is missing property defaultImage");
+
+        if (!key_container_value["defaultImage"].isString())
+            throw std::runtime_error("defaultImage must be a string");
+
+        if (key_container_value.isMember("keys")
+            && !key_container_value["keys"].isArray())
+            throw std::runtime_error("keys property must be an array");
+        
+        default_sprite.setTexture(data::load_texture(key_container_value["defaultImage"].asString()));
+        for (const Json::Value &child_key : key_container_value["keys"]) {
+            keys.push_back(key(child_key));
         }
     }
 
@@ -127,10 +126,9 @@ bool CustomCat::init(const data::Settings& st, const Json::Value& config) {
         for (const Json::Value& current_key_container : config["keyContainers"]) {
             key_containers.push_back(key_container(current_key_container));
         }
-        if (!config.isMember("background") || !config["background"].isString()) {
-            logger::error("Error reading config: Custom background not found");
-            return false;
-        }
+        if (!config.isMember("background") || !config["background"].isString())
+            throw std::runtime_error("Custom background not found");
+
         bg.setTexture(data::load_texture(config["background"].asString()));
         
         is_mouse = config["mouse"].asBool();
@@ -143,15 +141,15 @@ bool CustomCat::init(const data::Settings& st, const Json::Value& config) {
             double scale = config["scalar"].asDouble();
             MousePaw::set_mouse_parameters(offset, scale);
 
-            if (!config.isMember("mouseImage") || !config["mouseImage"].isString()) {
-                logger::error("Error reading config: Mouse image not found");
-                return false;
-            }
+            if (!config.isMember("mouseImage") || !config["mouseImage"].isString())
+                throw std::runtime_error("Mouse image not found");
+
             device.setTexture(data::load_texture(config["mouseImage"].asString()));
         }
 
         MousePaw::init(config, st.get_global_mouse_config());
-    } catch (...) {
+    } catch (std::runtime_error& e) {
+        logger::error(std::string("Config error: ") + e.what());
         return false;
     }
     return true;
