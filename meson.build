@@ -19,6 +19,7 @@ sources = files([
   'src/system.cpp',
   'src/taiko.cpp',
   'src/cats.cpp',
+  'src/config.cpp',
 ])
 
 ld_flags = []

@@ -1,7 +1,9 @@
 #include "header.hpp"
+#include <SFML/System/Vector2.hpp>
 #include <stdexcept>
 
 namespace cats {
+
 struct key {
     std::set<int> key_value;
     Json::Value joy_value;
@@ -119,7 +121,7 @@ struct key_container {
 
 std::vector<key_container> key_containers;
 
-bool CustomCat::init(const data::Settings& st, const Json::Value& config) {
+bool CustomCat::init(const data::Settings&, const Json::Value& config) {
     // getting configs
     try {
         key_containers.clear();
@@ -131,28 +133,48 @@ bool CustomCat::init(const data::Settings& st, const Json::Value& config) {
 
         bg.setTexture(data::load_texture(config["background"].asString()));
         
-        is_mouse = config["mouse"].asBool();
-        if (is_mouse) {
-            is_mouse_on_top = config["mouseOnTop"].asBool();
-            
-            sf::Vector2i offset;
-            offset.x = config["offsetX"].asInt();
-            offset.y = config["offsetY"].asInt();
-            double scale = config["scalar"].asDouble();
-            MousePaw::set_mouse_parameters(offset, scale);
-
-            if (!config.isMember("mouseImage") || !config["mouseImage"].isString())
-                throw std::runtime_error("Mouse image not found");
-
-            device.setTexture(data::load_texture(config["mouseImage"].asString()));
+        if(config.isMember("mouse")) {
+            is_mouse = init_mouse(config["mouse"]);
         }
-
-        MousePaw::init(config, st.get_global_mouse_config());
+        else {
+            is_mouse = false;
+            logger::info("No mouse property found in cat's config section, \
+                          assuming mouse is disabled");
+        }
     } catch (std::runtime_error& e) {
         logger::error(std::string("Config error: ") + e.what());
         return false;
     }
     return true;
+}
+
+bool CustomCat::init_mouse(const Json::Value& config) {
+    data::Validator cfg(config);
+    const auto offset = cfg.getProperty("offset", sf::Vector2i(0, 0));
+    const auto scale = cfg.getProperty("scale", 1.0);
+    const auto image_path = cfg.getProperty<std::string>("image");
+    is_mouse_on_top = cfg.getProperty("isOnTop", false);
+
+    if (!image_path)
+        throw std::runtime_error("No image is set in mouse config section");
+
+    device.setTexture(data::load_texture(image_path.value()));
+    MousePaw::set_mouse_parameters(offset, scale);
+
+    if (config.isMember("buttons")) {
+        data::Validator key_bindings(config["buttons"]);
+        const auto lb_image_path = key_bindings.getProperty<std::string>("left");
+        const auto rb_image_path = key_bindings.getProperty<std::string>("right");
+
+        if (lb_image_path)
+            left_button.setTexture(data::load_texture(lb_image_path.value()));
+        if (rb_image_path)
+            right_button.setTexture(data::load_texture(rb_image_path.value()));
+    }
+
+    MousePaw::init(config, config);
+
+    return cfg.getProperty("isEnabled", true);
 }
 
 void CustomCat::update() {
@@ -183,6 +205,12 @@ void CustomCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
     if (is_mouse && !is_mouse_on_top) {
         target.draw(device, rst);
     }
+
+    // draw mouse buttons
+    if(input::get_mouse_input().is_left_button_pressed())
+        target.draw(left_button, rst);
+    if(input::get_mouse_input().is_right_button_pressed())
+        target.draw(right_button, rst);
 }
 
 } // namespace cats

@@ -163,6 +163,9 @@ public:
     void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
 
 private:
+    bool init_mouse(const Json::Value& mouse_config);
+
+private:
     sf::Sprite bg;
 
     bool is_mouse, is_mouse_on_top;

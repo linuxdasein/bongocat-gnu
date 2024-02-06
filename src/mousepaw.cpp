@@ -15,15 +15,10 @@ void MousePaw::set_mouse_parameters(sf::Vector2i of, double sc) {
 }
 
 bool MousePaw::init(const Json::Value& mouse_cfg, const Json::Value& paw_draw_info) {
-    paw_color.r = mouse_cfg["paw"][0].asInt();
-    paw_color.g = mouse_cfg["paw"][1].asInt();
-    paw_color.b = mouse_cfg["paw"][2].asInt();
-    paw_color.a = mouse_cfg["paw"].size() == 3 ? 255 : mouse_cfg["paw"][3].asInt();
+    data::Validator cfg(mouse_cfg);
 
-    paw_edge_color.r = mouse_cfg["pawEdge"][0].asInt();
-    paw_edge_color.g = mouse_cfg["pawEdge"][1].asInt();
-    paw_edge_color.b = mouse_cfg["pawEdge"][2].asInt();
-    paw_edge_color.a = mouse_cfg["pawEdge"].size() == 3 ? 255 : mouse_cfg["pawEdge"][3].asInt();
+    paw_color =  cfg.getProperty("pawBodyColor", sf::Color::White);
+    paw_edge_color = cfg.getProperty("pawEdgeColor", sf::Color::Black);
 
     x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
     y_paw_start = paw_draw_info["pawStartingPoint"][1].asInt();
