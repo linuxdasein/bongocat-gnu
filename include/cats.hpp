@@ -163,10 +163,14 @@ public:
     void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
 
 private:
+    void init_keyboard(const Json::Value& keys_config);
     bool init_mouse(const Json::Value& mouse_config);
 
 private:
-    sf::Sprite bg;
+    sf::Sprite bg, def_kbg;
+    std::map<int, std::unique_ptr<sf::Drawable>> key_actions;
+    std::list<int> keys;
+    std::list<int> pressed_keys;
 
     bool is_mouse, is_mouse_on_top;
 };

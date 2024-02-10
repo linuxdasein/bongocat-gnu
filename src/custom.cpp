@@ -2,138 +2,52 @@
 #include <SFML/System/Vector2.hpp>
 #include <stdexcept>
 
+namespace {
+
+template<typename T, typename P>
+void move_if(std::list<T>& dst, std::list<T>& src, P condition) {
+    for( auto it = src.begin(); it != src.end(); ) {
+        // store iterator value before increment 
+        // since it will point to the other list after splicing
+        auto tmp = it++; 
+        if(condition(*tmp)) {
+            dst.splice(dst.end(), src, tmp);
+        }
+    }
+}
+
+class SpriteArray : public sf::Drawable {
+public:
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
+        for (const auto& s : sprites)
+            target.draw(s, states);
+    }
+
+    void add(sf::Sprite sprite) {
+        sprites.push_back(sprite);
+    }
+
+private:
+    std::vector<sf::Sprite> sprites;
+};
+
+}
+
 namespace cats {
-
-struct key {
-    std::set<int> key_value;
-    Json::Value joy_value;
-    sf::Sprite sprite;
-    bool status;
-    double timer;
-
-    key(Json::Value _key_value) {
-        if (!_key_value.isMember("keyCodes") && !_key_value.isMember("joyCodes"))
-            throw std::runtime_error("One of the fields: keyCodes or joyCodes must be present");
-
-        if (_key_value.isMember("keyCodes")) {
-            if (!_key_value["keyCodes"].isArray())
-                throw std::runtime_error("Custom keyCodes values are not set correctly");
-            key_value = data::json_key_to_scancodes(_key_value["keyCodes"]);
-        }
-        
-        if (_key_value.isMember("joyCodes")) {
-            if (!_key_value["joyCodes"].isArray())
-                throw std::runtime_error("Custom joyCodes values is not set correctly");
-            joy_value = _key_value["joyCodes"];
-        }
-
-        if (_key_value.isMember("image") && _key_value["image"].isString())
-            sprite.setTexture(data::load_texture(_key_value["image"].asString()));
-        else
-            throw std::runtime_error("Custom image path is not set correctly");
-
-        status = false;
-        timer = -1;
-    }
-
-    bool is_pressed() {
-        for (int v : key_value) {
-            if (input::is_pressed(v)) {
-                return true;
-            }
-        }
-
-        if (input::is_joystick_connected()) {
-            for (Json::Value &v : joy_value) {
-                if (input::is_joystick_pressed(v.asInt())) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    void draw(sf::RenderTarget& window, sf::RenderStates rst) {
-        window.draw(sprite, rst);
-        timer = clock();
-    }
-};
-
-struct key_container {
-    std::vector<key> keys;
-    sf::Sprite default_sprite;
-    size_t key_index;
-
-    key_container(Json::Value key_container_value) {
-        if (!key_container_value.isObject())
-            throw std::runtime_error("Key container must be an object");
-
-        if (!key_container_value.isMember("defaultImage"))
-            throw std::runtime_error("key container is missing property defaultImage");
-
-        if (!key_container_value["defaultImage"].isString())
-            throw std::runtime_error("defaultImage must be a string");
-
-        if (key_container_value.isMember("keys")
-            && !key_container_value["keys"].isArray())
-            throw std::runtime_error("keys property must be an array");
-        
-        default_sprite.setTexture(data::load_texture(key_container_value["defaultImage"].asString()));
-        for (const Json::Value &child_key : key_container_value["keys"]) {
-            keys.push_back(key(child_key));
-        }
-    }
-
-    void draw(sf::RenderTarget& window, sf::RenderStates rst) {
-        bool is_any_key_pressed = false;
-        for (size_t i = 0; i < keys.size(); i++) {
-            key& current_key = keys[i];
-            if (current_key.is_pressed()) {
-                is_any_key_pressed = true;
-                if (!current_key.status) {
-                    key_index = i;
-                    current_key.status = true;
-                }
-            } else {
-                current_key.status = false;
-            }
-        }
-        if (!is_any_key_pressed) {
-            window.draw(default_sprite, rst);
-        }
-        else {
-            key& on_key = keys[key_index];
-            double last_press = -1;
-            for (size_t i = 0; i < keys.size(); i++) {
-                if (i != key_index) {
-                    last_press = std::max(last_press, keys[i].timer);
-                }
-            }
-            if ((clock() - last_press) / CLOCKS_PER_SEC > BONGO_KEYPRESS_THRESHOLD) {
-                on_key.draw(window, rst);
-            } else {
-                window.draw(default_sprite, rst);
-            }
-        }
-    }
-};
-
-std::vector<key_container> key_containers;
 
 bool CustomCat::init(const data::Settings&, const Json::Value& config) {
     // getting configs
     try {
-        key_containers.clear();
-        for (const Json::Value& current_key_container : config["keyContainers"]) {
-            key_containers.push_back(key_container(current_key_container));
-        }
+        key_actions.clear();
         if (!config.isMember("background") || !config["background"].isString())
             throw std::runtime_error("Custom background not found");
 
         bg.setTexture(data::load_texture(config["background"].asString()));
+
+        if (config.isMember("keyboard"))
+            init_keyboard(config["keyboard"]);
         
-        if(config.isMember("mouse")) {
+        if (config.isMember("mouse")) {
             is_mouse = init_mouse(config["mouse"]);
         }
         else {
@@ -146,6 +60,44 @@ bool CustomCat::init(const data::Settings&, const Json::Value& config) {
         return false;
     }
     return true;
+}
+
+void CustomCat::init_keyboard(const Json::Value& keys_config) {
+    if (keys_config.isMember("defaultImage")) {
+        if (!keys_config["defaultImage"].isString())
+            throw std::runtime_error("defaultImage must be a string");
+        def_kbg.setTexture(data::load_texture(keys_config["defaultImage"].asString()));
+    }
+
+    if (!keys_config.isMember("keyBindings"))
+        return;
+
+    if (!keys_config["keyBindings"].isArray())
+        throw std::runtime_error("keyBindings must be an array");
+
+    for (const auto& binding : keys_config["keyBindings"]) {
+        if (!binding.isObject())
+            throw std::runtime_error("invalid property in keyBindings array, an object is expected");
+
+        if (!binding.isMember("images"))
+            throw std::runtime_error("invalid object in keyBindings: \
+                                      an object must contain field images");
+
+        if (!binding.isMember("keyCodes") && !binding.isMember("joyCodes"))
+            throw std::runtime_error("invalid object in keyBindings: "
+                                     "an object must contain a keyCodes or a joyCodes field");
+
+        auto sprites = std::make_unique<SpriteArray>();
+        for (const auto& image : binding["images"])
+            sprites->add(sf::Sprite(data::load_texture(image.asString())));
+
+        auto key_codes = data::json_key_to_scancodes(binding["keyCodes"]);
+
+        for (auto key_code : key_codes) {
+            keys.push_back(key_code);
+            key_actions[key_code] = std::move(sprites);
+        }
+    }
 }
 
 bool CustomCat::init_mouse(const Json::Value& config) {
@@ -182,6 +134,13 @@ void CustomCat::update() {
         // update mouse and paw position
         update_paw_position(input::get_mouse_input().get_position());
     }
+
+    // Update states for the keys which currently are not pressed down
+    move_if(pressed_keys, keys, 
+        [&](int key){ return input::is_pressed(key); });
+    // Update states for the keys which have been released
+    move_if(keys, pressed_keys, 
+        [&](int key){ return !input::is_pressed(key); });
 }
 
 void CustomCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
@@ -197,9 +156,10 @@ void CustomCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
         draw_paw(target, rst);
     }
 
-    for (key_container& current : key_containers) {
-        current.draw(target, rst);
-    }
+    if(pressed_keys.empty())
+        target.draw(def_kbg, rst);
+    else // draw the latest pressed key sprite
+        target.draw(*key_actions.at(pressed_keys.back()), rst);
 
     // drawing mouse at the bottom
     if (is_mouse && !is_mouse_on_top) {
