@@ -63,8 +63,8 @@ private:
     double scale = 1.0;
     sf::Vector2i offset = {0, 0};
 
-    int x_paw_start, y_paw_start;
-    int x_paw_end, y_paw_end;
+    sf::Vector2i paw_start;
+    sf::Vector2i paw_end;
     sf::Vector2i A, B, C;
 
     sf::Color paw_color;

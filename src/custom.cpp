@@ -104,6 +104,12 @@ bool CustomCat::init_mouse(const Json::Value& config) {
     data::Validator cfg(config);
     const auto offset = cfg.getProperty("offset", sf::Vector2i(0, 0));
     const auto scale = cfg.getProperty("scale", 1.0);
+
+    if (scale <= 0) {
+        throw std::runtime_error("Invalid option value: scale = " 
+            + std::to_string(scale) + ". A positive value is expected");
+    }
+
     const auto image_path = cfg.getProperty<std::string>("image");
     is_mouse_on_top = cfg.getProperty("isOnTop", false);
 
@@ -124,7 +130,8 @@ bool CustomCat::init_mouse(const Json::Value& config) {
             right_button.setTexture(data::load_texture(rb_image_path.value()));
     }
 
-    MousePaw::init(config, config);
+    if (!MousePaw::init(config, config))
+        throw std::runtime_error("Failed to initialize mouse paw");
 
     return cfg.getProperty("isEnabled", true);
 }
