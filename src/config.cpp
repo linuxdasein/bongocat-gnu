@@ -1,6 +1,14 @@
 #include "data.hpp"
 
 namespace data {
+
+Validator::Validator(const Json::Value& section)
+    : m_Section(section)
+{
+    if (!m_Section.isObject())
+        throw std::runtime_error("An object is expected");
+}
+
 namespace detail {
 
 template<> bool validate<bool>(const Json::Value& property) {

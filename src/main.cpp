@@ -7,22 +7,17 @@
 
 using Mode = std::pair<cats::CatModeId, std::string>;
 
-static const std::array<Mode, 6> modes = {
+static std::vector<Mode> modes = {
     Mode{cats::CatModeId::osu,     "osu"},
     Mode{cats::CatModeId::taiko,   "taiko"},
     Mode{cats::CatModeId::ctb,     "ctb"},
     Mode{cats::CatModeId::mania,   "mania"},
-    Mode{cats::CatModeId::custom,  "custom"},
     Mode{cats::CatModeId::classic, "classic"}
 };
 
 static auto get_cat_mode(const std::string &s) {
-    auto mode_it = std::find_if(modes.cbegin(), modes.cend(),
+    auto mode_it = std::find_if(modes.begin(), modes.end(),
         [&s](const Mode& m) {return m.second == s;});
-
-    if(mode_it == modes.cend()) {
-        logger::error("Error reading configs: Mode value " + s + " is not correct");
-    }
 
     return mode_it;
 }
@@ -70,10 +65,23 @@ int main(int argc, char ** argv) {
         if(!settings.reload())
             return false;
 
+        // update cat modes list
+        auto cfg_modes = settings.get_cat_modes();
+        for (auto m : cfg_modes) {
+            if (modes.end() != get_cat_mode(m)) {
+                logger::error("mode " + m + " is already defined");
+                return false;
+            }
+            modes.push_back(Mode{cats::CatModeId::custom, m});
+        }
+
         // get cat mode from the config
-        mode = get_cat_mode(settings.get_default_mode());
-        if (mode == modes.end())
+        auto cfg_mode_name = settings.get_default_mode();
+        mode = get_cat_mode(cfg_mode_name);
+        if (mode == modes.end()) {
+            logger::error("Error reading configs: Mode value " + cfg_mode_name + " is not correct");
             return false;
+        }
 
         // initialize cat mode
         cat = cats::get_cat(mode->first);
@@ -123,8 +131,8 @@ int main(int argc, char ** argv) {
                 if (event.key.code == sf::Keyboard::N && event.key.control) {
                     if (is_config_loaded) {
                         ++mode;
-                        if (mode == modes.cend())
-                            mode = modes.cbegin();
+                        if (mode == modes.end())
+                            mode = modes.begin();
                         cat = cats::get_cat(mode->first);
                         is_config_loaded = cat->init(settings, settings.get_cat_config(mode->second));
                     }

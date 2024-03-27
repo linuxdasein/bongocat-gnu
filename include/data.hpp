@@ -49,8 +49,7 @@ template<> sf::Color validate<sf::Color>(const Json::Value& property);
 
 class Validator {
 public:
-    Validator(const Json::Value& section)
-        : m_Section(section) {}
+    Validator(const Json::Value& section);
 
     template<typename T>
     std::optional<T> getProperty(const std::string& name) {
