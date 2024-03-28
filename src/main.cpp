@@ -11,8 +11,7 @@ static std::vector<Mode> modes = {
     Mode{cats::CatModeId::osu,     "osu"},
     Mode{cats::CatModeId::taiko,   "taiko"},
     Mode{cats::CatModeId::ctb,     "ctb"},
-    Mode{cats::CatModeId::mania,   "mania"},
-    Mode{cats::CatModeId::classic, "classic"}
+    Mode{cats::CatModeId::mania,   "mania"}
 };
 
 static auto get_cat_mode(const std::string &s) {

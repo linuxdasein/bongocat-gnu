@@ -21,8 +21,7 @@ enum class CatModeId
     taiko,
     ctb,
     mania,
-    custom,
-    classic
+    custom
 };
 
 class ICat : public sf::Drawable
@@ -173,24 +172,6 @@ private:
     std::list<int> pressed_keys;
 
     bool is_mouse, is_mouse_on_top;
-};
-
-class ClassicCat : public ICat, private MousePaw
-{
-public:
-
-    bool init(const data::Settings& st, const Json::Value& cfg) override;
-    void update() override;
-    void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
-
-private:
-    void draw_mouse(sf::RenderTarget& target, sf::RenderStates rst) const;
-
-    sf::Sprite cat, left_paw;
-    std::map<sf::Keyboard::Key, std::unique_ptr<sf::Drawable> > key_actions;
-
-    std::list<sf::Keyboard::Key> keys;
-    std::list<sf::Keyboard::Key> pressed_keys;
 };
 
 std::unique_ptr<ICat> get_cat(cats::CatModeId mode);

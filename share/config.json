@@ -1,18 +1,109 @@
 {
-    "mode": "osu",
+    "mode": "classic",
 
     "modes": {
-        "custom": {
-            "background": "img/osu/mousebg.png",
-            "mouse": false,
-            "mouseImage": "img/osu/mouse.png",
-            "mouseOnTop": true,
-            "offsetX": 0,
-            "offsetY": 0,
-            "scalar": 1.0,
-            "paw": [255, 255, 255],
-            "pawEdge": [0, 0, 0],
-            "keyContainers": []
+        "classic": {
+            "background": "img/classic/catbg.png",
+            "mouse": {
+                "isEnabled": true,
+                "isOnTop": true,
+                "image": "img/classic/righthand/mouse.png",
+                "offset": [24, 0],
+                "scale": 2.0,
+                "pawBodyColor": [255, 255, 255],
+                "pawEdgeColor": [0, 0, 0],
+                "pawStartingPoint": [164, 117],
+                "pawEndingPoint": [220, 178],
+                "pawBoundaryPoints": {
+                    "A": [146, 274],
+                    "B": [49, 198],
+                    "C": [190, 234]
+                },
+                "buttons": {
+                    "left": "img/classic/righthand/leftb.png",
+                    "right": "img/classic/righthand/rightb.png"
+                }
+            },
+            "keyboard": {
+                "defaultImage": "img/classic/lefthand/leftup.png",
+                "keyBindings": [
+                    {
+                        "images": [ "img/classic/keyboard/14.png", 
+                                    "img/classic/lefthand/14.png" ],
+                        "keyCodes": ["w"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/13.png",
+                                    "img/classic/lefthand/13.png" ],
+                        "keyCodes": ["s"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/12.png",
+                                    "img/classic/lefthand/12.png" ],
+                        "keyCodes": ["d"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/11.png",
+                                    "img/classic/lefthand/11.png" ],
+                        "keyCodes": ["a"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/10.png",
+                                    "img/classic/lefthand/10.png" ],
+                        "keyCodes": [32]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/9.png",
+                                    "img/classic/lefthand/9.png" ],
+                        "keyCodes": ["r"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/8.png",
+                                    "img/classic/lefthand/8.png" ],
+                        "keyCodes": ["e"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/7.png",
+                                    "img/classic/lefthand/7.png" ],
+                        "keyCodes": ["q"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/6.png",
+                                    "img/classic/lefthand/6.png" ],
+                        "keyCodes": ["7"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/5.png",
+                                    "img/classic/lefthand/5.png" ],
+                        "keyCodes": ["6"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/4.png",
+                                    "img/classic/lefthand/4.png" ],
+                        "keyCodes": ["5"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/3.png",
+                                    "img/classic/lefthand/3.png" ],
+                        "keyCodes": ["4"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/2.png",
+                                    "img/classic/lefthand/2.png" ],
+                        "keyCodes": ["3"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/1.png",
+                                    "img/classic/lefthand/1.png" ],
+                        "keyCodes": ["2"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/0.png",
+                                    "img/classic/lefthand/0.png" ],
+                        "keyCodes": ["1"]
+                    }
+                ]
+            }
         }
     },
 
@@ -54,17 +145,6 @@
         "4K": true,
         "key4K": ["d", "f", "j", "k"],
         "key7K": ["s", "d", "f", 32, "j", "k", "l"]
-    },
-    "classic": {
-        "pawStartingPoint": [164, 117],
-        "pawEndingPoint": [220, 178],
-        "pawBoundaryPoints": {
-            "A": [146, 274],
-            "B": [49, 198],
-            "C": [190, 234]
-        },
-        "paw": [255, 255, 255],
-        "pawEdge": [0, 0, 0]
     },
     "mousePaw": {
         "mousePawComment": "coordinates start in the top left of the window",
