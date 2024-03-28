@@ -1,5 +1,5 @@
 {
-    "mode": "classic",
+    "mode": "osu",
 
     "modes": {
         "classic": {
@@ -104,6 +104,33 @@
                     }
                 ]
             }
+        },
+        "osu": {
+            "background": "img/osu/mousebg.png",
+            "mouse": {
+                "isEnabled": true,
+                "isOnTop": true,
+                "image": "img/osu/mouse.png",
+                "pawStartingPoint": [173, 109]
+            },
+            "keyboard": {
+                "defaultImage": "img/osu/up.png",
+                "keyBindings": [
+                    {
+                        "images": [ "img/osu/left.png" ],
+                        "keyCodes": ["z"]
+                    },
+                    {
+                        "images": [ "img/osu/right.png" ],
+                        "keyCodes": ["x"]
+                    },
+                    {
+                        "images": [ "img/osu/smoke.png" ],
+                        "keyCodes": ["c"],
+                        "isPersistent": true
+                    }
+                ]
+            }
         }
     },
 
@@ -119,16 +146,6 @@
         "offsetX": [0, 11],
         "offsetY": [0, -65],
         "scalar": [1.0, 1.0]
-    },
-    "osu": {
-        "mouse": true,
-        "toggleSmoke": false,
-        "paw": [255, 255, 255],
-        "pawEdge": [0, 0, 0],
-        "key1": ["z"],
-        "key2": ["x"],
-        "smoke": ["c"],
-        "wave": []
     },
     "taiko": {
         "leftCentre": ["x"],

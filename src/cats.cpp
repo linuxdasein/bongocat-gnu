@@ -6,8 +6,6 @@ namespace cats
 std::unique_ptr<ICat> get_cat(cats::CatModeId mode)
 {
     switch (mode) {
-    case CatModeId::osu:
-        return std::make_unique<OsuCat>();
     case CatModeId::taiko:
         return std::make_unique<TaikoCat>();
     case CatModeId::ctb:

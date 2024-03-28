@@ -13,7 +13,6 @@ sources = files([
   'src/mania.cpp',
   'src/mouse.cpp',
   'src/math.cpp',
-  'src/osu.cpp',
   'src/mousepaw.cpp',
   'src/system.cpp',
   'src/taiko.cpp',

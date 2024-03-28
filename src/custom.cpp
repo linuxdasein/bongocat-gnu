@@ -87,6 +87,10 @@ void CustomCat::init_keyboard(const Json::Value& keys_config) {
             throw std::runtime_error("invalid object in keyBindings: "
                                      "an object must contain a keyCodes or a joyCodes field");
 
+        bool is_persistent = false;
+        if (binding.isMember("isPersistent"))
+            is_persistent = binding["isPersistent"].asBool();
+
         auto sprites = std::make_unique<SpriteArray>();
         for (const auto& image : binding["images"])
             sprites->add(sf::Sprite(data::load_texture(image.asString())));
@@ -94,7 +98,7 @@ void CustomCat::init_keyboard(const Json::Value& keys_config) {
         auto key_codes = data::json_key_to_scancodes(binding["keyCodes"]);
 
         for (auto key_code : key_codes) {
-            keys.push_back(key_code);
+            keys.push_back(Key{key_code, is_persistent});
             key_actions[key_code] = std::move(sprites);
         }
     }
@@ -144,10 +148,16 @@ void CustomCat::update() {
 
     // Update states for the keys which currently are not pressed down
     move_if(pressed_keys, keys, 
-        [&](int key){ return input::is_pressed(key); });
-    // Update states for the keys which have been released
+        [&](Key key){ return input::is_pressed(key.code); });
+    // Some key bindings are marked as pesistent, store them separately
+    move_if(persistent_keys, pressed_keys, 
+        [&](Key key){ return key.is_persistent; });
+    // Update states for pressed keys which have been released
     move_if(keys, pressed_keys, 
-        [&](int key){ return !input::is_pressed(key); });
+        [&](Key key){ return !input::is_pressed(key.code); });
+    // Update states for pesistent keys which have been released
+    move_if(keys, persistent_keys, 
+        [&](Key key){ return !input::is_pressed(key.code); });
 }
 
 void CustomCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
@@ -163,10 +173,18 @@ void CustomCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
         draw_paw(target, rst);
     }
 
-    if(pressed_keys.empty())
+    // draw persistent bindings
+    for (auto pk : persistent_keys) {
+        target.draw(*key_actions.at(pk.code), rst);
+    }
+
+    if(pressed_keys.empty()) {
         target.draw(def_kbg, rst);
-    else // draw the latest pressed key sprite
-        target.draw(*key_actions.at(pressed_keys.back()), rst);
+    }
+    else {
+        // draw the latest pressed key sprite
+        target.draw(*key_actions.at(pressed_keys.back().code), rst);
+    }
 
     // drawing mouse at the bottom
     if (is_mouse && !is_mouse_on_top) {

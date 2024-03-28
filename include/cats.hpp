@@ -71,33 +71,6 @@ private:
     std::vector<sf::Vector2f> pss2;
 };
 
-class OsuCat : public ICat, private MousePaw
-{
-public:
-
-    bool init(const data::Settings& st, const Json::Value& cfg) override;
-    void update() override;
-    void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
-
-private:
-
-    std::set<int> left_key_binding, right_key_binding, smoke_key_binding, wave_key_binding;
-    bool is_mouse, is_left_handed, is_enable_toggle_smoke;
-    sf::Sprite bg, up, left, right, smoke, wave;
-
-    int key_state = 0;
-
-    bool left_key_state = false;
-    bool right_key_state = false;
-    bool wave_key_state = false;
-    bool previous_smoke_key_state = false;
-    bool current_smoke_key_state = false;
-    bool is_toggle_smoke = false;
-    mutable double timer_left_key = -1;
-    mutable double timer_right_key = -1;
-    mutable double timer_wave_key = -1;
-};
-
 class TaikoCat : public ICat
 {
 public:
@@ -166,10 +139,16 @@ private:
     bool init_mouse(const Json::Value& mouse_config);
 
 private:
+    struct Key {
+        int code;
+        bool is_persistent;
+    };
+
     sf::Sprite bg, def_kbg;
     std::map<int, std::unique_ptr<sf::Drawable>> key_actions;
-    std::list<int> keys;
-    std::list<int> pressed_keys;
+    std::list<Key> keys;
+    std::list<Key> pressed_keys;
+    std::list<Key> persistent_keys;
 
     bool is_mouse, is_mouse_on_top;
 };
