@@ -71,24 +71,6 @@ private:
     std::vector<sf::Vector2f> pss2;
 };
 
-class TaikoCat : public ICat
-{
-public:
-
-    bool init(const data::Settings& st, const Json::Value& cfg) override;
-    void update() override;
-    void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
-
-private:
-    std::set<int> rim_key_binding[2], centre_key_binding[2];
-    sf::Sprite bg, up[2], rim[2], centre[2];
-    int key_state[2] = {0, 0};
-    bool rim_key_state[2] = {false, false};
-    bool centre_key_state[2] = {false, false};
-    mutable double timer_rim_key[2] = {-1, -1};
-    mutable double timer_centre_key[2] = {-1, -1};
-};
-
 class CtbCat : public ICat
 {
 public:
@@ -126,6 +108,29 @@ private:
     bool is_4K;
 };
 
+class CatKeyboardGroup : public sf::Drawable {
+public:
+    void init(const Json::Value& keys_config);
+
+    void update();
+    
+    void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
+
+private:
+    struct Key {
+        int code;
+        bool is_persistent;
+    };
+
+    std::list<Key> released_keys;
+    std::list<Key> pressed_keys;
+    std::list<Key> persistent_keys;
+    std::unique_ptr<sf::Drawable> def_kbg;
+    std::map<int, std::unique_ptr<sf::Drawable>> key_actions;
+};
+
+class CatKeyboardGroup;
+
 class CustomCat : public ICat, private MousePaw
 {
 public:
@@ -135,20 +140,12 @@ public:
     void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
 
 private:
-    void init_keyboard(const Json::Value& keys_config);
     bool init_mouse(const Json::Value& mouse_config);
 
 private:
-    struct Key {
-        int code;
-        bool is_persistent;
-    };
 
-    sf::Sprite bg, def_kbg;
-    std::map<int, std::unique_ptr<sf::Drawable>> key_actions;
-    std::list<Key> keys;
-    std::list<Key> pressed_keys;
-    std::list<Key> persistent_keys;
+    sf::Sprite bg;
+    std::list<std::unique_ptr<CatKeyboardGroup>> kbd_groups;
 
     bool is_mouse, is_mouse_on_top;
 };

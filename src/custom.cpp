@@ -35,38 +35,14 @@ private:
 
 namespace cats {
 
-bool CustomCat::init(const data::Settings&, const Json::Value& config) {
-    // getting configs
-    try {
-        key_actions.clear();
-        if (!config.isMember("background") || !config["background"].isString())
-            throw std::runtime_error("Custom background not found");
-
-        bg.setTexture(data::load_texture(config["background"].asString()));
-
-        if (config.isMember("keyboard"))
-            init_keyboard(config["keyboard"]);
-        
-        if (config.isMember("mouse")) {
-            is_mouse = init_mouse(config["mouse"]);
-        }
-        else {
-            is_mouse = false;
-            logger::info("No mouse property found in cat's config section, \
-                          assuming mouse is disabled");
-        }
-    } catch (std::runtime_error& e) {
-        logger::error(std::string("Config error: ") + e.what());
-        return false;
-    }
-    return true;
-}
-
-void CustomCat::init_keyboard(const Json::Value& keys_config) {
-    if (keys_config.isMember("defaultImage")) {
-        if (!keys_config["defaultImage"].isString())
-            throw std::runtime_error("defaultImage must be a string");
-        def_kbg.setTexture(data::load_texture(keys_config["defaultImage"].asString()));
+void CatKeyboardGroup::init(const Json::Value& keys_config) {
+    if (keys_config.isMember("defaultImages")) {
+        if (!keys_config["defaultImages"].isArray())
+            throw std::runtime_error("defaultImages must be an array");
+        auto sprites = std::make_unique<SpriteArray>();
+        for (const auto& image : keys_config["defaultImages"])
+            sprites->add(sf::Sprite(data::load_texture(image.asString())));
+        def_kbg = std::move(sprites);
     }
 
     if (!keys_config.isMember("keyBindings"))
@@ -98,10 +74,79 @@ void CustomCat::init_keyboard(const Json::Value& keys_config) {
         auto key_codes = data::json_key_to_scancodes(binding["keyCodes"]);
 
         for (auto key_code : key_codes) {
-            keys.push_back(Key{key_code, is_persistent});
+            released_keys.push_back(Key{key_code, is_persistent});
             key_actions[key_code] = std::move(sprites);
         }
     }
+}
+
+void CatKeyboardGroup::update() {
+    // Update states for the keys which currently are not pressed down
+    move_if(pressed_keys, released_keys, 
+        [&](Key key){ return input::is_pressed(key.code); });
+    // Some key bindings are marked as pesistent, store them separately
+    move_if(persistent_keys, pressed_keys, 
+        [&](Key key){ return key.is_persistent; });
+    // Update states for pressed keys which have been released
+    move_if(released_keys, pressed_keys, 
+        [&](Key key){ return !input::is_pressed(key.code); });
+    // Update states for pesistent keys which have been released
+    move_if(released_keys, persistent_keys, 
+        [&](Key key){ return !input::is_pressed(key.code); });
+}
+    
+void CatKeyboardGroup::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
+    // draw persistent bindings
+    for (auto pk : persistent_keys) {
+        target.draw(*key_actions.at(pk.code), rst);
+    }
+
+    if(pressed_keys.empty()) {
+        target.draw(*def_kbg, rst);
+    }
+    else {
+        // draw the latest pressed key sprite
+        target.draw(*key_actions.at(pressed_keys.back().code), rst);
+    }
+}
+
+bool CustomCat::init(const data::Settings&, const Json::Value& config) {
+    // getting configs
+    try {
+        kbd_groups.clear();
+        if (!config.isMember("background") || !config["background"].isString())
+            throw std::runtime_error("Custom background not found");
+
+        bg.setTexture(data::load_texture(config["background"].asString()));
+
+        if (config.isMember("keyboard")) {
+            if(config["keyboard"].isArray()){
+                for(auto kbd_section : config["keyboard"]) {
+                    auto kbind = std::make_unique<CatKeyboardGroup>();
+                    kbind->init(kbd_section);
+                    kbd_groups.push_back(std::move(kbind));
+                }
+            }
+            else {
+                auto kbind = std::make_unique<CatKeyboardGroup>();
+                kbind->init(config["keyboard"]);
+                kbd_groups.push_back(std::move(kbind));
+            }
+        }
+        
+        if (config.isMember("mouse")) {
+            is_mouse = init_mouse(config["mouse"]);
+        }
+        else {
+            is_mouse = false;
+            logger::info("No mouse property found in cat's config section, \
+                          assuming mouse is disabled");
+        }
+    } catch (std::runtime_error& e) {
+        logger::error(std::string("Config error: ") + e.what());
+        return false;
+    }
+    return true;
 }
 
 bool CustomCat::init_mouse(const Json::Value& config) {
@@ -146,18 +191,8 @@ void CustomCat::update() {
         update_paw_position(input::get_mouse_input().get_position());
     }
 
-    // Update states for the keys which currently are not pressed down
-    move_if(pressed_keys, keys, 
-        [&](Key key){ return input::is_pressed(key.code); });
-    // Some key bindings are marked as pesistent, store them separately
-    move_if(persistent_keys, pressed_keys, 
-        [&](Key key){ return key.is_persistent; });
-    // Update states for pressed keys which have been released
-    move_if(keys, pressed_keys, 
-        [&](Key key){ return !input::is_pressed(key.code); });
-    // Update states for pesistent keys which have been released
-    move_if(keys, persistent_keys, 
-        [&](Key key){ return !input::is_pressed(key.code); });
+    for (auto& kbd_group : kbd_groups)
+        kbd_group->update();
 }
 
 void CustomCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
@@ -173,18 +208,9 @@ void CustomCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
         draw_paw(target, rst);
     }
 
-    // draw persistent bindings
-    for (auto pk : persistent_keys) {
-        target.draw(*key_actions.at(pk.code), rst);
-    }
-
-    if(pressed_keys.empty()) {
-        target.draw(def_kbg, rst);
-    }
-    else {
-        // draw the latest pressed key sprite
-        target.draw(*key_actions.at(pressed_keys.back().code), rst);
-    }
+    // draw keyboard bindings
+    for (auto& kbd_group : kbd_groups)
+        kbd_group->draw(target, rst);
 
     // drawing mouse at the bottom
     if (is_mouse && !is_mouse_on_top) {

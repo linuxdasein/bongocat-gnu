@@ -1,5 +1,5 @@
 {
-    "mode": "osu",
+    "mode": "taiko",
 
     "modes": {
         "classic": {
@@ -25,7 +25,7 @@
                 }
             },
             "keyboard": {
-                "defaultImage": "img/classic/lefthand/leftup.png",
+                "defaultImages": [ "img/classic/lefthand/leftup.png" ],
                 "keyBindings": [
                     {
                         "images": [ "img/classic/keyboard/14.png", 
@@ -114,7 +114,7 @@
                 "pawStartingPoint": [173, 109]
             },
             "keyboard": {
-                "defaultImage": "img/osu/up.png",
+                "defaultImages": [ "img/osu/up.png" ],
                 "keyBindings": [
                     {
                         "images": [ "img/osu/left.png" ],
@@ -131,6 +131,37 @@
                     }
                 ]
             }
+        },
+        "taiko": {
+            "background": "img/taiko/bg.png",
+            "keyboard": [
+                {
+                    "defaultImages": [ "img/taiko/leftup.png" ],
+                    "keyBindings": [
+                        {
+                            "images": [ "img/taiko/leftrim.png" ],
+                            "keyCodes": ["z"]
+                        },
+                        {
+                            "images": [ "img/taiko/leftcentre.png" ],
+                            "keyCodes": ["x"]
+                        }
+                    ]
+                },
+                {
+                    "defaultImages": [ "img/taiko/rightup.png" ],
+                    "keyBindings": [
+                        {
+                            "images": [ "img/taiko/rightrim.png" ],
+                            "keyCodes": ["v"]
+                        },
+                        {
+                            "images": [ "img/taiko/rightcentre.png" ],
+                            "keyCodes": ["c"]
+                        }
+                    ]
+                }
+            ]
         }
     },
 
@@ -146,12 +177,6 @@
         "offsetX": [0, 11],
         "offsetY": [0, -65],
         "scalar": [1.0, 1.0]
-    },
-    "taiko": {
-        "leftCentre": ["x"],
-        "rightCentre": ["c"],
-        "leftRim": ["z"],
-        "rightRim": ["v"]
     },
     "catch": {
         "left": [37],

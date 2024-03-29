@@ -15,7 +15,6 @@ sources = files([
   'src/math.cpp',
   'src/mousepaw.cpp',
   'src/system.cpp',
-  'src/taiko.cpp',
   'src/cats.cpp',
   'src/config.cpp',
 ])
