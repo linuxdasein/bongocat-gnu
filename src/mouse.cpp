@@ -6,6 +6,7 @@ extern "C" {
 #include <X11/extensions/Xrandr.h>
 }
 
+#include <cstring>
 #include <string>
 #include <set>
 

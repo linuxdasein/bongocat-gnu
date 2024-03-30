@@ -1,7 +1,7 @@
 project('bongocat-gnu',
   'cpp',
   license: 'GPL-3.0',
-  version: '0.1.0')
+  version: '0.2.0')
 
 sources = files([
   'src/cat.cpp',
