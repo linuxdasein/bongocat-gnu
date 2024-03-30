@@ -8,8 +8,7 @@
 using Mode = std::pair<cats::CatModeId, std::string>;
 
 static std::vector<Mode> modes = {
-    Mode{cats::CatModeId::ctb,     "ctb"},
-    Mode{cats::CatModeId::mania,   "mania"}
+    Mode{cats::CatModeId::ctb,     "ctb"}
 };
 
 static auto get_cat_mode(const std::string &s) {

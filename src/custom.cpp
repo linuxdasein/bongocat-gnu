@@ -1,3 +1,4 @@
+#include "cats.hpp"
 #include "header.hpp"
 #include <SFML/System/Vector2.hpp>
 #include <stdexcept>
@@ -35,6 +36,14 @@ private:
 
 namespace cats {
 
+bool CatKeyboardGroup::Key::is_pressed() const {
+    for(auto code : codes) {
+        if(!input::is_pressed(code))
+            return false;
+    }
+    return true;
+}
+
 void CatKeyboardGroup::init(const Json::Value& keys_config) {
     if (keys_config.isMember("defaultImages")) {
         if (!keys_config["defaultImages"].isArray())
@@ -51,6 +60,7 @@ void CatKeyboardGroup::init(const Json::Value& keys_config) {
     if (!keys_config["keyBindings"].isArray())
         throw std::runtime_error("keyBindings must be an array");
 
+    int key_id = 0;
     for (const auto& binding : keys_config["keyBindings"]) {
         if (!binding.isObject())
             throw std::runtime_error("invalid property in keyBindings array, an object is expected");
@@ -67,15 +77,21 @@ void CatKeyboardGroup::init(const Json::Value& keys_config) {
         if (binding.isMember("isPersistent"))
             is_persistent = binding["isPersistent"].asBool();
 
-        auto sprites = std::make_unique<SpriteArray>();
+        auto sprite = std::make_unique<SpriteArray>();
         for (const auto& image : binding["images"])
-            sprites->add(sf::Sprite(data::load_texture(image.asString())));
+            sprite->add(sf::Sprite(data::load_texture(image.asString())));
+        sprites.push_back(std::move(sprite));
 
-        auto key_codes = data::json_key_to_scancodes(binding["keyCodes"]);
-
-        for (auto key_code : key_codes) {
-            released_keys.push_back(Key{key_code, is_persistent});
-            key_actions[key_code] = std::move(sprites);
+        for (auto json_code : binding["keyCodes"]) {
+            Key key(key_id, is_persistent);
+            auto key_code = data::json_key_to_scancodes(json_code);
+            key.add_codes(key_code);
+            if (json_code.isArray())
+                combined_keys.push_back(key);
+            else
+                released_keys.push_back(key);
+            key_actions[key_id] = sprites.back().get();
+            ++key_id;
         }
     }
 }
@@ -83,30 +99,41 @@ void CatKeyboardGroup::init(const Json::Value& keys_config) {
 void CatKeyboardGroup::update() {
     // Update states for the keys which currently are not pressed down
     move_if(pressed_keys, released_keys, 
-        [&](Key key){ return input::is_pressed(key.code); });
+        [&](Key key){ return key.is_pressed(); });
+    // Update states for combined keys and append them at the end of the list
+    // to make sure they have priority over single keys
+    move_if(pressed_keys, combined_keys, 
+        [&](Key key){ return key.is_pressed(); });
     // Some key bindings are marked as pesistent, store them separately
     move_if(persistent_keys, pressed_keys, 
-        [&](Key key){ return key.is_persistent; });
+        [&](Key key){ return key.is_persistent(); });
     // Update states for pressed keys which have been released
     move_if(released_keys, pressed_keys, 
-        [&](Key key){ return !input::is_pressed(key.code); });
+        [&](Key key){ return !key.is_pressed() && !key.is_combined(); });
+    // Update states for pressed combined keys which have been released
+    move_if(combined_keys, pressed_keys, 
+        [&](Key key){ return !key.is_pressed() && key.is_combined(); });
     // Update states for pesistent keys which have been released
     move_if(released_keys, persistent_keys, 
-        [&](Key key){ return !input::is_pressed(key.code); });
+        [&](Key key){ return !key.is_pressed() && !key.is_combined(); });
+    // Update states for pesistent combined keys which have been released
+    move_if(combined_keys, persistent_keys, 
+        [&](Key key){ return !key.is_pressed() && key.is_combined(); });
 }
     
 void CatKeyboardGroup::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
     // draw persistent bindings
     for (auto pk : persistent_keys) {
-        target.draw(*key_actions.at(pk.code), rst);
+        target.draw(*key_actions.at(pk.get_id()), rst);
     }
 
     if(pressed_keys.empty()) {
-        target.draw(*def_kbg, rst);
+        if(def_kbg)
+            target.draw(*def_kbg, rst);
     }
     else {
         // draw the latest pressed key sprite
-        target.draw(*key_actions.at(pressed_keys.back().code), rst);
+        target.draw(*key_actions.at(pressed_keys.back().get_id()), rst);
     }
 }
 

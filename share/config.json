@@ -1,5 +1,5 @@
 {
-    "mode": "taiko",
+    "mode": "mania7k",
 
     "modes": {
         "classic": {
@@ -162,6 +162,131 @@
                     ]
                 }
             ]
+        },
+        "mania4k": {
+            "background": "img/mania/4K/bg.png",
+            "keyboard": [
+                {
+                    "defaultImages": [ "img/mania/leftup.png" ],
+                    "keyBindings": [
+                        {
+                            "images": [ "img/mania/4K/0.png",
+                                        "img/mania/left0.png" ],
+                            "keyCodes": ["d"]
+                        },
+                        {
+                            "images": [ "img/mania/4K/0.png",
+                                        "img/mania/4K/1.png",
+                                        "img/mania/left1.png" ],
+                            "keyCodes": [ ["f", "d"] ]
+                        },
+                        {
+                            "images": [ "img/mania/4K/1.png",
+                                        "img/mania/left2.png" ],
+                            "keyCodes": ["f"]
+                        }
+                    ]
+                },
+                {
+                    "defaultImages": [ "img/mania/rightup.png" ],
+                    "keyBindings": [
+                        {
+                            "images": [ "img/mania/4K/2.png",
+                                        "img/mania/right0.png" ],
+                            "keyCodes": ["j"]
+                        },
+                        {
+                            "images": [ "img/mania/4K/2.png",
+                                        "img/mania/4K/3.png",
+                                        "img/mania/right1.png" ],
+                            "keyCodes": [ ["k", "j"] ]
+                        },
+                        {
+                            "images": [ "img/mania/4K/3.png",
+                                        "img/mania/right2.png" ],
+                            "keyCodes": ["k"]
+                        }
+                    ]
+                }
+            ]
+        },
+        "mania7k": {
+            "background": "img/mania/7K/bg.png",
+            "keyboard": [
+                {
+                    "keyBindings": [
+                        {
+                            "images": [ "img/mania/7K/0.png" ],
+                            "keyCodes": ["s"],
+                            "isPersistent": true
+                        },
+                        {
+                            "images": [ "img/mania/7K/1.png" ],
+                            "keyCodes": ["d"],
+                            "isPersistent": true
+                        },
+                        {
+                            "images": [ "img/mania/7K/2.png" ],
+                            "keyCodes": ["f"],
+                            "isPersistent": true
+                        },
+                        {
+                            "images": [ "img/mania/7K/3.png" ],
+                            "keyCodes": [32],
+                            "isPersistent": true
+                        },
+                        {
+                            "images": [ "img/mania/7K/4.png" ],
+                            "keyCodes": ["j"],
+                            "isPersistent": true
+                        },
+                        {
+                            "images": [ "img/mania/7K/5.png" ],
+                            "keyCodes": ["k"],
+                            "isPersistent": true
+                        },
+                        {
+                            "images": [ "img/mania/7K/6.png" ],
+                            "keyCodes": ["l"],
+                            "isPersistent": true
+                        }
+                    ]
+                },
+                {
+                    "defaultImages": [ "img/mania/leftup.png" ],
+                    "keyBindings": [
+                        {
+                            "images": [ "img/mania/left0.png" ],
+                            "keyCodes": ["s"]
+                        },
+                        {
+                            "images": [ "img/mania/left1.png" ],
+                            "keyCodes": ["d"]
+                        },
+                        {
+                            "images": [ "img/mania/left2.png" ],
+                            "keyCodes": ["f", 32]
+                        }
+                    ]
+                },
+                {
+                    "defaultImages": [ "img/mania/rightup.png" ],
+                    "keyBindings": [
+                        {
+                            "images": [ "img/mania/right0.png" ],
+                            "keyCodes": ["j", 32]
+                        },
+                        {
+                            "images": [ "img/mania/right1.png" ],
+                            "keyCodes": ["k"]
+                        },
+                        {
+                            "images": [ "img/mania/right2.png" ],
+                            "keyCodes": ["l"]
+                        }
+                    ]
+                }
+            ]
         }
     },
 
@@ -182,11 +307,6 @@
         "left": [37],
         "right": [39],
         "dash": [16]
-    },
-    "mania": {
-        "4K": true,
-        "key4K": ["d", "f", "j", "k"],
-        "key7K": ["s", "d", "f", 32, "j", "k", "l"]
     },
     "mousePaw": {
         "mousePawComment": "coordinates start in the top left of the window",

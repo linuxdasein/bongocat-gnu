@@ -90,24 +90,6 @@ private:
     mutable double timer_right_key = -1;
 };
 
-class ManiaCat : public ICat
-{
-public:
-
-    bool init(const data::Settings& st, const Json::Value& cfg) override;
-    void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
-
-private:
-    void draw_4K(sf::RenderTarget& target, sf::RenderStates rst) const;
-    void draw_7K(sf::RenderTarget& target, sf::RenderStates rst) const;
-
-    sf::Sprite bg, left_handup, right_handup, left_hand[3], right_hand[3];
-    sf::Sprite left_4K[2], right_4K[2], left_7K[4], right_7K[4];
-    int left_key_value_4K[2], right_key_value_4K[2];
-    int left_key_value_7K[4], right_key_value_7K[4];
-    bool is_4K;
-};
-
 class CatKeyboardGroup : public sf::Drawable {
 public:
     void init(const Json::Value& keys_config);
@@ -117,16 +99,42 @@ public:
     void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
 
 private:
-    struct Key {
-        int code;
-        bool is_persistent;
+    class Key {
+    public:
+        Key(int i, bool p)
+            : id(i), persistent(p) {}
+
+        void add_codes(std::set<int> cds) {
+            codes.merge(cds);
+        }
+
+        int get_id() const {
+            return id; 
+        }
+
+        bool is_pressed() const;
+
+        bool is_persistent() const {
+            return persistent;
+        }
+
+        bool is_combined() const {
+            return codes.size() > 1;
+        }
+
+    private:
+        int id;
+        bool persistent;
+        std::set<int> codes;
     };
 
     std::list<Key> released_keys;
+    std::list<Key> combined_keys;
     std::list<Key> pressed_keys;
     std::list<Key> persistent_keys;
     std::unique_ptr<sf::Drawable> def_kbg;
-    std::map<int, std::unique_ptr<sf::Drawable>> key_actions;
+    std::vector<std::unique_ptr<sf::Drawable>> sprites;
+    std::map<int, sf::Drawable*> key_actions;
 };
 
 class CatKeyboardGroup;
