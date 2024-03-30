@@ -1,5 +1,5 @@
 {
-    "mode": "mania7k",
+    "mode": "catch",
 
     "modes": {
         "classic": {
@@ -287,6 +287,33 @@
                     ]
                 }
             ]
+        },
+        "catch": {
+            "background": "img/catch/bg.png",
+            "keyboard": [
+                {
+                    "defaultImages": [ "img/catch/mid.png" ],
+                    "keyBindings": [
+                        {
+                            "images": [ "img/catch/left.png" ],
+                            "keyCodes": [37]
+                        },
+                        {
+                            "images": [ "img/catch/right.png" ],
+                            "keyCodes": [39]
+                        }
+                    ]
+                },
+                {
+                    "defaultImages": [ "img/catch/up.png" ],
+                    "keyBindings": [
+                        {
+                            "images": [ "img/catch/dash.png" ],
+                            "keyCodes": [16]
+                        }
+                    ]
+                }
+            ]
         }
     },
 
@@ -302,11 +329,6 @@
         "offsetX": [0, 11],
         "offsetY": [0, -65],
         "scalar": [1.0, 1.0]
-    },
-    "catch": {
-        "left": [37],
-        "right": [39],
-        "dash": [16]
     },
     "mousePaw": {
         "mousePawComment": "coordinates start in the top left of the window",

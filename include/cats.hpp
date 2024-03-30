@@ -71,25 +71,6 @@ private:
     std::vector<sf::Vector2f> pss2;
 };
 
-class CtbCat : public ICat
-{
-public:
-
-    bool init(const data::Settings& st, const Json::Value& cfg) override;
-    void update() override;
-    void draw(sf::RenderTarget& target, sf::RenderStates rst) const override;
-
-private:
-    std::set<int> left_key_binding, right_key_binding, dash_key_binding;
-    sf::Sprite bg, mid, left, right, dash, up;
-
-    int key_state = 0;
-    bool left_key_state = false;
-    bool right_key_state = false;
-    mutable double timer_left_key = -1;
-    mutable double timer_right_key = -1;
-};
-
 class CatKeyboardGroup : public sf::Drawable {
 public:
     void init(const Json::Value& keys_config);
