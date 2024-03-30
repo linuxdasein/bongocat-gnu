@@ -1,20 +1,8 @@
-#include "cats.hpp"
+#include "cat.hpp"
 #include "header.hpp"
 #include "logger.hpp"
 #include <cstdlib>
 #include <memory>
-#include <stdexcept>
-
-using Mode = std::pair<cats::CatModeId, std::string>;
-
-static std::vector<Mode> modes = {};
-
-static auto get_cat_mode(const std::string &s) {
-    auto mode_it = std::find_if(modes.begin(), modes.end(),
-        [&s](const Mode& m) {return m.second == s;});
-
-    return mode_it;
-}
 
 int main(int argc, char ** argv) {
     // initialize basic logging
@@ -51,7 +39,8 @@ int main(int argc, char ** argv) {
     
     data::Settings settings;
     std::unique_ptr<cats::ICat> cat;
-    auto mode = modes.end();
+    std::vector<std::string> modes;
+    auto mode = modes.cend();
     sf::RenderStates rstates;
 
     auto reload_config = [&]() {
@@ -60,26 +49,15 @@ int main(int argc, char ** argv) {
             return false;
 
         // update cat modes list
-        auto cfg_modes = settings.get_cat_modes();
-        for (auto m : cfg_modes) {
-            if (modes.end() != get_cat_mode(m)) {
-                logger::error("mode " + m + " is already defined");
-                return false;
-            }
-            modes.push_back(Mode{cats::CatModeId::custom, m});
-        }
+        modes = settings.get_cat_modes();
 
         // get cat mode from the config
         auto cfg_mode_name = settings.get_default_mode();
-        mode = get_cat_mode(cfg_mode_name);
-        if (mode == modes.end()) {
-            logger::error("Error reading configs: Mode value " + cfg_mode_name + " is not correct");
-            return false;
-        }
+        mode = std::find(modes.cbegin(), modes.cend(), cfg_mode_name);
 
         // initialize cat mode
-        cat = cats::get_cat(mode->first);
-        if (!cat->init(settings, settings.get_cat_config(mode->second)))
+        cat = std::make_unique<cats::CustomCat>();
+        if (!cat->init(settings, settings.get_cat_config(cfg_mode_name)))
             return false;
 
         // update window transform data
@@ -127,8 +105,8 @@ int main(int argc, char ** argv) {
                         ++mode;
                         if (mode == modes.end())
                             mode = modes.begin();
-                        cat = cats::get_cat(mode->first);
-                        is_config_loaded = cat->init(settings, settings.get_cat_config(mode->second));
+                        cat = std::make_unique<cats::CustomCat>();
+                        is_config_loaded = cat->init(settings, settings.get_cat_config(*mode));
                     }
                     break;
                 }

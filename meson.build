@@ -4,7 +4,7 @@ project('bongocat-gnu',
   version: '0.1.0')
 
 sources = files([
-  'src/custom.cpp',
+  'src/cat.cpp',
   'src/data.cpp',
   'src/input.cpp',
   'src/logger.cpp',
@@ -13,7 +13,6 @@ sources = files([
   'src/math.cpp',
   'src/mousepaw.cpp',
   'src/system.cpp',
-  'src/cats.cpp',
   'src/config.cpp',
 ])
 

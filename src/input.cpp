@@ -1,7 +1,6 @@
 #include "header.hpp"
 #include "input.hpp"
 #include <sstream>
-#include <cmath>
 #include <iomanip>
 #include <SFML/Window.hpp>
 

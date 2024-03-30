@@ -15,14 +15,11 @@ public:
     sf::Vector2i get_window_size() const;
     sf::Transform get_window_transform() const;
 
-    // mouse settings
+    // global mouse settings
     bool is_mouse_left_handed() const;
-    const Json::Value get_global_mouse_config() const;
 
-    // decoration settings
+    // global decoration settings
     sf::Color get_background_color() const;
-    sf::Vector2i get_offset(bool is_mouse) const;
-    double get_scale(bool is_mouse) const;
 
     // cats' settings
     std::string get_default_mode() const;

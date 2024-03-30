@@ -15,15 +15,6 @@
 namespace cats
 {
 
-enum class CatModeId
-{
-    osu,
-    taiko,
-    ctb,
-    mania,
-    custom
-};
-
 class ICat : public sf::Drawable
 {
 public:
@@ -138,7 +129,5 @@ private:
 
     bool is_mouse, is_mouse_on_top;
 };
-
-std::unique_ptr<ICat> get_cat(cats::CatModeId mode);
 
 }

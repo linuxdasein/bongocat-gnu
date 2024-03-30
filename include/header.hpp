@@ -1,19 +1,11 @@
 #pragma once
-#define BONGO_KEYPRESS_THRESHOLD 0
 #define MAX_FRAMERATE 60
 
-#include <iostream>
-#include <fstream>
 #include <string>
 #include <vector>
-#include <sstream>
-#include <map>
 #include <set>
 
-#include <time.h>
-#include <string.h>
-
-#include <cats.hpp>
+#include <cat.hpp>
 #include <input.hpp>
 
 namespace data {

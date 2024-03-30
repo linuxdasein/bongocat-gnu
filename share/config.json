@@ -1,6 +1,17 @@
 {
     "mode": "catch",
 
+    "window": {
+        "size": [612, 352],
+        "offset": [0, 0],
+        "scale": 1.0,
+        "adaptive" : false
+    },
+    "decoration": {
+        "leftHanded": false,
+        "rgb": [255, 255, 255]
+    },
+
     "modes": {
         "classic": {
             "background": "img/classic/catbg.png",
@@ -314,30 +325,6 @@
                     ]
                 }
             ]
-        }
-    },
-
-    "window": {
-        "size": [612, 352],
-        "offset": [0, 0],
-        "scale": 1.0,
-        "adaptive" : false
-    },
-    "decoration": {
-        "leftHanded": false,
-        "rgb": [255, 255, 255],
-        "offsetX": [0, 11],
-        "offsetY": [0, -65],
-        "scalar": [1.0, 1.0]
-    },
-    "mousePaw": {
-        "mousePawComment": "coordinates start in the top left of the window",
-        "pawStartingPoint": [173, 109],
-        "pawEndingPoint": [220, 178],
-        "pawBoundaryPoints": {
-            "A": [146, 274],
-            "B": [49, 198],
-            "C": [190, 234]
         }
     }
 }

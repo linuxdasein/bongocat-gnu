@@ -1,4 +1,4 @@
-#include "cats.hpp"
+#include "cat.hpp"
 #include "header.hpp"
 #include <SFML/System/Vector2.hpp>
 #include <stdexcept>
@@ -166,8 +166,8 @@ bool CustomCat::init(const data::Settings&, const Json::Value& config) {
         }
         else {
             is_mouse = false;
-            logger::info("No mouse property found in cat's config section, \
-                          assuming mouse is disabled");
+            logger::debug("No mouse property found in cat's config section, "
+                          "assuming mouse is disabled");
         }
     } catch (std::runtime_error& e) {
         logger::error(std::string("Config error: ") + e.what());

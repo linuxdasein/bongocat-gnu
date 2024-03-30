@@ -7,7 +7,6 @@ extern "C" {
 }
 
 #include <string>
-#include <cmath>
 #include <set>
 
 namespace input

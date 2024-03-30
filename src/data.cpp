@@ -5,9 +5,9 @@
 #include <filesystem>
 #include <algorithm>
 #include <optional>
+#include <fstream>
 
 #include <unistd.h>
-#include <limits.h>
 
 namespace data {
 std::unique_ptr<sf::Font> debug_font_holder;
@@ -81,10 +81,6 @@ bool Settings::is_mouse_left_handed() const {
     return config["decoration"]["leftHanded"].asBool();
 }
 
-const Json::Value Settings::get_global_mouse_config() const {
-    return config["mousePaw"];
-}
-
 sf::Color Settings::get_background_color() const {
     Json::Value rgb = config["decoration"]["rgb"];
     int red_value = rgb[0].asInt();
@@ -95,32 +91,12 @@ sf::Color Settings::get_background_color() const {
     return sf::Color(red_value, green_value, blue_value, alpha_value);
 }
 
-sf::Vector2i Settings::get_offset(bool is_mouse) const {
-    sf::Vector2i offset;
-
-    if (is_mouse) {
-        offset.x = (config["decoration"]["offsetX"])[0].asInt();
-        offset.y = (config["decoration"]["offsetY"])[0].asInt();
-    } else {
-        offset.x = (config["decoration"]["offsetX"])[1].asInt();
-        offset.y = (config["decoration"]["offsetY"])[1].asInt();
-    }
-
-    return offset;
-}
-
-double Settings::get_scale(bool is_mouse) const {
-    return is_mouse
-        ? (config["decoration"]["scalar"])[0].asDouble()
-        : (config["decoration"]["scalar"])[1].asDouble();
-}
-
 std::string Settings::get_default_mode() const {
     return config["mode"].asString();
 }
 
 const Json::Value& Settings::get_cat_config(const std::string& name) const{
-    return config.isMember(name) ? config[name] : config["modes"][name];
+    return config["modes"][name];
 }
 
 std::vector<std::string> Settings::get_cat_modes() const {

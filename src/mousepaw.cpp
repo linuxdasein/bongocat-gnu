@@ -1,7 +1,7 @@
 #include "header.hpp"
 #include <SFML/Graphics/Transform.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <cats.hpp>
+#include <cat.hpp>
 #include <input.hpp>
 #include <math.hpp>
 #include <cmath>
