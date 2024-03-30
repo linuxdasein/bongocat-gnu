@@ -1,11 +1,13 @@
 #include "header.hpp"
 #include <json/value.h>
 #include <memory>
+#include <stdexcept>
 #include <system.hpp>
 #include <filesystem>
 #include <algorithm>
 #include <optional>
 #include <fstream>
+#include <sstream> 
 
 #include <unistd.h>
 
@@ -228,6 +230,41 @@ bool Settings::find_cat_modes(const Json::Value &cfg) {
     return true;
 }
 
+bool Settings::check_config_version(const Json::Value &cfg, std::string min_required) {
+    if (!cfg.isMember("version") || !cfg["version"].isString())
+        return false;
+
+    auto parse_version = [](std::string s) {
+        std::string tk;
+        std::vector<int> vnum;
+        std::stringstream vstr(s);
+
+        while (std::getline(vstr, tk, '.'))
+            vnum.push_back(std::stoi(tk));
+        return vnum;
+    };
+
+    std::vector<int> required_version, config_version;
+
+    try {
+        required_version = parse_version(min_required);
+        config_version = parse_version(cfg["version"].asString());
+    }
+    catch(const std::invalid_argument& e) {
+        return false;
+    }
+
+    if (required_version.size() != config_version.size())
+        return false;
+
+    for (size_t i = 0; i < config_version.size(); ++i) {
+        if (config_version[i] < required_version[i])
+            return false;
+    }
+
+    return true;
+}
+
 bool init() {
     // load debug font
     debug_font_holder = std::make_unique<sf::Font>();
@@ -280,6 +317,13 @@ bool Settings::reload() {
 
     if (!update(config, *cfg_read))
         return false;
+
+    const std::string min_version = "0.3.0";
+    if (!check_config_version(config, min_version)) {
+        logger::error( "Required config version>=" + min_version +
+                       ". You have to update your config file manually." );
+        return false;
+    }
 
     return find_cat_modes(config);
 }

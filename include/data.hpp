@@ -28,6 +28,7 @@ public:
 
 private:
     bool find_cat_modes(const Json::Value &cfg);
+    bool check_config_version(const Json::Value &cfg, std::string min_required);
 
     Json::Value config;
     std::vector<std::string> modes;
