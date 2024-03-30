@@ -1,24 +1,19 @@
 project('bongocat-gnu',
   'cpp',
   license: 'GPL-3.0',
-  version: '0.1.0')
+  version: '0.2.0')
 
 sources = files([
-  'src/ctb.cpp',
-  'src/classic.cpp',
-  'src/custom.cpp',
+  'src/cat.cpp',
   'src/data.cpp',
   'src/input.cpp',
   'src/logger.cpp',
   'src/main.cpp',
-  'src/mania.cpp',
   'src/mouse.cpp',
   'src/math.cpp',
-  'src/osu.cpp',
   'src/mousepaw.cpp',
   'src/system.cpp',
-  'src/taiko.cpp',
-  'src/cats.cpp',
+  'src/config.cpp',
 ])
 
 ld_flags = []

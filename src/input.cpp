@@ -1,7 +1,6 @@
 #include "header.hpp"
 #include "input.hpp"
 #include <sstream>
-#include <cmath>
 #include <iomanip>
 #include <SFML/Window.hpp>
 
@@ -56,7 +55,7 @@ static int _XlibErrorHandler(Display *display, XErrorEvent *event) {
 
 int INPUT_KEY_TABLE[TOTAl_INPUT_TABLE_SIZE];
 
-bool init(int width, int height) {
+bool init(int width, int height, bool is_left_handed) {
     for (int i = 0; i < TOTAl_INPUT_TABLE_SIZE; i++) {
         if (i >= 48 && i <= 57) {           // number
             INPUT_KEY_TABLE[i] = i - 48 + (int)sf::Keyboard::Key::Num0;
@@ -129,7 +128,7 @@ bool init(int width, int height) {
     debugText.setPosition(10.0f, 4.0f);
     debugText.setString(debugMessage);
 
-    g_mouse = create_mouse_handler(dpy);
+    g_mouse = create_mouse_handler(dpy, is_left_handed);
 
     return true;
 }

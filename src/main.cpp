@@ -1,31 +1,8 @@
-#include "cats.hpp"
+#include "cat.hpp"
 #include "header.hpp"
 #include "logger.hpp"
 #include <cstdlib>
 #include <memory>
-#include <stdexcept>
-
-using Mode = std::pair<cats::CatModeId, std::string>;
-
-static const std::array<Mode, 6> modes = {
-    Mode{cats::CatModeId::osu,     "osu"},
-    Mode{cats::CatModeId::taiko,   "taiko"},
-    Mode{cats::CatModeId::ctb,     "ctb"},
-    Mode{cats::CatModeId::mania,   "mania"},
-    Mode{cats::CatModeId::custom,  "custom"},
-    Mode{cats::CatModeId::classic, "classic"}
-};
-
-static auto get_cat_mode(const std::string &s) {
-    auto mode_it = std::find_if(modes.cbegin(), modes.cend(),
-        [&s](const Mode& m) {return m.second == s;});
-
-    if(mode_it == modes.cend()) {
-        logger::error("Error reading configs: Mode value " + s + " is not correct");
-    }
-
-    return mode_it;
-}
 
 int main(int argc, char ** argv) {
     // initialize basic logging
@@ -38,7 +15,7 @@ int main(int argc, char ** argv) {
 
     sf::RenderWindow window;
     // initially create window with default size
-    sf::Vector2i window_size = data::get_cfg_window_default_size();
+    sf::Vector2i window_size = data::g_window_default_size;
     window.create(sf::VideoMode(window_size.x, window_size.y), "Bongo Cat", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(MAX_FRAMERATE);
 
@@ -60,42 +37,43 @@ int main(int argc, char ** argv) {
     bool do_show_input_debug = false;
     bool do_show_debug_overlay = false;
     
+    data::Settings settings;
     std::unique_ptr<cats::ICat> cat;
-    auto mode = modes.end();
+    std::vector<std::string> modes;
+    auto mode = modes.cend();
     sf::RenderStates rstates;
 
     auto reload_config = [&]() {
         // try to load config file
-        if(!data::reload_config())
+        if(!settings.reload())
             return false;
+
+        // update cat modes list
+        modes = settings.get_cat_modes();
 
         // get cat mode from the config
-        auto cfg = data::get_cfg();
-
-        // load cat mode
-        mode = get_cat_mode(cfg["mode"].asString());
-        if (mode == modes.end())
-            return false;
+        auto cfg_mode_name = settings.get_default_mode();
+        mode = std::find(modes.cbegin(), modes.cend(), cfg_mode_name);
 
         // initialize cat mode
-        cat = cats::get_cat(mode->first);
-        if (!cat->init(cfg))
+        cat = std::make_unique<cats::CustomCat>();
+        if (!cat->init(settings, settings.get_cat_config(cfg_mode_name)))
             return false;
 
         // update window transform data
-        auto cfg_window_size = data::get_cfg_window_size(cfg);
+        auto cfg_window_size = settings.get_window_size();
         if (window_size != cfg_window_size) {
             // reinitialize window only if config size has changed
             window_size = cfg_window_size;
             window.create(sf::VideoMode(window_size.x, window_size.y), 
                 "Bongo Cat", sf::Style::Titlebar | sf::Style::Close);
             log_overlay.set_size(window_size);
-            if (!input::init(window_size.x, window_size.y))
+            if (!input::init(window_size.x, window_size.y, settings.is_mouse_left_handed()))
                 return false;
         }
 
         // update windows transform
-        sf::Transform transform = data::get_cfg_window_transform(cfg);
+        sf::Transform transform = settings.get_window_transform();
         rstates = sf::RenderStates(transform);
 
         return true;
@@ -125,10 +103,10 @@ int main(int argc, char ** argv) {
                 if (event.key.code == sf::Keyboard::N && event.key.control) {
                     if (is_config_loaded) {
                         ++mode;
-                        if (mode == modes.cend())
-                            mode = modes.cbegin();
-                        cat = cats::get_cat(mode->first);
-                        is_config_loaded = cat->init(data::get_cfg());
+                        if (mode == modes.end())
+                            mode = modes.begin();
+                        cat = std::make_unique<cats::CustomCat>();
+                        is_config_loaded = cat->init(settings, settings.get_cat_config(*mode));
                     }
                     break;
                 }
@@ -158,13 +136,7 @@ int main(int argc, char ** argv) {
             log_overlay.set_visible(do_show_debug_overlay);
         }
 
-        Json::Value rgb = data::get_cfg()["decoration"]["rgb"];
-        int red_value = rgb[0].asInt();
-        int green_value = rgb[1].asInt();
-        int blue_value = rgb[2].asInt();
-        int alpha_value = rgb.size() == 3 ? 255 : rgb[3].asInt();
-
-        window.clear(sf::Color(red_value, green_value, blue_value, alpha_value));
+        window.clear(settings.get_background_color());
         cat->update();
         window.draw(*cat, rstates);
 

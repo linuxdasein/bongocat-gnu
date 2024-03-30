@@ -25,6 +25,6 @@ public:
 };
 
 
-std::unique_ptr<IMouse> create_mouse_handler(void* display);
+std::unique_ptr<IMouse> create_mouse_handler(void* display, bool is_left_handed);
 
 }

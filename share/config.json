@@ -1,5 +1,6 @@
 {
-    "mode": "osu",
+    "version": "0.3.0",
+    "mode": "classic",
     "window": {
         "size": [612, 352],
         "offset": [0, 0],
@@ -8,68 +9,321 @@
     },
     "decoration": {
         "leftHanded": false,
-        "rgb": [255, 255, 255],
-        "offsetX": [0, 11],
-        "offsetY": [0, -65],
-        "scalar": [1.0, 1.0]
+        "rgb": [255, 255, 255]
     },
-    "osu": {
-        "mouse": true,
-        "toggleSmoke": false,
-        "paw": [255, 255, 255],
-        "pawEdge": [0, 0, 0],
-        "key1": ["z"],
-        "key2": ["x"],
-        "smoke": ["c"],
-        "wave": []
-    },
-    "taiko": {
-        "leftCentre": ["x"],
-        "rightCentre": ["c"],
-        "leftRim": ["z"],
-        "rightRim": ["v"]
-    },
-    "catch": {
-        "left": [37],
-        "right": [39],
-        "dash": [16]
-    },
-    "mania": {
-        "4K": true,
-        "key4K": ["d", "f", "j", "k"],
-        "key7K": ["s", "d", "f", 32, "j", "k", "l"]
-    },
-    "custom": {
-        "background": "img/osu/mousebg.png",
-        "mouse": false,
-        "mouseImage": "img/osu/mouse.png",
-        "mouseOnTop": true,
-        "offsetX": 0,
-        "offsetY": 0,
-        "scalar": 1.0,
-        "paw": [255, 255, 255],
-        "pawEdge": [0, 0, 0],
-        "keyContainers": []
-    },
-    "classic": {
-        "pawStartingPoint": [164, 117],
-        "pawEndingPoint": [220, 178],
-        "pawBoundaryPoints": {
-            "A": [146, 274],
-            "B": [49, 198],
-            "C": [190, 234]
+    "modes": {
+        "classic": {
+            "background": "img/classic/catbg.png",
+            "mouse": {
+                "isEnabled": true,
+                "isOnTop": true,
+                "image": "img/classic/righthand/mouse.png",
+                "offset": [24, 0],
+                "scale": 2.0,
+                "pawBodyColor": [255, 255, 255],
+                "pawEdgeColor": [0, 0, 0],
+                "pawStartingPoint": [164, 117],
+                "pawEndingPoint": [220, 178],
+                "pawBoundaryPoints": {
+                    "A": [146, 274],
+                    "B": [49, 198],
+                    "C": [190, 234]
+                },
+                "buttons": {
+                    "left": "img/classic/righthand/leftb.png",
+                    "right": "img/classic/righthand/rightb.png"
+                }
+            },
+            "keyboard": {
+                "defaultImages": [ "img/classic/lefthand/leftup.png" ],
+                "keyBindings": [
+                    {
+                        "images": [ "img/classic/keyboard/14.png", 
+                                    "img/classic/lefthand/14.png" ],
+                        "keyCodes": ["w"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/13.png",
+                                    "img/classic/lefthand/13.png" ],
+                        "keyCodes": ["s"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/12.png",
+                                    "img/classic/lefthand/12.png" ],
+                        "keyCodes": ["d"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/11.png",
+                                    "img/classic/lefthand/11.png" ],
+                        "keyCodes": ["a"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/10.png",
+                                    "img/classic/lefthand/10.png" ],
+                        "keyCodes": [32]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/9.png",
+                                    "img/classic/lefthand/9.png" ],
+                        "keyCodes": ["r"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/8.png",
+                                    "img/classic/lefthand/8.png" ],
+                        "keyCodes": ["e"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/7.png",
+                                    "img/classic/lefthand/7.png" ],
+                        "keyCodes": ["q"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/6.png",
+                                    "img/classic/lefthand/6.png" ],
+                        "keyCodes": ["7"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/5.png",
+                                    "img/classic/lefthand/5.png" ],
+                        "keyCodes": ["6"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/4.png",
+                                    "img/classic/lefthand/4.png" ],
+                        "keyCodes": ["5"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/3.png",
+                                    "img/classic/lefthand/3.png" ],
+                        "keyCodes": ["4"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/2.png",
+                                    "img/classic/lefthand/2.png" ],
+                        "keyCodes": ["3"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/1.png",
+                                    "img/classic/lefthand/1.png" ],
+                        "keyCodes": ["2"]
+                    },
+                    {
+                        "images": [ "img/classic/keyboard/0.png",
+                                    "img/classic/lefthand/0.png" ],
+                        "keyCodes": ["1"]
+                    }
+                ]
+            }
         },
-        "paw": [255, 255, 255],
-        "pawEdge": [0, 0, 0]
-    },
-    "mousePaw": {
-        "mousePawComment": "coordinates start in the top left of the window",
-        "pawStartingPoint": [173, 109],
-        "pawEndingPoint": [220, 178],
-        "pawBoundaryPoints": {
-            "A": [146, 274],
-            "B": [49, 198],
-            "C": [190, 234]
+        "osu": {
+            "background": "img/osu/mousebg.png",
+            "mouse": {
+                "isEnabled": true,
+                "isOnTop": true,
+                "image": "img/osu/mouse.png",
+                "pawStartingPoint": [173, 109]
+            },
+            "keyboard": {
+                "defaultImages": [ "img/osu/up.png" ],
+                "keyBindings": [
+                    {
+                        "images": [ "img/osu/left.png" ],
+                        "keyCodes": ["z"]
+                    },
+                    {
+                        "images": [ "img/osu/right.png" ],
+                        "keyCodes": ["x"]
+                    },
+                    {
+                        "images": [ "img/osu/smoke.png" ],
+                        "keyCodes": ["c"],
+                        "isPersistent": true
+                    }
+                ]
+            }
+        },
+        "taiko": {
+            "background": "img/taiko/bg.png",
+            "keyboard": [
+                {
+                    "defaultImages": [ "img/taiko/leftup.png" ],
+                    "keyBindings": [
+                        {
+                            "images": [ "img/taiko/leftrim.png" ],
+                            "keyCodes": ["z"]
+                        },
+                        {
+                            "images": [ "img/taiko/leftcentre.png" ],
+                            "keyCodes": ["x"]
+                        }
+                    ]
+                },
+                {
+                    "defaultImages": [ "img/taiko/rightup.png" ],
+                    "keyBindings": [
+                        {
+                            "images": [ "img/taiko/rightrim.png" ],
+                            "keyCodes": ["v"]
+                        },
+                        {
+                            "images": [ "img/taiko/rightcentre.png" ],
+                            "keyCodes": ["c"]
+                        }
+                    ]
+                }
+            ]
+        },
+        "mania4k": {
+            "background": "img/mania/4K/bg.png",
+            "keyboard": [
+                {
+                    "defaultImages": [ "img/mania/leftup.png" ],
+                    "keyBindings": [
+                        {
+                            "images": [ "img/mania/4K/0.png",
+                                        "img/mania/left0.png" ],
+                            "keyCodes": ["d"]
+                        },
+                        {
+                            "images": [ "img/mania/4K/0.png",
+                                        "img/mania/4K/1.png",
+                                        "img/mania/left1.png" ],
+                            "keyCodes": [ ["f", "d"] ]
+                        },
+                        {
+                            "images": [ "img/mania/4K/1.png",
+                                        "img/mania/left2.png" ],
+                            "keyCodes": ["f"]
+                        }
+                    ]
+                },
+                {
+                    "defaultImages": [ "img/mania/rightup.png" ],
+                    "keyBindings": [
+                        {
+                            "images": [ "img/mania/4K/2.png",
+                                        "img/mania/right0.png" ],
+                            "keyCodes": ["j"]
+                        },
+                        {
+                            "images": [ "img/mania/4K/2.png",
+                                        "img/mania/4K/3.png",
+                                        "img/mania/right1.png" ],
+                            "keyCodes": [ ["k", "j"] ]
+                        },
+                        {
+                            "images": [ "img/mania/4K/3.png",
+                                        "img/mania/right2.png" ],
+                            "keyCodes": ["k"]
+                        }
+                    ]
+                }
+            ]
+        },
+        "mania7k": {
+            "background": "img/mania/7K/bg.png",
+            "keyboard": [
+                {
+                    "keyBindings": [
+                        {
+                            "images": [ "img/mania/7K/0.png" ],
+                            "keyCodes": ["s"],
+                            "isPersistent": true
+                        },
+                        {
+                            "images": [ "img/mania/7K/1.png" ],
+                            "keyCodes": ["d"],
+                            "isPersistent": true
+                        },
+                        {
+                            "images": [ "img/mania/7K/2.png" ],
+                            "keyCodes": ["f"],
+                            "isPersistent": true
+                        },
+                        {
+                            "images": [ "img/mania/7K/3.png" ],
+                            "keyCodes": [32],
+                            "isPersistent": true
+                        },
+                        {
+                            "images": [ "img/mania/7K/4.png" ],
+                            "keyCodes": ["j"],
+                            "isPersistent": true
+                        },
+                        {
+                            "images": [ "img/mania/7K/5.png" ],
+                            "keyCodes": ["k"],
+                            "isPersistent": true
+                        },
+                        {
+                            "images": [ "img/mania/7K/6.png" ],
+                            "keyCodes": ["l"],
+                            "isPersistent": true
+                        }
+                    ]
+                },
+                {
+                    "defaultImages": [ "img/mania/leftup.png" ],
+                    "keyBindings": [
+                        {
+                            "images": [ "img/mania/left0.png" ],
+                            "keyCodes": ["s"]
+                        },
+                        {
+                            "images": [ "img/mania/left1.png" ],
+                            "keyCodes": ["d"]
+                        },
+                        {
+                            "images": [ "img/mania/left2.png" ],
+                            "keyCodes": ["f", 32]
+                        }
+                    ]
+                },
+                {
+                    "defaultImages": [ "img/mania/rightup.png" ],
+                    "keyBindings": [
+                        {
+                            "images": [ "img/mania/right0.png" ],
+                            "keyCodes": ["j", 32]
+                        },
+                        {
+                            "images": [ "img/mania/right1.png" ],
+                            "keyCodes": ["k"]
+                        },
+                        {
+                            "images": [ "img/mania/right2.png" ],
+                            "keyCodes": ["l"]
+                        }
+                    ]
+                }
+            ]
+        },
+        "catch": {
+            "background": "img/catch/bg.png",
+            "keyboard": [
+                {
+                    "defaultImages": [ "img/catch/mid.png" ],
+                    "keyBindings": [
+                        {
+                            "images": [ "img/catch/left.png" ],
+                            "keyCodes": [37]
+                        },
+                        {
+                            "images": [ "img/catch/right.png" ],
+                            "keyCodes": [39]
+                        }
+                    ]
+                },
+                {
+                    "defaultImages": [ "img/catch/up.png" ],
+                    "keyBindings": [
+                        {
+                            "images": [ "img/catch/dash.png" ],
+                            "keyCodes": [16]
+                        }
+                    ]
+                }
+            ]
         }
     }
 }

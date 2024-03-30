@@ -1,7 +1,7 @@
 #include "header.hpp"
 #include <SFML/Graphics/Transform.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <cats.hpp>
+#include <cat.hpp>
 #include <input.hpp>
 #include <math.hpp>
 #include <cmath>
@@ -15,21 +15,17 @@ void MousePaw::set_mouse_parameters(sf::Vector2i of, double sc) {
 }
 
 bool MousePaw::init(const Json::Value& mouse_cfg, const Json::Value& paw_draw_info) {
-    paw_color.r = mouse_cfg["paw"][0].asInt();
-    paw_color.g = mouse_cfg["paw"][1].asInt();
-    paw_color.b = mouse_cfg["paw"][2].asInt();
-    paw_color.a = mouse_cfg["paw"].size() == 3 ? 255 : mouse_cfg["paw"][3].asInt();
+    data::Validator cfg(mouse_cfg);
+    data::Validator paw_cfg(paw_draw_info);
 
-    paw_edge_color.r = mouse_cfg["pawEdge"][0].asInt();
-    paw_edge_color.g = mouse_cfg["pawEdge"][1].asInt();
-    paw_edge_color.b = mouse_cfg["pawEdge"][2].asInt();
-    paw_edge_color.a = mouse_cfg["pawEdge"].size() == 3 ? 255 : mouse_cfg["pawEdge"][3].asInt();
+    paw_color =  cfg.getProperty("pawBodyColor", sf::Color::White);
+    paw_edge_color = cfg.getProperty("pawEdgeColor", sf::Color::Black);
+    paw_start = paw_cfg.getProperty("pawStartingPoint", sf::Vector2i(164, 117));
+    paw_end =  paw_cfg.getProperty("pawEndingPoint", sf::Vector2i(220, 178));
 
-    x_paw_start = paw_draw_info["pawStartingPoint"][0].asInt();
-    y_paw_start = paw_draw_info["pawStartingPoint"][1].asInt();
-
-    x_paw_end = paw_draw_info["pawEndingPoint"][0].asInt();
-    y_paw_end = paw_draw_info["pawEndingPoint"][1].asInt();
+    A = {146, 274};
+    B = {49, 198};
+    C = {190, 234};
 
     auto paw_boundary_config = paw_draw_info["pawBoundaryPoints"];
 
@@ -80,9 +76,6 @@ bool MousePaw::init(const Json::Value& mouse_cfg, const Json::Value& paw_draw_in
     }
     else {
         logger::info("No pawBoundaryPoints section found in config file, using default values");
-        A = {146, 274};
-        B = {49, 198};
-        C = {190, 234};
     }
 
     device.setScale(scale, scale);
@@ -107,20 +100,20 @@ void MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
     math::BCurve B3(3);
 
     // fixed point where the paw arc starts
-    const math::point2d paw_start = {(double) x_paw_start, (double) y_paw_start};
+    const math::point2d paw_start_d = {(double) paw_start.x, (double) paw_start.y};
     // fixed point where the paw arc ends
-    const math::point2d paw_end = {(double)x_paw_end, (double)y_paw_end};
+    const math::point2d paw_end_d = {(double)paw_end.x, (double)paw_end.y};
 
-    std::vector<math::point2d> pss = {paw_start};
+    std::vector<math::point2d> pss = {paw_start_d};
 
-    double dist = hypot(paw_start.x - m.x, paw_start.y - m.y);
+    double dist = hypot(paw_start_d.x - m.x, paw_start_d.y - m.y);
     // sort of unit tangent vector at the paw_start point of the arc
     const math::point2d tangentleft = {-0.7237, 0.69};
     // central control point of the left bezier arc
-    const math::point2d centreleft = paw_start + tangentleft * (dist / 2);
+    const math::point2d centreleft = paw_start_d + tangentleft * (dist / 2);
     
     // the first arc segment
-    std::vector<math::point2d> bez1 = {paw_start, centreleft, m};
+    std::vector<math::point2d> bez1 = {paw_start_d, centreleft, m};
     B2.set_control_points(bez1);
 
     for (int i = 1; i < oof; i++) {
@@ -137,11 +130,11 @@ void MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
     double le = hypot(ab.x, ab.y);
     ab = m + ab / le * 60.0;
     
-    dist = hypot(paw_end.x - ab.x, paw_end.y - ab.y);
+    dist = hypot(paw_end_d.x - ab.x, paw_end_d.y - ab.y);
     // unit tangent vector at the paw_end point of the arc
     const math::point2d tangentright = {-0.6, 0.8};
     // central control point of the right bezier arc
-    const math::point2d centreright = paw_end + tangentright * (dist / 2);
+    const math::point2d centreright = paw_end_d + tangentright * (dist / 2);
 
     // calculate "push" vectors, which are intended to move
     // mpos and ab outside of the paw so they form the next 
@@ -165,12 +158,12 @@ void MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
     pss.push_back(ab);
 
     // the third segment
-    std::vector<math::point2d> bez3 = { paw_end, centreright, ab};
+    std::vector<math::point2d> bez3 = { paw_end_d, centreright, ab};
     B2.set_control_points(bez3);
     for (int i = oof - 1; i > 0; i--) {
         pss.push_back(B2(1.0 * i / oof));
     }
-    pss.push_back(paw_end);
+    pss.push_back(paw_end_d);
 
     const int iter = 25;
     math::BCurve B18(3 * oof);

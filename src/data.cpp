@@ -1,16 +1,17 @@
 #include "header.hpp"
 #include <json/value.h>
 #include <memory>
+#include <stdexcept>
 #include <system.hpp>
 #include <filesystem>
 #include <algorithm>
 #include <optional>
+#include <fstream>
+#include <sstream> 
 
 #include <unistd.h>
-#include <limits.h>
 
 namespace data {
-Json::Value g_cfg;
 std::unique_ptr<sf::Font> debug_font_holder;
 std::map<std::string, sf::Texture> img_holder;
 
@@ -44,21 +45,13 @@ std::unique_ptr<Json::Value> parse_config_file(std::ifstream& cfg_file) {
     return cfg;
 }
 
-const Json::Value& get_cfg() {
-    return g_cfg;
+sf::Vector2i Settings::get_window_size() const {
+    return value_or(config["window"]["size"], g_window_default_size);
 }
 
-sf::Vector2i get_cfg_window_default_size() {
-    return g_window_default_size;
-}
-
-sf::Vector2i get_cfg_window_size(const Json::Value &cfg) {
-    return value_or(cfg["window"]["size"], g_window_default_size);
-}
-
-sf::Transform get_cfg_window_transform(const Json::Value &cfg) {
-    auto window_config = cfg["window"];
-    const sf::Vector2i window_size = get_cfg_window_size(cfg);
+sf::Transform Settings::get_window_transform() const {
+    auto window_config = config["window"];
+    const sf::Vector2i window_size = get_window_size();
     const sf::Vector2i window_offset = value_or(window_config["offset"], sf::Vector2i(0, 0));
 
     sf::Vector2f scene_pos;
@@ -84,6 +77,32 @@ sf::Transform get_cfg_window_transform(const Json::Value &cfg) {
     }
 
     return transform;
+}
+
+bool Settings::is_mouse_left_handed() const {
+    return config["decoration"]["leftHanded"].asBool();
+}
+
+sf::Color Settings::get_background_color() const {
+    Json::Value rgb = config["decoration"]["rgb"];
+    int red_value = rgb[0].asInt();
+    int green_value = rgb[1].asInt();
+    int blue_value = rgb[2].asInt();
+    int alpha_value = rgb.size() == 3 ? 255 : rgb[3].asInt();
+
+    return sf::Color(red_value, green_value, blue_value, alpha_value);
+}
+
+std::string Settings::get_default_mode() const {
+    return config["mode"].asString();
+}
+
+const Json::Value& Settings::get_cat_config(const std::string& name) const{
+    return config["modes"][name];
+}
+
+std::vector<std::string> Settings::get_cat_modes() const {
+    return modes;
 }
 
 std::optional<int> json_key_to_scancode(const Json::Value& key) {
@@ -158,8 +177,9 @@ bool is_intersection(const std::vector<std::set<int>>& sets) {
     return false;
 }
 
-bool update(Json::Value &cfg_default, Json::Value &cfg) {
+static bool update(Json::Value &cfg_default, const Json::Value &cfg) {
     bool is_update = true;
+    
     for (const auto &key : cfg.getMemberNames()) {
         if (cfg_default.isMember(key)) {
             if (cfg_default[key].type() != cfg[key].type()) {
@@ -167,7 +187,7 @@ bool update(Json::Value &cfg_default, Json::Value &cfg) {
                 return false;
             }
             if (cfg_default[key].isArray() && !cfg_default[key].empty()) {
-                for (Json::Value &v : cfg[key]) {
+                for (const Json::Value &v : cfg[key]) {
                     auto new_v_type = cfg_default[key][0].type();
                     if (v.type() != new_v_type) {
                         // explicitly allow to chenge int to string and other way around
@@ -196,6 +216,55 @@ bool update(Json::Value &cfg_default, Json::Value &cfg) {
     return is_update;
 }
 
+bool Settings::find_cat_modes(const Json::Value &cfg) {
+
+    if (!cfg.isMember("modes")) {
+        logger::error("No modes entry is found in config file");
+        return false;
+    }
+
+    for (const auto& m : cfg["modes"].getMemberNames()) {
+        modes.push_back(m);
+    }
+
+    return true;
+}
+
+bool Settings::check_config_version(const Json::Value &cfg, std::string min_required) {
+    if (!cfg.isMember("version") || !cfg["version"].isString())
+        return false;
+
+    auto parse_version = [](std::string s) {
+        std::string tk;
+        std::vector<int> vnum;
+        std::stringstream vstr(s);
+
+        while (std::getline(vstr, tk, '.'))
+            vnum.push_back(std::stoi(tk));
+        return vnum;
+    };
+
+    std::vector<int> required_version, config_version;
+
+    try {
+        required_version = parse_version(min_required);
+        config_version = parse_version(cfg["version"].asString());
+    }
+    catch(const std::invalid_argument& e) {
+        return false;
+    }
+
+    if (required_version.size() != config_version.size())
+        return false;
+
+    for (size_t i = 0; i < config_version.size(); ++i) {
+        if (config_version[i] < required_version[i])
+            return false;
+    }
+
+    return true;
+}
+
 bool init() {
     // load debug font
     debug_font_holder = std::make_unique<sf::Font>();
@@ -208,7 +277,7 @@ bool init() {
     return true;
 }
 
-bool reload_config() {
+bool Settings::reload() {
     const auto system_info = os::create_system_info();
 
     std::string conf_file_path = CONF_FILE_NAME;
@@ -246,7 +315,17 @@ bool reload_config() {
         return false;
     }
 
-    return update(g_cfg, *cfg_read);
+    if (!update(config, *cfg_read))
+        return false;
+
+    const std::string min_version = "0.3.0";
+    if (!check_config_version(config, min_version)) {
+        logger::error( "Required config version>=" + min_version +
+                       ". You have to update your config file manually." );
+        return false;
+    }
+
+    return find_cat_modes(config);
 }
 
 sf::Texture &load_texture(std::string path) {

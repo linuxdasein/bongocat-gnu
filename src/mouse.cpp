@@ -6,8 +6,8 @@ extern "C" {
 #include <X11/extensions/Xrandr.h>
 }
 
+#include <cstring>
 #include <string>
-#include <cmath>
 #include <set>
 
 namespace input
@@ -31,7 +31,7 @@ class MouseXdo : public MouseBase
 {
 public:
 
-    MouseXdo(Display* display);
+    MouseXdo(Display* display, bool left_handed);
     ~MouseXdo();
 
     // Get the mouse position
@@ -52,11 +52,10 @@ private:
     Window curent_grabbing_window = 0;
 };
 
-MouseXdo::MouseXdo(Display* display)
-    : dpy(display) {
+MouseXdo::MouseXdo(Display* display, bool left_handed)
+    : dpy(display)
+    , is_left_handed(left_handed) {
     xdo = xdo_new(NULL);
-    auto cfg = data::get_cfg();
-    is_left_handed = cfg["decoration"]["leftHanded"].asBool();
 
     // Get the desktop resolution
     int num_sizes;
@@ -226,7 +225,7 @@ class MouseSfml : public MouseBase
 {
 public:
 
-    MouseSfml(Display* display);
+    MouseSfml(Display* display, bool left_handed);
     ~MouseSfml() = default;
 
     // get the mouse position
@@ -236,9 +235,8 @@ private:
     bool is_left_handed;
 };
 
-MouseSfml::MouseSfml(Display* display) {
-    is_left_handed = data::get_cfg()["decoration"]["leftHanded"].asBool();
-}
+MouseSfml::MouseSfml(Display* display, bool left_handed) 
+    : is_left_handed(left_handed) {}
 
 std::pair<double, double> MouseSfml::get_position() {
     // get global mouse postion in screen coordinates
@@ -256,7 +254,7 @@ std::pair<double, double> MouseSfml::get_position() {
     return std::make_pair(x, y);
 }
 
-std::unique_ptr<IMouse> create_mouse_handler(void* pdisplay) {
+std::unique_ptr<IMouse> create_mouse_handler(void* pdisplay, bool is_left_handed) {
     Display *display = static_cast<Display *>(pdisplay);
     const char* xdg_session_type = getenv("XDG_SESSION_TYPE");
     // unfortunately, xdotool does not work on Wayland sessions. The probmlem is that Wayland does not allow to get the mouse position
@@ -268,11 +266,11 @@ std::unique_ptr<IMouse> create_mouse_handler(void* pdisplay) {
         // some wayland specific implementations may be added here later, but for now
         // use a simple implementation which utilizes only SFML API to discover mouse position
         logger::info("Mouse tracking is not fully supported in Wayland session");
-        return std::make_unique<MouseSfml>(display);
+        return std::make_unique<MouseSfml>(display, is_left_handed);
     }
     else {
         // Leave Xorg specific stuff here
-        return std::make_unique<MouseXdo>(display);
+        return std::make_unique<MouseXdo>(display, is_left_handed);
     }
 }
 
