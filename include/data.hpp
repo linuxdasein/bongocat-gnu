@@ -4,12 +4,27 @@
 
 #include <optional>
 #include <stdexcept>
+#include <fstream>
 
 namespace data {
 
+class ConfigFile {
+public:
+    ConfigFile();
+
+    bool init(int argc, char ** argv);
+
+    std::ifstream& load_config_file();
+    std::string get_config_name() const;
+
+private:
+    std::ifstream cfg_file;
+    std::string conf_file_path;
+};
+
 class Settings {
 public:
-    bool reload();
+    bool reload(ConfigFile &cfg_file);
 
     // window settings
     sf::Vector2i get_window_size() const;

@@ -14,6 +14,7 @@ sources = files([
   'src/mousepaw.cpp',
   'src/system.cpp',
   'src/config.cpp',
+  'src/settings.cpp',
 ])
 
 ld_flags = []

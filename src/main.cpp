@@ -37,6 +37,13 @@ int main(int argc, char ** argv) {
     bool do_show_input_debug = false;
     bool do_show_debug_overlay = false;
     
+    // load config file
+    data::ConfigFile config_file;
+    if (!config_file.init(argc, argv)) {
+        logger::error("Fatal error has occured while loading config file");
+        return EXIT_FAILURE;
+    }
+
     data::Settings settings;
     std::unique_ptr<cats::ICat> cat;
     std::vector<std::string> modes;
@@ -45,7 +52,7 @@ int main(int argc, char ** argv) {
 
     auto reload_config = [&]() {
         // try to load config file
-        if(!settings.reload())
+        if(!settings.reload(config_file))
             return false;
 
         // update cat modes list
