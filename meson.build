@@ -45,3 +45,7 @@ executable('bongo', sources,
   dependencies: link_deps,
   include_directories: inc_dirs,
   install: true)
+
+# Install app resources
+install_subdir('img', install_dir : '')
+install_subdir('share', install_dir : '')
