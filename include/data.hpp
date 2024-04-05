@@ -10,8 +10,6 @@ namespace data {
 
 class ConfigFile {
 public:
-    ConfigFile();
-
     bool init(int argc, char ** argv);
 
     std::ifstream& load_config_file();
