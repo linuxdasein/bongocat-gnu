@@ -28,10 +28,22 @@ apt install -y libxrandr-dev libxdo-dev libjsoncpp-dev libgl-dev libudev-dev lib
 # for some reason libxdo-dev misses a pkg-config file, create it manually
 cp appimage/libxdo.pc /usr/share/pkgconfig/
 
+# cxxopts package is not present in current docker image's repos
+wget https://github.com/jarro2783/cxxopts/archive/refs/tags/v3.2.0.tar.gz
+# unpack the cxxopts sources
+tar -xzf v3.2.0.tar.gz && cd cxxopts-3.2.0
+# configure cxxopts
+cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+# install cxxopts
+make && make install && cd ..
+
+# cleanup: delete cxxopts sources
+rm -rf v3.2.0.tar.gz cxxopts-3.2.0
+
 # the SFML version in the apt repo is way outdated, we need to backport
 # the latest version. i.e. download the source and build locally
 wget https://github.com/SFML/SFML/archive/refs/tags/2.6.1.tar.gz
-# unpack the sources
+# unpack the SFML sources
 tar -xzf 2.6.1.tar.gz && cd SFML-2.6.1
 # configure the library's sources
 cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \

@@ -51,8 +51,13 @@ parts:
       - no-patchelf
     stage:
       - usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+  cxxopts:
+    plugin: cmake
+    source-type: tar
+    source: https://github.com/jarro2783/cxxopts/archive/refs/tags/v3.2.0.tar.gz
   bongocat:
     after:
+      - cxxopts
       - meson-deps
       - mesa-patchelf
       - mesa-no-patchelf
