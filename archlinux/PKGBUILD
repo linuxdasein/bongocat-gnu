@@ -22,14 +22,13 @@ pkgver() {
 build() {
     cd ../..
     rm -rf build
-    meson setup build --buildtype=release --prefix ${pkgdir}/opt/bongocat-gnu
+    meson setup build --buildtype=release --prefix ${pkgdir}/opt/bongocat-gnu -Dicondir=$pkgdir/usr/share/icons/hicolor
     meson compile -C build
 }
 
 package() {
     cd ../..
     meson install -C build
-    install -Dm644 $srcdir/../../ico/bongo.ico $pkgdir/usr/share/icons/hicolor/128x128/apps/bongocat.ico
     install -Dm755 $srcdir/../bongocat ${pkgdir}/usr/bin/bongocat
     install -Dm644 $srcdir/../bongocat-gnu.desktop ${pkgdir}/usr/share/applications/bongocat-osu.desktop
 }
