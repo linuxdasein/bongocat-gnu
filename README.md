@@ -70,7 +70,7 @@ makepkg -fi
 #### Flatpak
 Also the project can be built as a flatpak package. In order to do this one may execute the following command:
 ```
-flatpak-builder --user --install --install-deps-from=flathub --force-clean build flatpak/org.linuxdasein.BongoCat.yml 
+flatpak-builder --user --install --force-clean build flatpak/org.linuxdasein.BongoCat.yml 
 ```
 This command will build the application in the directory named `build` and automatically install the buit package. After 
 building and installation is done, the application can be lauched via flatpak:
