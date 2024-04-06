@@ -1,12 +1,10 @@
-#include "header.hpp"
+#include <header.hpp>
 #include <json/value.h>
 #include <memory>
 #include <stdexcept>
 #include <system.hpp>
-#include <filesystem>
 #include <algorithm>
 #include <optional>
-#include <fstream>
 #include <sstream> 
 
 #include <unistd.h>
@@ -177,13 +175,13 @@ bool is_intersection(const std::vector<std::set<int>>& sets) {
     return false;
 }
 
-static bool update(Json::Value &cfg_default, const Json::Value &cfg) {
+static bool update(Json::Value &cfg_default, const Json::Value &cfg, const std::string &cfg_name) {
     bool is_update = true;
     
     for (const auto &key : cfg.getMemberNames()) {
         if (cfg_default.isMember(key)) {
             if (cfg_default[key].type() != cfg[key].type()) {
-                logger::error("Error in " CONF_FILE_NAME ": Value type error in ");
+                logger::error("Error in " + cfg_name + ": Value type error in ");
                 return false;
             }
             if (cfg_default[key].isArray() && !cfg_default[key].empty()) {
@@ -198,14 +196,14 @@ static bool update(Json::Value &cfg_default, const Json::Value &cfg) {
                             contains(interchangeable_types, v.type())
                             && contains(interchangeable_types, new_v_type);
                         if(!is_interchange_allowed) {
-                            logger::error("Error in " CONF_FILE_NAME ": Value type error in array ");
+                            logger::error("Error in " + cfg_name + ": Value type error in array ");
                             return false;
                         }
                     }
                 }
             }
             if (cfg_default[key].isObject()) {
-                is_update &= update(cfg_default[key], cfg[key]);
+                is_update &= update(cfg_default[key], cfg[key], cfg_name);
             } else {
                 cfg_default[key] = cfg[key];
             }
@@ -277,45 +275,19 @@ bool init() {
     return true;
 }
 
-bool Settings::reload() {
-    const auto system_info = os::create_system_info();
-
-    std::string conf_file_path = CONF_FILE_NAME;
-    // if a file exists in the current directory it takes precendence
-    if(!std::filesystem::exists(conf_file_path)) {
-        // otherwise try to load a file from user's home directory
-        auto cfg_dir_path = system_info->get_config_dir_path();
-        conf_file_path = cfg_dir_path + CONF_FILE_NAME;
-        if(!std::filesystem::exists(conf_file_path)) {
-            // if no config file is present, create one with the default settings
-            const std::string cfg_file_template_path = "share/" CONF_FILE_NAME;
-                
-            if (std::filesystem::exists(cfg_file_template_path)) {
-                // create config from the default config template
-                std::filesystem::create_directories(cfg_dir_path);
-                std::filesystem::copy(cfg_file_template_path, conf_file_path);
-            }
-        }
-    }
-    std::ifstream cfg_file(conf_file_path);
-    if (!cfg_file.good()) {
-        std::string msg = "Error reading configs: Couldn't open config file " 
-            + conf_file_path + ":\n";
-        logger::error(msg);
-        return false;
-    }
-
+bool Settings::reload(ConfigFile &cfg_file) {
     std::unique_ptr<Json::Value> cfg_read;
+    
     try {
-        cfg_read = parse_config_file(cfg_file);
+        cfg_read = parse_config_file(cfg_file.load_config_file());
     }
     catch(std::runtime_error& e) {
-        std::string msg = "Error reading configs: Syntax error in " CONF_FILE_NAME ":\n";
+        std::string msg = "Error reading config " + cfg_file.get_config_name() + ":\n";
         logger::error( msg + e.what());
         return false;
     }
 
-    if (!update(config, *cfg_read))
+    if (!update(config, *cfg_read, cfg_file.get_config_name()))
         return false;
 
     const std::string min_version = "0.3.0";

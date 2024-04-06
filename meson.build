@@ -14,6 +14,7 @@ sources = files([
   'src/mousepaw.cpp',
   'src/system.cpp',
   'src/config.cpp',
+  'src/settings.cpp',
 ])
 
 ld_flags = []
@@ -33,6 +34,7 @@ link_deps = [
   dependency('xrandr'),
   dependency('libxdo'),
   dependency('jsoncpp'),
+  dependency('cxxopts'),
   dependency('sfml-window'),
   dependency('sfml-graphics')
 ]

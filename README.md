@@ -40,6 +40,7 @@ You need to have these dependencies installed. Check with your package manager f
 - sfml
 - x11
 - xrandr
+- cxxopts
 
 ### Building and testing
 

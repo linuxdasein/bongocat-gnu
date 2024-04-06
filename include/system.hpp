@@ -2,8 +2,6 @@
 
 #pragma once
 
-#define CONF_FILE_NAME "config.json"
-
 #include <string>
 #include <memory>
 
