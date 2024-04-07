@@ -1,7 +1,7 @@
 [Desktop Entry]
 Exec=
 Type=Application
-Icon=org.linuxdasein.BongoCat
+Icon=io.github.linuxdasein.bongocat_gnu
 Name=BongoCat
 Comment=A fork of the Bongo Cat overlay for GNU/Linux
 Categories=Utility;

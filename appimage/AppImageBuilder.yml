@@ -4,9 +4,9 @@ AppDir:
   path: ./AppDir
 
   app_info:
-    id: org.linuxdasein.BongoCat
+    id: io.github.linuxdasein.bongocat_gnu
     name: BongoCat
-    icon: org.linuxdasein.BongoCat
+    icon: io.github.linuxdasein.bongocat_gnu
     version: gnu
     exec: bin/bash
     exec_args: "$APPDIR/usr/local/bin/bongo.sh"

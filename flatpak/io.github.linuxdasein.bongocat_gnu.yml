@@ -1,4 +1,4 @@
-app-id: org.linuxdasein.BongoCat
+app-id: io.github.linuxdasein.bongocat_gnu
 runtime: org.freedesktop.Platform
 runtime-version: '23.08'
 sdk: org.freedesktop.Sdk
@@ -65,7 +65,7 @@ modules:
         path: ..
     post-install:
       - install -D ../flatpak/bongo.sh /app/bin
-      - install -D ../flatpak/bongocat-gnu.desktop /app/share/applications/org.linuxdasein.BongoCat.desktop
+      - install -D ../flatpak/bongocat-gnu.desktop /app/share/applications/io.github.linuxdasein.bongocat_gnu.desktop
 
 cleanup:
   - '/include'

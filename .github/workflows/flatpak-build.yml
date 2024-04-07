@@ -21,5 +21,5 @@ jobs:
       with:
         bundle: bongocat.flatpak
         build-bundle: ${{ inputs.upload }}
-        manifest-path: flatpak/org.linuxdasein.BongoCat.yml
+        manifest-path: flatpak/io.github.linuxdasein.bongocat_gnu.yml
         cache-key: flatpak-builder-${{ github.sha }}
