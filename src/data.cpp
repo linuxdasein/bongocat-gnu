@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <system.hpp>
 #include <algorithm>
+#include <filesystem>
 #include <optional>
 #include <sstream> 
 
@@ -266,9 +267,17 @@ bool Settings::check_config_version(const Json::Value &cfg, std::string min_requ
 bool init() {
     // load debug font
     debug_font_holder = std::make_unique<sf::Font>();
-    if (!debug_font_holder->loadFromFile("share/RobotoMono-Bold.ttf")) {
-        logger::error("Error loading font: Cannot find the font : RobotoMono-Bold.ttf");
-        return false;
+
+    const auto system_info = os::create_system_info();
+    const std::string local_path = "share/RobotoMono-Bold.ttf";
+    const std::string full_path = system_info->get_app_dir_path() / local_path;
+
+    if (!std::filesystem::exists(full_path) || !debug_font_holder->loadFromFile(full_path)) {
+        // if not found in install prefix, try current directory
+        if (!std::filesystem::exists(local_path) || !debug_font_holder->loadFromFile(local_path)) {
+            logger::error("Error loading font: Cannot find the font : RobotoMono-Bold.ttf");
+            return false;
+        } 
     }
 
     img_holder.clear();
@@ -301,12 +310,27 @@ bool Settings::reload(ConfigFile &cfg_file) {
 }
 
 sf::Texture &load_texture(std::string path) {
-    if (img_holder.find(path) == img_holder.end()) {
-        while (!img_holder[path].loadFromFile(path)) {
-            logger::error("Error importing images: Cannot find file " + path);
-        }
-    }
-    return img_holder[path];
+    bool is_full_path = path[0] == '/';
+    const auto system_info = os::create_system_info();
+    std::filesystem::path full_path = is_full_path 
+        ? std::filesystem::path(path)
+        : system_info->get_app_dir_path() / path;
+
+    if (img_holder.find(full_path) != img_holder.end())
+        return img_holder[full_path];
+
+    if (img_holder.find(path) != img_holder.end())
+        return img_holder[path];
+
+    if (std::filesystem::exists(full_path)
+        && img_holder[full_path].loadFromFile(full_path))
+        return img_holder[full_path];
+
+    if (std::filesystem::exists(path)
+        && img_holder[path].loadFromFile(path))
+        return img_holder[path];
+        
+    throw std::runtime_error("Error importing images: Cannot open file " + full_path.string());
 }
 
 sf::Font &get_debug_font() {
