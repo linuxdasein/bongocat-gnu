@@ -1,6 +1,6 @@
 [Desktop Entry]
 Categories=Utility;
-Exec=bongocat %u
+Exec=/opt/bongocat-gnu/bin/bongo %u
 Icon=/usr/share/icons/hicolor/128x128/apps/io.github.linuxdasein.bongocat_gnu.ico
 Name=BongoCat
 Comment=A fork of the Bongo Cat overlay for GNU/Linux

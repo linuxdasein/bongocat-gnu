@@ -29,6 +29,5 @@ build() {
 package() {
     cd ../..
     meson install -C build
-    install -Dm755 $srcdir/../bongocat ${pkgdir}/usr/bin/bongocat
     install -Dm644 $srcdir/../bongocat-gnu.desktop ${pkgdir}/usr/share/applications/bongocat-gnu.desktop
 }
