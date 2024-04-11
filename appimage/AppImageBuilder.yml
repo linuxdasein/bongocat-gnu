@@ -8,8 +8,7 @@ AppDir:
     name: BongoCat
     icon: io.github.linuxdasein.bongocat_gnu
     version: gnu
-    exec: bin/bash
-    exec_args: "$APPDIR/usr/local/bin/bongo.sh"
+    exec: usr/local/bin/bongo
 
   apt:
     arch: amd64

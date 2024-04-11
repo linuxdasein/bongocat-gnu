@@ -74,9 +74,6 @@ meson compile -C build
 # install the application
 meson install -C build
 
-# install the app wrapper script
-install -Dm755 ./appimage/bongo.sh ${APPDIR}/usr/local/bin/bongo.sh
-
 # revert back python to make appimage-builder work
 update-alternatives --set python3 /usr/bin/python3.6
 
