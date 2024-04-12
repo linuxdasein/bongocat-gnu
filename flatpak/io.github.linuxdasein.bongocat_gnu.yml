@@ -2,7 +2,7 @@ app-id: io.github.linuxdasein.bongocat_gnu
 runtime: org.freedesktop.Platform
 runtime-version: '23.08'
 sdk: org.freedesktop.Sdk
-command: bongo.sh
+command: /app/bin/bongo
 finish-args:
   # X11 access
   - --share=ipc
@@ -64,7 +64,6 @@ modules:
       - type: dir
         path: ..
     post-install:
-      - install -D ../flatpak/bongo.sh /app/bin
       - install -D ../flatpak/bongocat-gnu.desktop /app/share/applications/io.github.linuxdasein.bongocat_gnu.desktop
 
 cleanup:
