@@ -65,6 +65,8 @@ modules:
         path: ..
     post-install:
       - install -D ../flatpak/bongocat-gnu.desktop /app/share/applications/io.github.linuxdasein.bongocat_gnu.desktop
+    cleanup:
+      - '/share/icons/hicolor/128x128/apps/io.github.linuxdasein.bongocat_gnu.ico'
 
 cleanup:
   - '/include'
