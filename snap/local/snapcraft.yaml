@@ -13,7 +13,7 @@ base: core22
 
 apps:
   bongocat:
-    command: snap/local/bongo.sh
+    command: /bin/bongo
     plugs:
       - x11
       - opengl
