@@ -9,7 +9,7 @@ jobs:
     container:
       image: appimagecrafters/appimage-builder:latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3 # TODO: updating to v4 is blocked because of old glibc in docker image
       - name: "Build AppImage in docker"
         run: appimage/build.sh
       - uses: actions/upload-artifact@v3

@@ -1,0 +1,1 @@
+option('icondir', type : 'string', value : 'usr/share/icons/hicolor', description : 'Absolute or relative icons installation path')

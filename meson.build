@@ -45,3 +45,16 @@ executable('bongo', sources,
   dependencies: link_deps,
   include_directories: inc_dirs,
   install: true)
+
+# Install app resources
+install_subdir('img', install_dir : '')
+install_subdir('share', install_dir : '')
+icon_dir = get_option('icondir')
+
+# Install icons in os specific directory
+install_data('ico/bongo.ico',         install_dir : icon_dir / '128x128/apps', rename : 'io.github.linuxdasein.bongocat_gnu.ico' )
+install_data('ico/bongo-16x16.png',   install_dir : icon_dir / '16x16/apps',   rename : 'io.github.linuxdasein.bongocat_gnu.png' )
+install_data('ico/bongo-24x24.png',   install_dir : icon_dir / '24x24/apps',   rename : 'io.github.linuxdasein.bongocat_gnu.png' )
+install_data('ico/bongo-32x32.png',   install_dir : icon_dir / '32x32/apps',   rename : 'io.github.linuxdasein.bongocat_gnu.png' )
+install_data('ico/bongo-48x48.png',   install_dir : icon_dir / '48x48/apps',   rename : 'io.github.linuxdasein.bongocat_gnu.png' )
+install_data('ico/bongo-170x170.png', install_dir : icon_dir / '170x170/apps', rename : 'io.github.linuxdasein.bongocat_gnu.png' )
