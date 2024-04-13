@@ -9,6 +9,6 @@ jobs:
     container:
       image: archlinux:latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: "Run makepkg in docker"
         run: archlinux/build.sh
