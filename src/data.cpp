@@ -125,19 +125,33 @@ std::optional<int> json_key_to_scancode(const Json::Value& key) {
     return std::nullopt;
 }
 
-std::set<int> json_key_to_scancodes(const Json::Value& key) {
+std::optional<int> json_joy_key_to_scancode(const Json::Value& key) {
+    if (key.isInt()) {
+        return key.asInt();
+    }
+    else {
+        logger::error("Error reading configs: Invalid key value: " + key.asString());
+    }
+    return std::nullopt;
+}
+
+std::set<int> json_key_to_scancodes(const Json::Value& key, bool is_joystick) {
     std::set<int> codes;
 
     if (key.isArray()) {
         for (const Json::Value &v : key) {
-            auto code = json_key_to_scancode(v);
+            auto code = is_joystick 
+                ? json_joy_key_to_scancode(v) 
+                : json_key_to_scancode(v);
             if (code.has_value()) {
                 codes.insert(*code);
             }
         }
     }
     else {
-        auto code = json_key_to_scancode(key);
+        auto code = is_joystick 
+            ? json_joy_key_to_scancode(key) 
+            : json_key_to_scancode(key);
         if (code.has_value()) {
             codes.insert(*code);
         }

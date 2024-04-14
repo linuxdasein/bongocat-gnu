@@ -73,8 +73,8 @@ public:
 private:
     class Key {
     public:
-        Key(int i, bool p)
-            : id(i), persistent(p) {}
+        Key(int i, bool p, bool j)
+            : id(i), persistent(p), is_joystick(j) {}
 
         void add_codes(std::set<int> cds) {
             codes.merge(cds);
@@ -97,6 +97,7 @@ private:
     private:
         int id;
         bool persistent;
+        bool is_joystick;
         std::set<int> codes;
     };
 

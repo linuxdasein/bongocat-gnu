@@ -37,11 +37,19 @@ private:
 namespace cats {
 
 bool CatKeyboardGroup::Key::is_pressed() const {
-    for(auto code : codes) {
-        if(!input::is_pressed(code))
-            return false;
+    if (is_joystick) {
+        for(auto code : codes) {
+            if(input::is_joystick_pressed(code))
+                return true;
+        }
     }
-    return true;
+    else {
+        for(auto code : codes) {
+            if(input::is_pressed(code))
+                return true;
+        }
+    }
+    return false;
 }
 
 void CatKeyboardGroup::init(const Json::Value& keys_config) {
@@ -83,8 +91,20 @@ void CatKeyboardGroup::init(const Json::Value& keys_config) {
         sprites.push_back(std::move(sprite));
 
         for (auto json_code : binding["keyCodes"]) {
-            Key key(key_id, is_persistent);
-            auto key_code = data::json_key_to_scancodes(json_code);
+            Key key(key_id, is_persistent, false);
+            auto key_code = data::json_key_to_scancodes(json_code, false);
+            key.add_codes(key_code);
+            if (json_code.isArray())
+                combined_keys.push_back(key);
+            else
+                released_keys.push_back(key);
+            key_actions[key_id] = sprites.back().get();
+            ++key_id;
+        }
+
+        for (auto json_code : binding["joyCodes"]) {
+            Key key(key_id, is_persistent, true);
+            auto key_code = data::json_key_to_scancodes(json_code, true);
             key.add_codes(key_code);
             if (json_code.isArray())
                 combined_keys.push_back(key);
