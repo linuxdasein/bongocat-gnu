@@ -76,6 +76,7 @@ bool ConfigFile::init(int argc, char** argv) {
 }
 
 std::ifstream& ConfigFile::load_config_file() {
+    cfg_file.close();
     cfg_file.open(conf_file_path);
     if (!cfg_file.good()) {
         std::string msg = "Error reading configs: Couldn't open config file " 
