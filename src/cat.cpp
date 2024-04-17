@@ -39,17 +39,17 @@ namespace cats {
 bool CatKeyboardGroup::Key::is_pressed() const {
     if (is_joystick) {
         for(auto code : codes) {
-            if(input::is_joystick_pressed(code))
-                return true;
+            if(!input::is_joystick_pressed(code))
+                return false;
         }
     }
     else {
         for(auto code : codes) {
-            if(input::is_pressed(code))
-                return true;
+            if(!input::is_pressed(code))
+                return false;
         }
     }
-    return false;
+    return true;
 }
 
 void CatKeyboardGroup::init(const Json::Value& keys_config) {
