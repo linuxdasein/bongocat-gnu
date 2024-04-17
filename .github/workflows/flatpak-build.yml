@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: "Build package in docker"
-      uses: flatpak/flatpak-github-actions/flatpak-builder@v6.1
+      uses: flatpak/flatpak-github-actions/flatpak-builder@v6.3
       with:
         bundle: bongocat.flatpak
         build-bundle: ${{ inputs.upload }}
