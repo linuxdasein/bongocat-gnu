@@ -11,8 +11,6 @@ on:
 jobs:
   build_flatpak:
     uses: ./.github/workflows/flatpak-build.yml
-    with:
-      upload: true
   build_appimage:
     uses: ./.github/workflows/appimage-build.yml
   build_snap:
@@ -36,6 +34,6 @@ jobs:
           draft: true
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            ${{ steps.download.outputs.download-path }}/bongocat-x86_64/*
+            ${{ steps.download.outputs.download-path }}/bongocat-flatpak-x86_64/*
             ${{ steps.download.outputs.download-path }}/bongocat-appimage-x86_64/*
             ${{ steps.download.outputs.download-path }}/bongocat-snap-x86_64/*

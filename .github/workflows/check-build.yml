@@ -9,12 +9,18 @@ jobs:
   flatpak:
     name: "Check flatpak build"
     uses: ./.github/workflows/flatpak-build.yml
+    with:
+      upload: true
   appimage:
     name: "Check AppImage build"
     uses: ./.github/workflows/appimage-build.yml
+    with:
+      upload: true
   snap:
     name: "Check Snap build"
     uses: ./.github/workflows/snap-build.yml
+    with:
+      upload: true
   archlinux:
     name: "Check Archlinux build"
     uses: ./.github/workflows/archlinux-build.yml
