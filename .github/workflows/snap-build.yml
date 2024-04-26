@@ -1,6 +1,11 @@
 name: '[CI]: Snap build'
 on:
   workflow_call:
+    inputs:
+      upload:
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   appimage:
@@ -13,6 +18,7 @@ jobs:
       - name: "Build package with snapcraft"
         uses: snapcore/action-build@v1
       - uses: actions/upload-artifact@v4
+        if: ${{ inputs.upload }}
         with:
           name: bongocat-snap-x86_64
           path: bongocat_*.snap

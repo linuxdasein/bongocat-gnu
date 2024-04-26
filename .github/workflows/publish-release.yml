@@ -9,33 +9,27 @@ on:
       - "*.*.*"
 
 jobs:
-  build_flatpak:
-    uses: ./.github/workflows/flatpak-build.yml
-    with:
-      upload: true
   build_appimage:
     uses: ./.github/workflows/appimage-build.yml
-  build_snap:
-    uses: ./.github/workflows/snap-build.yml
+    with:
+      upload: true
   release:
-    needs: [build_flatpak, build_appimage, build_snap]
+    needs: [build_appimage]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - id: download
         name: Download release artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v3 # update to v4 is blocked due to build appimage action
         with:
           path: artifacts
       - name: 'Display downloaded artifacts'
         run: ls -R ${{ steps.download.outputs.download-path }}
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           draft: true
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            ${{ steps.download.outputs.download-path }}/bongocat-x86_64/*
             ${{ steps.download.outputs.download-path }}/bongocat-appimage-x86_64/*
-            ${{ steps.download.outputs.download-path }}/bongocat-snap-x86_64/*

@@ -1,6 +1,11 @@
 name: '[CI]: AppImage build'
 on:
   workflow_call:
+    inputs:
+      upload:
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   appimage:
@@ -13,6 +18,7 @@ jobs:
       - name: "Build AppImage in docker"
         run: appimage/build.sh
       - uses: actions/upload-artifact@v3
+        if: ${{ inputs.upload }}
         with:
           name: bongocat-appimage-x86_64
           path: BongoCat-*-x86_64.AppImage
