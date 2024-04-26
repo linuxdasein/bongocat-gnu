@@ -9,14 +9,12 @@ on:
       - "*.*.*"
 
 jobs:
-  build_flatpak:
-    uses: ./.github/workflows/flatpak-build.yml
   build_appimage:
     uses: ./.github/workflows/appimage-build.yml
-  build_snap:
-    uses: ./.github/workflows/snap-build.yml
+    with:
+      upload: true
   release:
-    needs: [build_flatpak, build_appimage, build_snap]
+    needs: [build_appimage]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,6 +32,4 @@ jobs:
           draft: true
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            ${{ steps.download.outputs.download-path }}/bongocat-flatpak-x86_64/*
             ${{ steps.download.outputs.download-path }}/bongocat-appimage-x86_64/*
-            ${{ steps.download.outputs.download-path }}/bongocat-snap-x86_64/*
