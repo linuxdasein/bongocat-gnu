@@ -128,7 +128,7 @@ bool init(int width, int height, bool is_left_handed) {
     debugText.setPosition(10.0f, 4.0f);
     debugText.setString(debugMessage);
 
-    g_mouse = create_mouse_handler(dpy, is_left_handed);
+    g_mouse = create_mouse_handler(is_left_handed);
 
     return true;
 }

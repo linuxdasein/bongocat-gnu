@@ -24,7 +24,14 @@ public:
     virtual ~IMouse() {};
 };
 
+class MouseBase : public IMouse {
+public:
+    bool is_left_button_pressed() override;
+    bool is_right_button_pressed() override;
+};
 
-std::unique_ptr<IMouse> create_mouse_handler(void* display, bool is_left_handed);
+std::unique_ptr<IMouse> create_mouse_handler(bool is_left_handed);
+
+std::unique_ptr<IMouse> create_xdo_mouse_handler(bool is_left_handed);
 
 }

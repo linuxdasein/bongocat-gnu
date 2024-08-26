@@ -32,12 +32,17 @@ inc_dirs = include_directories('include')
 link_deps = [
   dependency('x11'),
   dependency('xrandr'),
-  dependency('libxdo'),
   dependency('jsoncpp'),
   dependency('cxxopts'),
   dependency('sfml-window'),
   dependency('sfml-graphics')
 ]
+
+if get_option('enable_xdo')
+  sources += ['src/mousexdo.cpp']
+  link_deps += [dependency('libxdo')]
+  cpp_flags += ['-DBONGO_ENABLE_XDO']
+endif
 
 executable('bongo', sources,
   cpp_args: cpp_flags,
