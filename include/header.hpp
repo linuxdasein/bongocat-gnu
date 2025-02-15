@@ -10,7 +10,7 @@
 
 namespace data {
 
-extern const sf::Vector2i g_window_default_size;
+extern const sf::Vector2u g_window_default_size;
 
 std::set<int> json_key_to_scancodes(const Json::Value& key_array, bool is_joystick);
 bool is_intersection(const std::vector<std::set<int>>& sets);
@@ -32,7 +32,7 @@ IMouse& get_mouse_input();
 
 void drawDebugPanel(sf::RenderWindow& window);
 
-void cleanup();
+void cleanup(); // TODO: use RAII here
 }; // namespace input
 
 namespace logger {

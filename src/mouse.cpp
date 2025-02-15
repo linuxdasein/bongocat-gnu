@@ -244,8 +244,8 @@ std::pair<double, double> MouseSfml::get_position() {
     auto video_mode = sf::VideoMode::getDesktopMode();
 
     // project into a unit square
-    float x = float(mouse_pos.x) / video_mode.width;
-    float y = float(mouse_pos.y) / video_mode.height;
+    float x = float(mouse_pos.x) / video_mode.size.x;
+    float y = float(mouse_pos.y) / video_mode.size.y;
 
     if (is_left_handed) {
         x = 1.f - x;

@@ -1,5 +1,7 @@
 #include "header.hpp"
+#include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/Transform.hpp>
+#include <SFML/System/Angle.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <cat.hpp>
 #include <input.hpp>
@@ -78,9 +80,11 @@ bool MousePaw::init(const Json::Value& mouse_cfg, const Json::Value& paw_draw_in
         logger::info("No pawBoundaryPoints section found in config file, using default values");
     }
 
-    device.setScale(scale, scale);
-    left_button.setScale(scale, scale);
-    right_button.setScale(scale, scale);
+    const sf::Vector2f scale2f{(float)scale, (float)scale};
+
+    device->setScale(scale2f);
+    left_button->setScale(scale2f);
+    right_button->setScale(scale2f);
 
     return true;
 }
@@ -182,9 +186,11 @@ void MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
     // need some offset depending on the actual sprite being used
     const math::point2d moffset = {-52 - 15, -34 + 5};
     const math::point2d dpos = (ab + m) / 2.0 + moffset;
-    device.setPosition(dpos.x + offset.x, dpos.y + offset.y);
-    left_button.setPosition(dpos.x + offset.x, dpos.y + offset.y);
-    right_button.setPosition(dpos.x + offset.x, dpos.y + offset.y);
+    const sf::Vector2f dpos2f{(float)dpos.x + offset.x, (float)dpos.y + offset.y};
+
+    device->setPosition(dpos2f);
+    left_button->setPosition(dpos2f);
+    right_button->setPosition(dpos2f);
 
     // convert to float (consider to perform math in float in the first place)
     std::vector<sf::Vector2f> pss2f;
@@ -198,7 +204,7 @@ void MousePaw::update_paw_position(std::pair<double, double> mouse_pos) {
 void MousePaw::draw_paw(sf::RenderTarget& target, sf::RenderStates rst) const {
     // drawing arm's body
     const size_t nump = pss2.size();
-    sf::VertexArray fill(sf::TriangleStrip, nump);
+    sf::VertexArray fill(sf::PrimitiveType::TriangleStrip, nump);
     for (size_t i = 0; i < nump; i += 2) {
         fill[i].position = pss2[i];
         fill[i + 1].position = pss2[nump - i - 1];
@@ -227,12 +233,12 @@ void MousePaw::draw_arc(sf::RenderTarget& target, sf::RenderStates rst, sf::Colo
     target.draw(circ, rst);
 
     sf::Transform rotate_left, rotate_right;
-    rotate_left.rotate(-90); // counter-clockwise rotation
-    rotate_right.rotate(90); // clockwise rotation
+    rotate_left.rotate(sf::degrees(-90)); // counter-clockwise rotation
+    rotate_right.rotate(sf::degrees(90)); // clockwise rotation
 
     // Next, we draw the arm's arc, using triangle strip
     const size_t nump = pss2.size();
-    sf::VertexArray edge(sf::TriangleStrip, nump * 2);
+    sf::VertexArray edge(sf::PrimitiveType::TriangleStrip, nump * 2);
     for (size_t i = 0; i < nump; i += 1, width -= 0.08) {
         // construct a vector, pointing at the direction of the next paw point
         auto vec = (i == nump-1) 

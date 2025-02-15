@@ -20,6 +20,7 @@ class ICat : public sf::Drawable
 public:
 
     // Initilizes the cat
+    // TODO: replace init method with constructor
     virtual bool init(const data::Settings& st, const Json::Value& cfg) = 0;
 
     // Updates cat's state, called per frame
@@ -45,7 +46,7 @@ protected:
     // Set offset and scale for mouse sprite
     void set_mouse_parameters(sf::Vector2i offset, double scale);
 
-    sf::Sprite device, left_button, right_button;
+    std::unique_ptr<sf::Sprite> device, left_button, right_button;
 private:
     // draw an arc about an array of points
     void draw_arc(sf::RenderTarget& target, sf::RenderStates rst, sf::Color color, float width) const;
@@ -125,7 +126,7 @@ private:
 
 private:
 
-    sf::Sprite bg;
+    std::unique_ptr<sf::Sprite> bg;
     std::list<std::unique_ptr<CatKeyboardGroup>> kbd_groups;
 
     bool is_mouse, is_mouse_on_top;
