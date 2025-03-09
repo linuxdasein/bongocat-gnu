@@ -9,7 +9,7 @@ description: |
 version: gnu
 grade: devel
 confinement: strict
-base: core22
+base: core24
 
 apps:
   bongocat:
@@ -25,42 +25,36 @@ apps:
       LIBGL_DRIVERS_PATH: $SNAP/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
 
 parts:
-  meson-deps: # meson is not pre-installed in core22
+  meson-deps: # meson is not pre-installed in core24
     plugin: nil
     override-build: |
-      pip install meson
-    build-packages:
-      - python3-pip
+      apt install meson
   libxdo-pkgconfig-file: # libxdo-dev misses a pkgbuild file
     plugin: nil
     override-build: |
       cp $SNAPCRAFT_PART_SRC/libxdo.pc /usr/lib/pkgconfig/
     source-type: local
     source: ./snap/local
-  mesa-patchelf: # https://forum.snapcraft.io/t/opengl-broken-in-classic-core20-snap-on-22-04/29401/2
-    plugin: nil
-    stage-packages:
-      - libgl1-mesa-dri
-    stage:
-      - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
-  mesa-no-patchelf:
-    plugin: nil
-    stage-packages:
-      - libgl1-mesa-dri
-    build-attributes:
-      - no-patchelf
-    stage:
-      - usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
   cxxopts:
     plugin: cmake
     source-type: tar
     source: https://github.com/jarro2783/cxxopts/archive/refs/tags/v3.2.0.tar.gz
+  sfml:
+    plugin: cmake
+    cmake-parameters:
+      - -S/root/parts/sfml/src/SFML-3.0.0
+      - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DSFML_BUILD_NETWORK=false
+      - -DSFML_BUILD_AUDIO=false
+      - -DBUILD_SHARED_LIBS=ON
+    source-type: zip
+    source: https://www.sfml-dev.org/files/SFML-3.0.0-sources.zip
   bongocat:
     after:
+      - sfml
       - cxxopts
       - meson-deps
-      - mesa-patchelf
-      - mesa-no-patchelf
       - libxdo-pkgconfig-file
     plugin: meson
     meson-parameters:
@@ -71,17 +65,20 @@ parts:
     build-packages:
       - pkg-config
       - ninja-build
+      - libgl-dev
+      - libudev-dev
       - libxrandr-dev
+      - libxcursor-dev
+      - libfreetype-dev
+      - libxi-dev
       - libxdo-dev
       - libjsoncpp-dev
-      - libsfml-dev
     stage-packages:
       - libxrandr2
       - libxdo3
       - libjsoncpp25
-      - libsfml-system2.5
-      - libsfml-window2.5
-      - libsfml-graphics2.5
+      - libxcursor1
+      - libxi6
   bongocat-data:
     plugin: dump
     source-type: local

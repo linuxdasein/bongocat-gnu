@@ -1,6 +1,7 @@
 #include "cat.hpp"
 #include "header.hpp"
 #include "logger.hpp"
+#include <algorithm>
 #include <cstdlib>
 #include <memory>
 
@@ -15,8 +16,8 @@ int main(int argc, char ** argv) {
 
     sf::RenderWindow window;
     // initially create window with default size
-    sf::Vector2i window_size = data::g_window_default_size;
-    window.create(sf::VideoMode(window_size.x, window_size.y), "Bongo Cat", sf::Style::Titlebar | sf::Style::Close);
+    sf::Vector2u window_size = data::g_window_default_size;
+    window.create(sf::VideoMode(window_size), "Bongo Cat", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(MAX_FRAMERATE);
 
     // initialize input
@@ -72,7 +73,7 @@ int main(int argc, char ** argv) {
         if (window_size != cfg_window_size) {
             // reinitialize window only if config size has changed
             window_size = cfg_window_size;
-            window.create(sf::VideoMode(window_size.x, window_size.y), 
+            window.create(sf::VideoMode(window_size), 
                 "Bongo Cat", sf::Style::Titlebar | sf::Style::Close);
             log_overlay.set_size(window_size);
             if (!input::init(window_size.x, window_size.y, settings.is_mouse_left_handed()))
@@ -92,22 +93,19 @@ int main(int argc, char ** argv) {
             try_reload_config = false;
         }
 
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            switch (event.type) {
-            case sf::Event::Closed:
+        while (const std::optional event = window.pollEvent()) {
+            if( event->is<sf::Event::Closed>() ) {
                 window.close();
-                break;
-
-            case sf::Event::KeyPressed:
+            }
+            else if (const auto* evtKey = event->getIf<sf::Event::KeyPressed>()) {
                 // get reload config prompt
-                if (event.key.code == sf::Keyboard::R && event.key.control) {
+                if (evtKey->code == sf::Keyboard::Key::R && evtKey->control) {
                     try_reload_config = true;
                     break;
                 }
 
                 // switch to the next cat mode
-                if (event.key.code == sf::Keyboard::N && event.key.control) {
+                if (evtKey->code == sf::Keyboard::Key::N && evtKey->control) {
                     if (is_config_loaded) {
                         ++mode;
                         if (mode == modes.end())
@@ -119,18 +117,16 @@ int main(int argc, char ** argv) {
                 }
 
                 // toggle joystick debug panel
-                if (event.key.code == sf::Keyboard::D && event.key.control) {
+                if (evtKey->code == sf::Keyboard::Key::D && evtKey->control) {
                     do_show_input_debug = !do_show_input_debug;
                     break;
                 }
 
                 // toggle log overlay
-                if (event.key.code == sf::Keyboard::L && event.key.control) {
+                if (evtKey->code == sf::Keyboard::Key::L && evtKey->control) {
                     do_show_debug_overlay = ! do_show_debug_overlay;
                     break;
                 }
-
-            default: break;
             }
         }
 

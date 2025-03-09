@@ -19,12 +19,12 @@ bool contains(C container, T object) {
     return std::find(container.begin(), container.end(), object) != std::end(container);
 }
 
-const sf::Vector2i g_window_default_size(612, 352);
+const sf::Vector2u g_window_default_size(612, 352);
 
-static inline sf::Vector2i value_or(const Json::Value& v, sf::Vector2i defv) {
-    return sf::Vector2i(
-        v[0].isNull() ? defv.x : v[0].asInt(),
-        v[1].isNull() ? defv.y : v[1].asInt()
+static inline sf::Vector2u value_or(const Json::Value& v, sf::Vector2u defv) {
+    return sf::Vector2u(
+        v[0].isNull() ? defv.x : v[0].asUInt(),
+        v[1].isNull() ? defv.y : v[1].asUInt()
     );
 }
 
@@ -44,18 +44,18 @@ std::unique_ptr<Json::Value> parse_config_file(std::ifstream& cfg_file) {
     return cfg;
 }
 
-sf::Vector2i Settings::get_window_size() const {
+sf::Vector2u Settings::get_window_size() const {
     return value_or(config["window"]["size"], g_window_default_size);
 }
 
 sf::Transform Settings::get_window_transform() const {
     auto window_config = config["window"];
-    const sf::Vector2i window_size = get_window_size();
-    const sf::Vector2i window_offset = value_or(window_config["offset"], sf::Vector2i(0, 0));
+    const sf::Vector2u window_size = get_window_size();
+    const sf::Vector2u window_offset = value_or(window_config["offset"], sf::Vector2u(0, 0));
 
     sf::Vector2f scene_pos;
-    scene_pos.x = std::clamp(window_offset.x, 0, window_size.x);
-    scene_pos.y = std::clamp(window_offset.y, 0, window_size.y);
+    scene_pos.x = std::clamp(window_offset.x, 0u, window_size.x);
+    scene_pos.y = std::clamp(window_offset.y, 0u, window_size.y);
 
     const bool is_adaptive = window_config["adaptive"].isNull() ?
         false : window_config["adaptive"].asBool();
@@ -286,9 +286,9 @@ bool init() {
     const std::string local_path = "share/RobotoMono-Bold.ttf";
     const std::string full_path = system_info->get_app_dir_path() / local_path;
 
-    if (!std::filesystem::exists(full_path) || !debug_font_holder->loadFromFile(full_path)) {
+    if (!std::filesystem::exists(full_path) || !debug_font_holder->openFromFile(full_path)) {
         // if not found in install prefix, try current directory
-        if (!std::filesystem::exists(local_path) || !debug_font_holder->loadFromFile(local_path)) {
+        if (!std::filesystem::exists(local_path) || !debug_font_holder->openFromFile(local_path)) {
             logger::error("Error loading font: Cannot find the font : RobotoMono-Bold.ttf");
             return false;
         } 

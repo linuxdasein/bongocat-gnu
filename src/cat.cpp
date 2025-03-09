@@ -1,6 +1,8 @@
 #include "cat.hpp"
 #include "header.hpp"
+#include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <memory>
 #include <stdexcept>
 
 namespace {
@@ -164,7 +166,7 @@ bool CustomCat::init(const data::Settings&, const Json::Value& config) {
         if (!config.isMember("background") || !config["background"].isString())
             throw std::runtime_error("Custom background not found");
 
-        bg.setTexture(data::load_texture(config["background"].asString()));
+        bg = std::make_unique<sf::Sprite>(data::load_texture(config["background"].asString()));
 
         if (config.isMember("keyboard")) {
             if(config["keyboard"].isArray()){
@@ -212,7 +214,7 @@ bool CustomCat::init_mouse(const Json::Value& config) {
     if (!image_path)
         throw std::runtime_error("No image is set in mouse config section");
 
-    device.setTexture(data::load_texture(image_path.value()));
+    device = std::make_unique<sf::Sprite>(data::load_texture(image_path.value()));
     MousePaw::set_mouse_parameters(offset, scale);
 
     if (config.isMember("buttons")) {
@@ -221,9 +223,9 @@ bool CustomCat::init_mouse(const Json::Value& config) {
         const auto rb_image_path = key_bindings.getProperty<std::string>("right");
 
         if (lb_image_path)
-            left_button.setTexture(data::load_texture(lb_image_path.value()));
+            left_button = std::make_unique<sf::Sprite>(data::load_texture(lb_image_path.value()));
         if (rb_image_path)
-            right_button.setTexture(data::load_texture(rb_image_path.value()));
+            right_button = std::make_unique<sf::Sprite>(data::load_texture(rb_image_path.value()));
     }
 
     if (!MousePaw::init(config, config))
@@ -243,12 +245,12 @@ void CustomCat::update() {
 }
 
 void CustomCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
-    target.draw(bg, rst);
+    target.draw(*bg, rst);
 
     if (is_mouse) {
         // drawing mouse on top
         if (is_mouse_on_top) {
-            target.draw(device, rst);
+            target.draw(*device, rst);
         }
 
         // draw mouse paw
@@ -261,14 +263,14 @@ void CustomCat::draw(sf::RenderTarget& target, sf::RenderStates rst) const {
 
     // drawing mouse at the bottom
     if (is_mouse && !is_mouse_on_top) {
-        target.draw(device, rst);
+        target.draw(*device, rst);
     }
 
     // draw mouse buttons
     if(input::get_mouse_input().is_left_button_pressed())
-        target.draw(left_button, rst);
+        target.draw(*left_button, rst);
     if(input::get_mouse_input().is_right_button_pressed())
-        target.draw(right_button, rst);
+        target.draw(*right_button, rst);
 }
 
 } // namespace cats

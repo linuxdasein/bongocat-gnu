@@ -51,11 +51,11 @@ SfmlOverlayLogger::SfmlOverlayLogger(int w, int h)
 }
 
 void SfmlOverlayLogger::log(std::string message, Severity level) {
-    sf::Text log_message(message, data::get_debug_font(), 14);
+    sf::Text log_message(data::get_debug_font(), message, 14);
     float offset = log_text.empty() ? 0.f 
-        : log_text.back().getGlobalBounds().top 
-        + log_text.back().getGlobalBounds().height;
-    log_message.setPosition(10.0f, 4.0f + offset);
+        : log_text.back().getGlobalBounds().position.y
+        + log_text.back().getGlobalBounds().size.y;
+    log_message.setPosition({10.0f, 4.0f + offset});
 
     switch(level) {
     case Severity::warning:
@@ -70,10 +70,10 @@ void SfmlOverlayLogger::log(std::string message, Severity level) {
     }
 
     const float log_height 
-        = log_message.getGlobalBounds().top 
-        + log_message.getLocalBounds().height;
+        = log_message.getGlobalBounds().position.y
+        + log_message.getLocalBounds().size.y;
     if( log_height > background.getSize().y) {
-        log_message.setPosition(10.0f, 4.0f);
+        log_message.setPosition({10.0f, 4.0f});
         log_text.clear();
     }
 
@@ -97,7 +97,7 @@ void SfmlOverlayLogger::set_visible(bool value) {
     is_visible = value;
 }
 
-void SfmlOverlayLogger::set_size(sf::Vector2i size) {
+void SfmlOverlayLogger::set_size(sf::Vector2u size) {
     sf::Vector2f f_size(size.x, size.y);
     background.setSize(f_size);
 }

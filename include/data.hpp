@@ -25,7 +25,7 @@ public:
     bool reload(ConfigFile &cfg_file);
 
     // window settings
-    sf::Vector2i get_window_size() const;
+    sf::Vector2u get_window_size() const;
     sf::Transform get_window_transform() const;
 
     // global mouse settings
